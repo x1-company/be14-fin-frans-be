@@ -30,15 +30,14 @@ public class UserCommandController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-
-    @PostMapping("/fr")
+    @PostMapping("/franchise")
     public ResponseEntity<Void> createFranchiseUser(@RequestBody FranchiseUserRequestVO franchiseUserRequestVO) {
         userCommandService.createFranchiseUser(franchiseUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/su")
+    @PostMapping("/supplier")
     public ResponseEntity<Void> createSupplierUser(@RequestBody SupplierUserRequestVO supplierUserRequestVO) {
         userCommandService.createSupplierUser(supplierUserRequestVO);
 
