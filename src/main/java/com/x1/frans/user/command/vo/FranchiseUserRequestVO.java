@@ -16,8 +16,9 @@ public class FranchiseUserRequestVO extends CreateUserRequestVO {
     private String franchiseName;
     private String address;
     private String addressDetail;
-    private String zipCode;
+    private String zipcode;
     private String businessNumber;
     private String franchisePhone;
     private LocalDateTime signedAt;
+    private Integer managerId;
 }

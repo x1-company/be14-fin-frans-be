@@ -1,6 +1,7 @@
 package com.x1.frans.user.command.controller;
 
 import com.x1.frans.user.command.service.UserCommandService;
+import com.x1.frans.user.command.vo.FranchiseUserRequestVO;
 import com.x1.frans.user.command.vo.HqUserRequestVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,12 @@ public class UserCommandController {
     }
 
 
-//    @PostMapping("/fr")
+    @PostMapping("/fr")
+    public ResponseEntity<?> createFranchiseUser(@RequestBody FranchiseUserRequestVO franchiseUserRequestVO) {
+        userCommandService.createFranchiseUser(franchiseUserRequestVO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
 //    @PostMapping("/su")
 }

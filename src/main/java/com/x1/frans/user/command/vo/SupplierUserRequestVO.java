@@ -17,5 +17,5 @@ public class SupplierUserRequestVO extends CreateUserRequestVO {
     private String address;
     private String zipCode;
     private String businessNumber;
-
+    private Integer hqUserId;
 }

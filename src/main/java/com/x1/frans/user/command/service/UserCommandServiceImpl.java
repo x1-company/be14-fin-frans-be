@@ -3,12 +3,19 @@ package com.x1.frans.user.command.service;
 import com.x1.frans.email.dto.UserCredentialsDTO;
 import com.x1.frans.email.service.EmailService;
 import com.x1.frans.exception.DuplicationException;
+import com.x1.frans.exception.InvalidAddressException;
 import com.x1.frans.exception.InvalidUserTypeException;
+import com.x1.frans.franchise.command.aggregate.FranchiseEntity;
+import com.x1.frans.franchise.command.repository.FranchiseCommandRepository;
+import com.x1.frans.franchise.query.service.FranchiseQueryService;
 import com.x1.frans.user.command.aggregate.HqUserDetailEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.HqUserDetailCommandRepository;
 import com.x1.frans.user.command.repository.UserCommandRepository;
+import com.x1.frans.user.command.vo.CreateUserRequestVO;
+import com.x1.frans.user.command.vo.FranchiseUserRequestVO;
 import com.x1.frans.user.command.vo.HqUserRequestVO;
+import com.x1.frans.user.common.SeoulDistrictCode;
 import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +33,18 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserCommandRepository userCommandRepository;
     private final HqUserDetailCommandRepository hqUserDetailCommandRepository;
+    private final FranchiseCommandRepository franchiseCommandRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserQueryService userQueryService;
     private final EmailService emailService;
+    private final FranchiseQueryService franchiseQueryService;
 
     @Autowired
     public UserCommandServiceImpl(UserCommandRepository userRepository,
                                   BCryptPasswordEncoder bCryptPasswordEncoder,
                                   HqUserDetailCommandRepository hqUserDetailRepository,
+                                  FranchiseCommandRepository franchiseCommandRepository,
+                                  FranchiseQueryService franchiseQueryService,
                                   EmailService emailService,
                                   UserQueryService userQueryService) {
         this.userCommandRepository = userRepository;
@@ -41,12 +52,58 @@ public class UserCommandServiceImpl implements UserCommandService {
         this.hqUserDetailCommandRepository = hqUserDetailRepository;
         this.emailService = emailService;
         this.userQueryService = userQueryService;
+        this.franchiseCommandRepository = franchiseCommandRepository;
+        this.franchiseQueryService = franchiseQueryService;
     }
 
     /**
-     * userType에 맞게 새로운 userCode 생성
-     * @param userType enum
-     * @return String newUserCode
+     * 본사(HQ) 사용자 계정을 생성
+     *
+     * @param vo 본사 사용자 요청 정보
+     */
+    @Transactional
+    @Override
+    public void createHqUser(HqUserRequestVO vo) {
+
+        validateUserCredentials(vo.getPhone(), vo.getEmail(), vo.getUserType());
+
+        UserType userType = UserType.valueOf(vo.getUserType());
+        UserCodeAndRawPw userCodeAndRawPw = generateUserCodeAndPassword(userType);
+        UserEntity savedUser = createAndSaveUser(vo, userCodeAndRawPw);
+
+        HqUserDetailEntity detail = buildHqUserDetail(savedUser, vo);
+        hqUserDetailCommandRepository.save(detail);
+
+        sendUserEmail(vo, userCodeAndRawPw);
+    }
+
+    /**
+     * 가맹점 사용자 계정을 생성하고 가맹점 정보를 저장
+     *
+     * @param vo 가맹점 사용자 요청 정보
+     */
+    @Transactional
+    @Override
+    public void createFranchiseUser(FranchiseUserRequestVO vo) {
+
+        validateUserCredentials(vo.getPhone(), vo.getEmail(), vo.getUserType());
+
+        UserType userType = UserType.valueOf(vo.getUserType());
+        UserCodeAndRawPw userCodeAndRawPw = generateUserCodeAndPassword(userType);
+        UserEntity savedUser = createAndSaveUser(vo, userCodeAndRawPw);
+
+        FranchiseEntity franchise = buildFranchise(savedUser, vo);
+        franchiseCommandRepository.save(franchise);
+
+        sendUserEmail(vo, userCodeAndRawPw);
+    }
+
+    /**
+     * 사용자 타입에 따라 새로운 userCode를 생성
+     * 형식: [접두사][yyyyMM][4자리 일련번호] (예: HQ2025060001)
+     *
+     * @param userType 사용자 타입 (ADMIN, HQ, FRANCHISE, SUPPLIER)
+     * @return 생성된 사용자 코드
      */
     private String createNewUserCode(UserType userType) {
 
@@ -78,8 +135,9 @@ public class UserCommandServiceImpl implements UserCommandService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * 초기 랜덤 비밀번호 6자리 생성
-     * @return String randomPassword
+     * 초기용 랜덤 비밀번호를 생성
+     *
+     * @return 생성된 랜덤 비밀번호
      */
     private String generateRandomPassword() {
         StringBuilder randomPassword = new StringBuilder();
@@ -92,12 +150,15 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     /**
-     * 유효한 전화번호, 이메일, 사용자 타입인지 확인
-     * @param phone 전화번호
-     * @param email 이메일
-     * @param userType 사용자 타입(ADMIN, HQ, FRANCHISE, SUPPLIER)
+     * 전화번호, 이메일, 사용자 타입이 유효한지 확인
+     *
+     * @param phone 사용자 전화번호
+     * @param email 사용자 이메일
+     * @param userType 사용자 타입 문자열 (ADMIN, HQ, FRANCHISE, SUPPLIER 중 하나)
+     * @throws DuplicationException 전화번호 또는 이메일 중복 시
+     * @throws InvalidUserTypeException 유효하지 않은 사용자 타입일 경우
      */
-    private void checkUserCredentials(String phone, String email, String userType) {
+    private void validateUserCredentials(String phone, String email, String userType) {
 
         // 전화번호 중복 체크
         if (userQueryService.isPhoneExist(phone)) {
@@ -118,31 +179,11 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     /**
-     * UserEntity 인스턴스 생성 후 값 할당
-     * @param vo 요청 시 body 정보
-     * @param userCode 새로 생성된 회원 코드
-     * @param encryptedPassword 암호화된 비밀번호
-     * @return UserEntity user
-     */
-    private UserEntity buildUser(HqUserRequestVO vo, String userCode, String encryptedPassword) {
-        UserEntity user = new UserEntity();
-        user.setCode(userCode);
-        user.setPassword(encryptedPassword);
-        user.setName(vo.getName());
-        user.setPhone(vo.getPhone());
-        user.setEmail(vo.getEmail());
-        user.setType(UserType.valueOf(vo.getUserType()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setIsTempPassword(true);
-        user.setProfileUrl(vo.getProfileUrl());
-        return user;
-    }
-
-    /**
-     * HqUserDetailEntity 인스턴스 생성 후 값 할당
-     * @param savedUser 새로 생성될 user
-     * @param vo 요청 시 body 정보
-     * @return HqUserDetailEntity detail
+     * HqUserDetailEntity를 생성하여 값들을 설정
+     *
+     * @param savedUser 생성된 사용자
+     * @param vo 본사 사용자 요청 VO
+     * @return 설정된 HqUserDetailEntity
      */
     private HqUserDetailEntity buildHqUserDetail(UserEntity savedUser, HqUserRequestVO vo) {
         HqUserDetailEntity detail = new HqUserDetailEntity();
@@ -154,54 +195,100 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     /**
-     * 이메일 발송에 필요한 인스턴스 생성 후 값 할당
-     * @param vo 요청 시 body 정보
-     * @param userCode 새로 생성된 회원 코드
-     * @param rawPassword 암호화되지 않은 비밀번호
-     * @return UserCredentialsDTO dto
+     * FranchiseEntity를 생성하여 값들을 설정
+     *
+     * @param savedUser 가맹점 대표 사용자
+     * @param vo 가맹점 요청 정보
+     * @return 설정된 FranchiseEntity
      */
-    private UserCredentialsDTO buildUserCredentials(HqUserRequestVO vo, String userCode, String rawPassword) {
-        UserCredentialsDTO dto = new UserCredentialsDTO();
-        dto.setTo(vo.getEmail());
-        dto.setName(vo.getName());
-        dto.setUserCode(userCode);
-        dto.setRawPassword(rawPassword);
-        return dto;
+    private FranchiseEntity buildFranchise(UserEntity savedUser, FranchiseUserRequestVO vo) {
+        FranchiseEntity franchise = new FranchiseEntity();
+        franchise.setCode(createNewFranchiseCode(vo.getAddress(), vo.getSignedAt()));
+        franchise.setName(vo.getName());
+        franchise.setAddress(vo.getAddress());
+        franchise.setAddressDetail(vo.getAddressDetail());
+        franchise.setZipcode(vo.getZipcode());
+        franchise.setBusinessNumber(vo.getBusinessNumber());
+        franchise.setPhone(vo.getFranchisePhone());
+        franchise.setSignedAt(vo.getSignedAt());
+        franchise.setIsActive(true);
+        franchise.setOwner(savedUser);
+        franchise.setManagerId(vo.getManagerId());
+        return franchise;
+    }
+    
+    private record UserCodeAndRawPw(String userCode, String rawPassword) {}
+
+    /**
+     * 사용자 코드와 랜덤 비밀번호를 생성
+     *
+     * @param userType 사용자 타입
+     * @return 사용자 코드와 평문 비밀번호가 포함된 UserCodeAndRawPw
+     */
+    private UserCodeAndRawPw generateUserCodeAndPassword(UserType userType) {
+        String userCode = createNewUserCode(userType);
+        String rawPassword = generateRandomPassword();
+        return new UserCodeAndRawPw(userCode, rawPassword);
     }
 
     /**
-     * 본사 직원 계정 생성
-     * @param hqUserRequestVO 본사 계정 생성 시 필요한 정보
+     * 비밀번호 암호화 후 user 저장
+     * @param vo 사용자 생성 요청 데이터
+     * @param userCodeAndRawPw 생성된 사용자 코드와 평문 비밀번호
+     * @return UserEntity
      */
-    @Transactional
-    @Override
-    public void createHqUser(HqUserRequestVO hqUserRequestVO) {
+    private UserEntity createAndSaveUser(CreateUserRequestVO vo, UserCodeAndRawPw userCodeAndRawPw) {
+        String encryptedPassword = bCryptPasswordEncoder.encode(userCodeAndRawPw.rawPassword());
+        UserEntity user = vo.toUserEntity(userCodeAndRawPw.userCode(), encryptedPassword);
+        return userCommandRepository.save(user);
+    }
 
-        checkUserCredentials(hqUserRequestVO.getPhone(),
-                                hqUserRequestVO.getEmail(),
-                                hqUserRequestVO.getUserType());
-
-        UserType userTypeEnum = UserType.valueOf(hqUserRequestVO.getUserType());
-
-        // 새로운 userCode 생성
-        String userCode = createNewUserCode(userTypeEnum);
-
-        // 랜덤 비밀번호 생성
-        String randomPw = generateRandomPassword();
-
-        // 생성된 비밀번호 암호화
-        String encryptedPassword = bCryptPasswordEncoder.encode(randomPw);
-
-        // user 정보 저장
-        UserEntity user = buildUser(hqUserRequestVO, userCode, encryptedPassword);
-        UserEntity savedUser = userCommandRepository.save(user);
-        
-        // hqUserDetail 정보 저장
-        HqUserDetailEntity detail = buildHqUserDetail(savedUser, hqUserRequestVO);
-        hqUserDetailCommandRepository.save(detail);
-
-        // 유저에게 메일 발송
-        UserCredentialsDTO dto = buildUserCredentials(hqUserRequestVO, userCode, randomPw);
+    /**
+     * 사용자에게 계정 정보(아이디, 초기 비밀번호)를 이메일로 발송
+     *
+     * @param vo 사용자 요청 정보
+     * @param userCodeAndRawPw 사용자 코드와 평문 비밀번호
+     */
+    private void sendUserEmail(CreateUserRequestVO vo, UserCodeAndRawPw userCodeAndRawPw) {
+        UserCredentialsDTO dto = new UserCredentialsDTO();
+        dto.setTo(vo.getEmail());
+        dto.setName(vo.getName());
+        dto.setUserCode(userCodeAndRawPw.userCode());
+        dto.setRawPassword(userCodeAndRawPw.rawPassword());
         emailService.sendUserCredentials(dto);
+    }
+
+    /**
+     * 새로운 가맹점 코드 생성
+     *
+     * @param address 주소 정보
+     * @param signedAt 계약 일자
+     */
+    private String createNewFranchiseCode(String address, LocalDateTime signedAt) {
+        // 주소에서 서울의 25개 행정구 중 하나인지 확인
+        String matchedDistrict = SeoulDistrictCode.CODES.keySet().stream()
+                .filter(address::contains)
+                .findFirst()
+                .orElseThrow(() -> new InvalidAddressException("주소에 유효한 서울 행정구가 포함되어 있지 않습니다."));
+
+        // 행정구에 맞게 코드 prefix
+        String prefix = SeoulDistrictCode.CODES.get(matchedDistrict);
+
+        // yyyyMM 포맷
+        String yearMonth = signedAt.format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        String codePrefix = prefix + yearMonth;
+
+        // 해당 prefix + yearMonth를 포함하는 코드 검색
+        String latestCode = franchiseQueryService.findLatestCodeByPrefixAndYearMonth(codePrefix);
+
+        // 코드 생성 후 반환
+        if (latestCode == null) {
+            return codePrefix + "0001";
+        } else {
+            String last4Digits = latestCode.substring(latestCode.length() - 4);
+            int nextNumber = Integer.parseInt(last4Digits) + 1;
+            return codePrefix + String.format("%04d", nextNumber);
+        }
     }
 }
