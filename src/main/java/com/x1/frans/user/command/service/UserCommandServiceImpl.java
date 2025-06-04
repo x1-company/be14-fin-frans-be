@@ -8,6 +8,9 @@ import com.x1.frans.exception.InvalidUserTypeException;
 import com.x1.frans.franchise.command.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.repository.FranchiseCommandRepository;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
+import com.x1.frans.supplier.command.aggregate.SupplierEntity;
+import com.x1.frans.supplier.command.repository.SupplierCommandRepository;
+import com.x1.frans.supplier.query.service.SupplierQueryService;
 import com.x1.frans.user.command.aggregate.HqUserDetailEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.HqUserDetailCommandRepository;
@@ -15,6 +18,7 @@ import com.x1.frans.user.command.repository.UserCommandRepository;
 import com.x1.frans.user.command.vo.CreateUserRequestVO;
 import com.x1.frans.user.command.vo.FranchiseUserRequestVO;
 import com.x1.frans.user.command.vo.HqUserRequestVO;
+import com.x1.frans.user.command.vo.SupplierUserRequestVO;
 import com.x1.frans.user.common.SeoulDistrictCode;
 import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
@@ -38,13 +42,17 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final UserQueryService userQueryService;
     private final EmailService emailService;
     private final FranchiseQueryService franchiseQueryService;
+    private final SupplierCommandRepository supplierCommandRepository;
+    private final SupplierQueryService supplierQueryService;
 
     @Autowired
     public UserCommandServiceImpl(UserCommandRepository userRepository,
                                   BCryptPasswordEncoder bCryptPasswordEncoder,
                                   HqUserDetailCommandRepository hqUserDetailRepository,
                                   FranchiseCommandRepository franchiseCommandRepository,
+                                  SupplierCommandRepository supplierCommandRepository,
                                   FranchiseQueryService franchiseQueryService,
+                                  SupplierQueryService supplierQueryService,
                                   EmailService emailService,
                                   UserQueryService userQueryService) {
         this.userCommandRepository = userRepository;
@@ -54,6 +62,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         this.userQueryService = userQueryService;
         this.franchiseCommandRepository = franchiseCommandRepository;
         this.franchiseQueryService = franchiseQueryService;
+        this.supplierCommandRepository = supplierCommandRepository;
+        this.supplierQueryService = supplierQueryService;
     }
 
     /**
@@ -99,35 +109,24 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     /**
-     * 사용자 타입에 따라 새로운 userCode를 생성
-     * 형식: [접두사][yyyyMM][4자리 일련번호] (예: HQ2025060001)
+     * 공급처 사용자 계정을 생성하고 공급처 정보를 저장
      *
-     * @param userType 사용자 타입 (ADMIN, HQ, FRANCHISE, SUPPLIER)
-     * @return 생성된 사용자 코드
+     * @param vo 공급처 사용자 요청 정보
      */
-    private String createNewUserCode(UserType userType) {
+    @Transactional
+    @Override
+    public void createSupplierUser(SupplierUserRequestVO vo) {
 
-        // prefix 설정
-        String prefix = switch (userType) {
-            case ADMIN -> "AD";
-            case HQ -> "HQ";
-            case FRANCHISE -> "FR";
-            case SUPPLIER -> "SU";
-        };
+        validateUserCredentials(vo.getPhone(), vo.getEmail(), vo.getUserType());
 
-        // yyyyMM 포맷
-        String yearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
-        String codePrefix = prefix + yearMonth;
+        UserType userType = UserType.valueOf(vo.getUserType());
+        UserCodeAndRawPw userCodeAndRawPw = generateUserCodeAndPassword(userType);
+        UserEntity savedUser = createAndSaveUser(vo, userCodeAndRawPw);
 
-        // 가장 최근 코드 조회
-        String latestUserCode = userQueryService.findLatestUserCode(userType.name(), codePrefix);
-        if (latestUserCode == null) {
-            return codePrefix + "0001";
-        } else {
-            String last4Digits = latestUserCode.substring(latestUserCode.length() - 4);
-            int nextNumber = Integer.parseInt(last4Digits) + 1;
-            return codePrefix + String.format("%04d", nextNumber);
-        }
+        SupplierEntity supplier = buildSupplier(savedUser, vo);
+        supplierCommandRepository.save(supplier);
+
+        sendUserEmail(vo, userCodeAndRawPw);
     }
 
     private static final String CHAR_POOL = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -216,7 +215,33 @@ public class UserCommandServiceImpl implements UserCommandService {
         franchise.setManagerId(vo.getManagerId());
         return franchise;
     }
-    
+
+    /**
+     * SupplierEntity를 생성하여 값들을 설정
+     *
+     * @param savedUser 공급처 사용자
+     * @param vo 공급처 요청 정보
+     * @return 설정된 SupplierEntity
+     */
+    private SupplierEntity buildSupplier(UserEntity savedUser, SupplierUserRequestVO vo) {
+        SupplierEntity supplier = new SupplierEntity();
+        supplier.setCode(createNewSupplierCode(vo.getSignedAt()));
+        supplier.setName(vo.getSupplierName());
+        supplier.setCeoName(vo.getCeoName());
+        supplier.setCompanyPhone(vo.getCompanyPhone());
+        supplier.setAddress(vo.getAddress());
+        supplier.setZipcode(vo.getZipcode());
+        supplier.setBusinessNumber(vo.getBusinessNumber());
+        supplier.setSignedAt(vo.getSignedAt());
+        supplier.setIsActive(true);
+        supplier.setCreatedAt(LocalDateTime.now());
+        supplier.setUpdatedAt(LocalDateTime.now());
+        supplier.setManagerId(vo.getManagerId());
+        supplier.setSupplier(savedUser);
+
+        return supplier;
+    }
+
     private record UserCodeAndRawPw(String userCode, String rawPassword) {}
 
     /**
@@ -259,6 +284,47 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     /**
+     * 공통 코드 생성 로직
+     *
+     * @param codePrefix 접미사
+     * @param latestCode 가장 최근 코드
+     * @return 새로운 코드
+     */
+    private String generateSequentialCode(String codePrefix, String latestCode) {
+        int nextNumber = (latestCode == null)
+                ? 1
+                : Integer.parseInt(latestCode.substring(latestCode.length() - 4)) + 1;
+        return codePrefix + String.format("%04d", nextNumber);
+    }
+
+    /**
+     * 사용자 타입에 따라 새로운 userCode를 생성
+     * 형식: [접두사][yyyyMM][4자리 일련번호] (예: HQ2025060001)
+     *
+     * @param userType 사용자 타입 (ADMIN, HQ, FRANCHISE, SUPPLIER)
+     * @return 생성된 사용자 코드
+     */
+    private String createNewUserCode(UserType userType) {
+
+        // prefix 설정
+        String prefix = switch (userType) {
+            case ADMIN -> "AD";
+            case HQ -> "HQ";
+            case FRANCHISE -> "FR";
+            case SUPPLIER -> "SU";
+        };
+
+        // yyyyMM 포맷
+        String yearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String codePrefix = prefix + yearMonth;
+
+        // 해당 prefix + yearMonth를 포함하는 코드 검색
+        String latestCode = userQueryService.findLatestUserCode(userType.name(), codePrefix);
+
+        return generateSequentialCode(codePrefix, latestCode);
+    }
+
+    /**
      * 새로운 가맹점 코드 생성
      *
      * @param address 주소 정보
@@ -282,13 +348,26 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 해당 prefix + yearMonth를 포함하는 코드 검색
         String latestCode = franchiseQueryService.findLatestCodeByPrefixAndYearMonth(codePrefix);
 
-        // 코드 생성 후 반환
-        if (latestCode == null) {
-            return codePrefix + "0001";
-        } else {
-            String last4Digits = latestCode.substring(latestCode.length() - 4);
-            int nextNumber = Integer.parseInt(last4Digits) + 1;
-            return codePrefix + String.format("%04d", nextNumber);
-        }
+        return generateSequentialCode(codePrefix, latestCode);
+    }
+
+    /**
+     * 새로운 공급처 코드 생성
+     *
+     * @param signedAt 계약 일자
+     */
+    private String createNewSupplierCode(LocalDateTime signedAt) {
+
+        String prefix = "SPG"; // supplier general
+
+        // yyyyMM 포맷
+        String yearMonth = signedAt.format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        String codePrefix = prefix + yearMonth;
+
+        // 해당 prefix + yearMonth를 포함하는 코드 검색
+        String latestCode = supplierQueryService.findLatestCodeByCodePrefix(codePrefix);
+
+        return generateSequentialCode(codePrefix, latestCode);
     }
 }

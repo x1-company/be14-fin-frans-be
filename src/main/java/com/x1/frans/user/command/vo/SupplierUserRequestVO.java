@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -15,7 +17,8 @@ public class SupplierUserRequestVO extends CreateUserRequestVO {
     private String ceoName;
     private String companyPhone;
     private String address;
-    private String zipCode;
+    private String zipcode;
     private String businessNumber;
-    private Integer hqUserId;
+    private LocalDateTime signedAt;
+    private Integer managerId;
 }

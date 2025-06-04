@@ -3,6 +3,7 @@ package com.x1.frans.user.command.controller;
 import com.x1.frans.user.command.service.UserCommandService;
 import com.x1.frans.user.command.vo.FranchiseUserRequestVO;
 import com.x1.frans.user.command.vo.HqUserRequestVO;
+import com.x1.frans.user.command.vo.SupplierUserRequestVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class UserCommandController {
     }
 
     @PostMapping("/hq")
-    public ResponseEntity<?> createHqUser(@RequestBody HqUserRequestVO hqUserRequestVO) {
+    public ResponseEntity<Void> createHqUser(@RequestBody HqUserRequestVO hqUserRequestVO) {
         userCommandService.createHqUser(hqUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -31,11 +32,16 @@ public class UserCommandController {
 
 
     @PostMapping("/fr")
-    public ResponseEntity<?> createFranchiseUser(@RequestBody FranchiseUserRequestVO franchiseUserRequestVO) {
+    public ResponseEntity<Void> createFranchiseUser(@RequestBody FranchiseUserRequestVO franchiseUserRequestVO) {
         userCommandService.createFranchiseUser(franchiseUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-//    @PostMapping("/su")
+    @PostMapping("/su")
+    public ResponseEntity<Void> createSupplierUser(@RequestBody SupplierUserRequestVO supplierUserRequestVO) {
+        userCommandService.createSupplierUser(supplierUserRequestVO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
