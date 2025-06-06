@@ -27,4 +27,38 @@
              WHERE `phone` = #{phone}
         )
     </select>
+
+    <resultMap id="findByCodeResultMap" type="com.x1.frans.user.command.aggregate.UserEntity">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="type" column="type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isDeleted" column="is_deleted" javaType="java.lang.Boolean"/>
+        <result property="isLocked" column="is_locked" javaType="java.lang.Boolean"/>
+        <result property="isTempPassword" column="is_temp_password" javaType="java.lang.Boolean"/>
+        <result property="signUrl" column="sign_url"/>
+        <result property="profileUrl" column="profile_url"/>
+    </resultMap>
+    <select id="findByCode" resultMap="findByCodeResultMap">
+        SELECT
+               `id`
+             , `code`
+             , `password`
+             , `name`
+             , `phone`
+             , `email`
+             , `type`
+             , `created_at`
+             , `is_deleted`
+             , `is_locked`
+             , `is_temp_password`
+             , `sign_url`
+             , `profile_url`
+          FROM `user`
+         WHERE `code` = #{userCode}
+    </select>
 </mapper>
