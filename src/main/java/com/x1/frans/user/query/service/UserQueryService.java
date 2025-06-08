@@ -1,6 +1,8 @@
 package com.x1.frans.user.query.service;
 
-public interface UserQueryService {
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public interface UserQueryService extends UserDetailsService {
 
     String findLatestUserCode(String userType, String codePrefix);
 
