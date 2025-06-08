@@ -1,10 +1,9 @@
 package com.x1.frans.user.command.service;
 
+import com.x1.frans.auth.command.application.vo.ChangePasswordRequestVO;
 import com.x1.frans.email.dto.UserCredentialsDTO;
 import com.x1.frans.email.service.EmailService;
-import com.x1.frans.exception.DuplicationException;
-import com.x1.frans.exception.InvalidAddressException;
-import com.x1.frans.exception.InvalidUserTypeException;
+import com.x1.frans.exception.*;
 import com.x1.frans.franchise.command.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.repository.FranchiseCommandRepository;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
@@ -24,6 +23,7 @@ import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +44,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final FranchiseQueryService franchiseQueryService;
     private final SupplierCommandRepository supplierCommandRepository;
     private final SupplierQueryService supplierQueryService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserCommandServiceImpl(UserCommandRepository userRepository,
@@ -54,7 +55,8 @@ public class UserCommandServiceImpl implements UserCommandService {
                                   FranchiseQueryService franchiseQueryService,
                                   SupplierQueryService supplierQueryService,
                                   EmailService emailService,
-                                  UserQueryService userQueryService) {
+                                  UserQueryService userQueryService,
+                                  PasswordEncoder passwordEncoder) {
         this.userCommandRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.hqUserDetailCommandRepository = hqUserDetailRepository;
@@ -64,6 +66,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         this.franchiseQueryService = franchiseQueryService;
         this.supplierCommandRepository = supplierCommandRepository;
         this.supplierQueryService = supplierQueryService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -127,6 +130,26 @@ public class UserCommandServiceImpl implements UserCommandService {
         supplierCommandRepository.save(supplier);
 
         sendUserEmail(vo, userCodeAndRawPw);
+    }
+
+    /**
+     * 비밀번호 변경
+     *
+     * @param vo 비밀번호 변경 요청 정보
+     */
+    @Transactional
+    @Override
+    public void changePassword(Integer userId, ChangePasswordRequestVO vo) {
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("해당 유저는 존재하지 않습니다."));
+
+        if (!passwordEncoder.matches(vo.getOldPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        String newEncodedPassword = bCryptPasswordEncoder.encode(vo.getNewPassword());
+        user.setPassword(newEncodedPassword);
+        user.setIsTempPassword(false);
     }
 
     private static final String CHAR_POOL = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
