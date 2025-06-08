@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
     @Bean
-    public GroupedOpenApi group1() {
+    public GroupedOpenApi userApi() {
         return GroupedOpenApi.builder()
                 .group("유저")
                 .pathsToMatch("/user/*")
@@ -16,7 +16,7 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi group2() {
+    public GroupedOpenApi orderApi() {
         return GroupedOpenApi.builder()
                 .group("주문")
                 .pathsToMatch("/api/order/**")
