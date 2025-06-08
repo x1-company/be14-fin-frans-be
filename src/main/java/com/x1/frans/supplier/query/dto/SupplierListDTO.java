@@ -10,10 +10,12 @@ import lombok.*;
 @ToString
 public class SupplierListDTO {
 
+    @Schema(description = "공급처 id")
+    private int id;
     @Schema(description = "공급처 이름")
-    String name;
+    private String name;
     @Schema(description = "대표자 이름")
-    String ceoName;
+    private String ceoName;
     @Schema(description = "회사 대표 전화번호")
-    String companyPhone;
+    private String companyPhone;
 }

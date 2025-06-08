@@ -17,7 +17,9 @@
         <result property="companyPhone" column="company_phone"/>
     </resultMap>
     <select id="findSupplierList" resultMap="findSupplierListMap">
-        SELECT name
+        SELECT
+               id
+             , name
              , ceo_name
              , company_phone
           FROM supplier
