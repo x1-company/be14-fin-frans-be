@@ -14,5 +14,10 @@ import java.time.LocalDateTime;
 public class ErrorResponseDTO {
     private String errorCode;
     private String message;
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp = LocalDateTime.now();
+
+    public ErrorResponseDTO(String errorCode, String message) {
+        this.errorCode = errorCode;
+        this.message = message;
+    }
 }

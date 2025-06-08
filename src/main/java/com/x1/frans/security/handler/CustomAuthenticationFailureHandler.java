@@ -1,11 +1,13 @@
 package com.x1.frans.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.x1.frans.exception.dto.ErrorResponseDTO;
+import com.x1.frans.exception.enums.ErrorCode;
 import com.x1.frans.security.exception.AccountDeletedException;
 import com.x1.frans.security.exception.AccountLockedException;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,28 +15,30 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Map;
 
 @Component
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    public CustomAuthenticationFailureHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        AuthenticationException exception) throws IOException, ServletException {
+                                        AuthenticationException exception) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json; charset=UTF-8");
 
         String message = getMessage(exception);
 
-        String body = new ObjectMapper().writeValueAsString(Map.of(
-                "errorCode", "AUTH_FAILED",
-                "message", message,
-                "timestamp", LocalDateTime.now().toString()
-        ));
-
-        response.getWriter().write(body);
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                ErrorCode.AUTH_FAILED.getCode(),
+                message);
+        objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 
     private static String getMessage(AuthenticationException exception) {
