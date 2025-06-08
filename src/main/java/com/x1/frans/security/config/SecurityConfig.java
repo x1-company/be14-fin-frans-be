@@ -71,9 +71,9 @@ public class SecurityConfig {
 
                 // TODO: 개발용 설정. 배포 시 변경 필요
                 authorize
-//                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/auth/reissue").permitAll()
-                        .requestMatchers("/**").hasRole("ADMIN"))
+                        .requestMatchers("/**").permitAll())
+//                        .requestMatchers("/auth/reissue").permitAll()
+//                        .requestMatchers("/**").hasRole("ADMIN"))
                 .authenticationManager(authenticationManager())
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
