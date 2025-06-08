@@ -43,4 +43,25 @@ public class CustomUserDetails implements UserDetails {
     public Boolean getIsTempPassword() {
         return user.getIsTempPassword();
     }
+
+    // 주의. org.springframework.boot version 3.5.0 => 3.2.5로 변경하면서 필수적으로 오버라딩해야 하는 메소드들
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
 }
