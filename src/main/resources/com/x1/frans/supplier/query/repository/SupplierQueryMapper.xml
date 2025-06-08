@@ -21,7 +21,8 @@
         <result property="updatedAt" column="updated_at" />
     </resultMap>
     <select id="getSupplierDetail" resultMap="supplierDetail">
-        SELECT id
+        SELECT
+               id
              , code
              , name
              , ceo_name
