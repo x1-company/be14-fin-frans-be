@@ -77,13 +77,7 @@ public class JwtUtil {
     }
 
     public void validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-        } catch (ExpiredJwtException e) {
-            throw e;
-        } catch (JwtException e) {
-            throw e;
-        }
+        Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
     }
 
     public String getUserCode(String token) {

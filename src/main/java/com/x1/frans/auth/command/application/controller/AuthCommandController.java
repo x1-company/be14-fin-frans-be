@@ -31,9 +31,4 @@ public class AuthCommandController {
 
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/test")
-    public ResponseEntity<Void> testAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        return ResponseEntity.ok().build();
-    }
 }
