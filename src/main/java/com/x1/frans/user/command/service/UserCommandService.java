@@ -12,5 +12,5 @@ public interface UserCommandService {
 
     void createSupplierUser(SupplierUserRequestVO supplierUserRequestVO);
 
-    void changePassword(Integer userId, ChangePasswordRequestVO changePasswordRequestVO);
+    void changePassword(Long userId, ChangePasswordRequestVO changePasswordRequestVO);
 }

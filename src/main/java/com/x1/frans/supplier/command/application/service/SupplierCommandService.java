@@ -4,6 +4,6 @@ import com.x1.frans.supplier.command.vo.SupplierUpdateRequestVO;
 
 public interface SupplierCommandService {
 
-    void updateSupplier(int userId, int supplierId, SupplierUpdateRequestVO supplierUpdateRequestVO);
+    void updateSupplier(long userId, long supplierId, SupplierUpdateRequestVO supplierUpdateRequestVO);
 
 }

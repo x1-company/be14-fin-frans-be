@@ -20,5 +20,5 @@ public class SupplierUserRequestVO extends CreateUserRequestVO {
     private String zipcode;
     private String businessNumber;
     private LocalDateTime signedAt;
-    private Integer managerId;
+    private Long managerId;
 }
