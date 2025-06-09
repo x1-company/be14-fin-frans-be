@@ -1,5 +1,6 @@
 package com.x1.frans.supplier.query.service;
 
+import com.x1.frans.supplier.query.dto.SupplierDetailDTO;
 import com.x1.frans.supplier.query.dto.SupplierListDTO;
 import com.x1.frans.supplier.query.repository.SupplierQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,10 @@ public class SupplierQueryServiceImpl implements SupplierQueryService {
     @Override
     public List<SupplierListDTO> getAllSuppliers() {
         return supplierQueryMapper.findSupplierList();
+    }
+
+    @Override
+    public SupplierDetailDTO getSupplierDetail(int supplierId) {
+        return supplierQueryMapper.getSupplierDetail(supplierId);
     }
 }
