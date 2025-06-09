@@ -6,6 +6,7 @@ import com.x1.frans.supplier.query.service.SupplierQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import com.x1.frans.supplier.command.aggregate.SupplierEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,8 @@ import java.util.List;
 @RequestMapping("/supplier")
 @Slf4j
 public class SupplierQueryController {
-    private final SupplierQueryService supplierQueryService;
+
+    public final SupplierQueryService supplierQueryService;
 
     @Autowired
     public SupplierQueryController(SupplierQueryService supplierQueryService) {
