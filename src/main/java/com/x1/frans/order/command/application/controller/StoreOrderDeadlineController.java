@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/order/deadline")
+@RequestMapping("/api/orders/deadline")
 @Tag(name = "📝 주문", description = "orders")
 public class StoreOrderDeadlineController {
 
