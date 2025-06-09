@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 public class SearchFranchiseUserDTO extends SearchUserDTO {
 
-    private Integer franchiseId;
+    private Long franchiseId;
     private String franchiseCode;
     private String franchiseName;
     private String franchiseAddress;

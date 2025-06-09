@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 public class SearchSupplierUserDTO extends SearchUserDTO {
 
-    private Integer supplierId;
+    private Long supplierId;
     private String supplierCode;
     private String supplierName;
     private String supplierCeoName;

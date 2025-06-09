@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class SearchHqUserDTO extends SearchUserDTO {
 
-    private Integer departmentId;
+    private Long departmentId;
     private String departmentName;
     private Integer dutyId;
     private String dutyName;
