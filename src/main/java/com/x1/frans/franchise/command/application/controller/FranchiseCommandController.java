@@ -24,7 +24,7 @@ public class FranchiseCommandController {
 
 
     @Operation(summary = "가맹점 정보 수정", description = "가맹점 정보를 수정합니다.")
-    @PutMapping("update/{franchiseId}")
+    @PutMapping("{franchiseId}/update")
     public ResponseEntity<Void> UpdateFranchiseInfo(@PathVariable("franchiseId") int franchiseId,
                                                     @RequestBody UpdateFranchiseRequestVO vo,
                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails) {
