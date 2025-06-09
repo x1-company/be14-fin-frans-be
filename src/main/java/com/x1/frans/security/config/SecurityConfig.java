@@ -12,6 +12,7 @@ import com.x1.frans.security.handler.CustomAuthenticationFailureHandler;
 import com.x1.frans.security.util.JwtUtil;
 import com.x1.frans.user.query.service.UserQueryService;
 import jakarta.servlet.Filter;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +22,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.Collections;
 
 @Configuration
 public class SecurityConfig {
@@ -69,14 +68,27 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize ->
 
-                // TODO: 개발용 설정. 배포 시 변경 필요
-                authorize
-                        .requestMatchers("/**").permitAll())
-//                        .requestMatchers("/auth/reissue").permitAll()
-//                        .requestMatchers("/**").hasRole("ADMIN"))
-                .authenticationManager(authenticationManager())
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        // TODO: 개발용 설정. 배포 시 변경 필요
+                        authorize
+                                .requestMatchers("/**").permitAll()
+//                              .requestMatchers("/auth/reissue").permitAll()
+//                              .requestMatchers("/**").hasRole("ADMIN"))
+
+                                // 본사 전용
+                                .requestMatchers("/api/hq/**").hasRole("HQ")
+
+                                // 가맹점 전용
+                                .requestMatchers("/api/franchise/**").hasRole("FRANCHISE")
+
+                                // 공급사 전용 예시
+                                .requestMatchers("/api/supplier/**").hasRole("SUPPLIER")
+                
+        );
+
+        http.authenticationManager(authenticationManager());
+
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userQueryService, objectMapper),
                 AuthenticationFilter.class);
