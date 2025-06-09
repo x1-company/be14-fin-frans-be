@@ -1,6 +1,7 @@
 package com.x1.frans.security;
 
 import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.enums.UserType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -42,6 +43,10 @@ public class CustomUserDetails implements UserDetails {
 
     public Boolean getIsTempPassword() {
         return user.getIsTempPassword();
+    }
+
+    public UserType getUserType() {
+        return user.getType();
     }
 
     // 주의. org.springframework.boot version 3.5.0 => 3.2.5로 변경하면서 필수적으로 오버라딩해야 하는 메소드들
