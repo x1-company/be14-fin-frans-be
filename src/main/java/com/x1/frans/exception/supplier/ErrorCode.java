@@ -8,10 +8,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
-//    SUPPLIER_NOT_FOUND("SUPPLIER_NOT_FOUND", HttpStatus.NOT_FOUND),
-//    USER_NOT_FOUND("USER_NOT_FOUND", HttpStatus.NOT_FOUND),
-//    UNAUTHORIZED_ACCESS("UNAUTHORIZED_ACCESS", HttpStatus.UNAUTHORIZED);
-
     SUPPLIER_NOT_FOUND("해당 공급처가 존재하지 않습니다."),
     USER_NOT_FOUND("해당 사용자가 존재하지 않습니다."),
     UNAUTHORIZED_ACCESS("접근 권한이 없습니다.");
