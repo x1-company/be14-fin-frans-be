@@ -1,5 +1,6 @@
 package com.x1.frans.order.command.application.service;
 
+import com.x1.frans.exception.DuplicateDeadlineTimeException;
 import com.x1.frans.order.command.domain.aggregate.StoreOrderDeadline;
 import com.x1.frans.order.command.domain.repository.StoreOrderDeadlineRepository;
 import java.time.LocalTime;
@@ -23,8 +24,12 @@ public class StoreOrderDeadlineServiceImpl implements StoreOrderDeadlineService 
             storeOrderDeadlineRepository.save(newDeadline);
             return true;
         } else {
+            if (deadline.getOrderDeadlineAt().equals(deadlineTime)) {
+                throw new DuplicateDeadlineTimeException("기존과 동일한 주문 마감 시간입니다.");
+            }
             deadline.updateDeadlineTime(deadlineTime);
             return false;
         }
     }
+
 }
