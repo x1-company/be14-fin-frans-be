@@ -32,7 +32,7 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return user.getId();
     }
 

@@ -20,5 +20,5 @@ public class FranchiseUserRequestVO extends CreateUserRequestVO {
     private String businessNumber;
     private String franchisePhone;
     private LocalDateTime signedAt;
-    private Integer managerId;
+    private Long managerId;
 }

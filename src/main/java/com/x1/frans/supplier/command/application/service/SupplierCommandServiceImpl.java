@@ -22,7 +22,7 @@ public class SupplierCommandServiceImpl implements SupplierCommandService{
 
     @Transactional
     @Override
-    public void updateSupplier(int userId, int supplierId, SupplierUpdateRequestVO supplierUpdateRequestVO) {
+    public void updateSupplier(long userId, long supplierId, SupplierUpdateRequestVO supplierUpdateRequestVO) {
 
         SupplierEntity supplier = supplierCommandRepository.findById(supplierId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPLIER_NOT_FOUND));

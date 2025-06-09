@@ -16,18 +16,18 @@ public class HqUserDetailEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @Column(name = "department_id")
-    private Integer departmentId;
+    private Long departmentId;
 
     @Column(name = "position_id")
-    private Integer positionId;
+    private Long positionId;
 
     @Column(name = "duty_id")
-    private Integer dutyId;
+    private Long dutyId;
 }

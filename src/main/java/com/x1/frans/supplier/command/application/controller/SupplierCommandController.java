@@ -26,11 +26,11 @@ public class SupplierCommandController {
 
     @Operation(summary = "공급처 정보 수정", description = "공급처 정보를 수정합니다.")
     @PutMapping("/edit/{supplierId}")
-    public ResponseEntity<Void> updateSupplier(@PathVariable("supplierId") int supplierId,
+    public ResponseEntity<Void> updateSupplier(@PathVariable("supplierId") long supplierId,
                                                @RequestBody SupplierUpdateRequestVO supplierUpdateRequestVO,
                                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        int userId = customUserDetails.getUserId();
+        long userId = customUserDetails.getUserId();
         supplierCommandService.updateSupplier(userId, supplierId, supplierUpdateRequestVO);
 
         return ResponseEntity.noContent().build();
