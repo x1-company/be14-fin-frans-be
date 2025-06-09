@@ -1,4 +1,4 @@
-package com.x1.frans.supplier.command.aggregate;
+package com.x1.frans.supplier.command.domain.aggregate;
 
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
