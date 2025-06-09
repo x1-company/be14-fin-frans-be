@@ -7,5 +7,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface SupplierQueryMapper {
     String findLatestCodeByCodePrefix(String codePrefix);
 
-    SupplierDetailDTO getSupplierDetail(Long supplierId);
+    SupplierDetailDTO getSupplierDetail(int supplierId);
 }

@@ -24,7 +24,7 @@ public class SupplierQueryController {
 
     @Operation(summary = "공급처 상세 조회", description = "공급처 상세 조회합니다.")
     @GetMapping("/detail/{supplierId}")
-    public ResponseEntity<SupplierDetailDTO> detail(@PathVariable("supplierId") long supplierId) {
+    public ResponseEntity<SupplierDetailDTO> detail(@PathVariable("supplierId") int supplierId) {
         SupplierDetailDTO detail = supplierQueryService.getSupplierDetail(supplierId);
 
         return ResponseEntity.ok(detail);
