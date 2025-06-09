@@ -11,6 +11,21 @@
          LIMIT 1
     </select>
 
+    <resultMap id="findSupplierListMap" type="com.x1.frans.supplier.query.dto.SupplierListDTO">
+        <result property="name" column="name"/>
+        <result property="ceoName" column="ceo_name"/>
+        <result property="companyPhone" column="company_phone"/>
+    </resultMap>
+    <select id="findSupplierList" resultMap="findSupplierListMap">
+        SELECT
+               id
+             , name
+             , ceo_name
+             , company_phone
+          FROM supplier
+         ORDER BY name
+    </select>
+
     <resultMap id="supplierDetail" type="com.x1.frans.supplier.query.dto.SupplierDetailDTO">
         <result property="ceoName" column="ceo_name" />
         <result property="companyPhone" column="company_phone" />
