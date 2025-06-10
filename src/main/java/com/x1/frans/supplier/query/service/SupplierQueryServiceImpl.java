@@ -29,7 +29,7 @@ public class SupplierQueryServiceImpl implements SupplierQueryService {
     }
 
     @Override
-    public SupplierDetailDTO getSupplierDetail(int supplierId) {
+    public SupplierDetailDTO getSupplierDetail(long supplierId) {
         return supplierQueryMapper.getSupplierDetail(supplierId);
     }
 }

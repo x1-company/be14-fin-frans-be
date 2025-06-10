@@ -11,5 +11,5 @@ public interface SupplierQueryService {
 
     List<SupplierListDTO> getAllSuppliers();
 
-    SupplierDetailDTO getSupplierDetail(int supplierId);
+    SupplierDetailDTO getSupplierDetail(long supplierId);
 }

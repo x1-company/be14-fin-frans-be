@@ -23,7 +23,7 @@ public class UserQueryController {
 
     @GetMapping("/hq")
     public ResponseEntity<List<SearchHqUserDTO>> searchHqUser(@RequestParam String name,
-                                                            @RequestParam(required = false) Integer departmentId) {
+                                                            @RequestParam(required = false) Long departmentId) {
 
         List<SearchHqUserDTO> hqUsers = userQueryService.findHqUser(name, departmentId);
 

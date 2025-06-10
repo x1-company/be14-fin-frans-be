@@ -15,7 +15,7 @@ public interface UserQueryService extends UserDetailsService {
 
     boolean isPhoneExist(String phone);
 
-    List<SearchHqUserDTO> findHqUser(String name, Integer departmentId);
+    List<SearchHqUserDTO> findHqUser(String name, Long departmentId);
 
     List<SearchFranchiseUserDTO> findFranchiseUser(String name);
 
