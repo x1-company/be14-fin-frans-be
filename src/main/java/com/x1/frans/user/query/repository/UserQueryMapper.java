@@ -22,7 +22,7 @@ public interface UserQueryMapper {
     UserEntity findByCode(@Param("userCode") String userCode);
 
     List<SearchHqUserDTO> findHqUser(@Param("name") String name,
-                                     @Param("departmentId") Integer departmentId);
+                                     @Param("departmentId") Long departmentId);
 
     List<SearchFranchiseUserDTO> findFranchiseUser(@Param("name") String name);
 

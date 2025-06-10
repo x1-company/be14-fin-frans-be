@@ -71,6 +71,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         redisService.save("RT", userCode, refreshToken, expirationMillis);
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                // TODO: 배포 시 변경 필요 (auth...AuthCommandController와 동일하게)
                 .httpOnly(true)
 //                .secure(true) // HTTPS
                 .path("/")

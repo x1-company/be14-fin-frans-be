@@ -74,6 +74,9 @@ public class SecurityConfig {
 //                              .requestMatchers("/auth/reissue").permitAll()
 //                              .requestMatchers("/**").hasRole("ADMIN"))
 
+                                // auth 관련 기능
+                                .requestMatchers("/api/auth/**").permitAll()
+
                                 // 본사 전용
                                 .requestMatchers("/api/hq/**").hasRole("HQ")
 
@@ -90,7 +93,7 @@ public class SecurityConfig {
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userQueryService, objectMapper),
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userQueryService, objectMapper, redisService),
                 AuthenticationFilter.class);
 
         http.addFilter(getAuthenticationFilter(authenticationManager()));

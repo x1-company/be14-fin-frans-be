@@ -12,5 +12,5 @@ public interface SupplierQueryMapper {
 
     List<SupplierListDTO> findSupplierList();
 
-    SupplierDetailDTO getSupplierDetail(int supplierId);
+    SupplierDetailDTO getSupplierDetail(long supplierId);
 }
