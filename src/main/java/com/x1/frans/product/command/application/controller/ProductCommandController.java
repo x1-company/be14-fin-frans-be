@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/hq/products")
 @RequiredArgsConstructor
-@Tag(name = ":hammer_and_wrench: 자재", description = "products")
+@Tag(name = "🐓 자재", description = "products")
 public class ProductCommandController {
     private final ProductCommandService productCommandService;
 
@@ -30,7 +30,7 @@ public class ProductCommandController {
     @PutMapping
     @Operation(
             summary = "자재 정보 전체 수정",
-            description = "기존 자재 정보를 전체 수정합니다. ID는 필수, active를 제외한 나머지 필드도 모두 전달해야 함."
+            description = "기존 자재 정보를 전체 수정합니다. ID는 필수, 나머지 필드도 모두 전달해야 함."
     )
     public ResponseEntity<Void> update(@RequestBody ProductUpdateCommand command) {
         productCommandService.update(command);
