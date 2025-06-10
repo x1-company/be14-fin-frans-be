@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "공급처", description = "공급처 관련 API")
 @RestController
-@RequestMapping("/supplier")
+@RequestMapping("/api/supplier")
 @Slf4j
 public class SupplierQueryController {
 
