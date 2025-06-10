@@ -28,7 +28,15 @@ public class SwaggerConfig {
         return  GroupedOpenApi.builder()
                 .group("가맹점")
                 .pathsToMatch("/api/franchise/**")
-                .build();
+                .build();}
+
+    @Bean
+    public GroupedOpenApi supplierApi() {
+        return  GroupedOpenApi.builder()
+                .group("공급처")
+                .pathsToMatch("/api/supplier/**")
+                .build();}
+
   
     @Bean
     public GroupedOpenApi authApi() {

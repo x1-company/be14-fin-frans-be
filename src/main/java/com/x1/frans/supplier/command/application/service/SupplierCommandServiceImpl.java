@@ -5,10 +5,12 @@ import com.x1.frans.exception.supplier.ErrorCode;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
 import com.x1.frans.supplier.command.domain.repository.SupplierCommandRepository;
 import com.x1.frans.supplier.command.vo.SupplierUpdateRequestVO;
-import com.x1.frans.user.command.repository.UserCommandRepository;
+import com.x1.frans.user.command.aggregate.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 public class SupplierCommandServiceImpl implements SupplierCommandService{
@@ -39,6 +41,8 @@ public class SupplierCommandServiceImpl implements SupplierCommandService{
         supplier.setBusinessNumber(supplierUpdateRequestVO.getBusinessNumber());
         supplier.setSignedAt(supplierUpdateRequestVO.getSignedAt());
         supplier.setIsActive(supplierUpdateRequestVO.getIsActive());
+        supplier.setUpdatedAt(LocalDateTime.now());
+
 
 
     }

@@ -34,22 +34,29 @@
         <result property="isActive" column="is_active" />
         <result property="createdAt" column="created_at" />
         <result property="updatedAt" column="updated_at" />
+        <result property="supplierName" column="supplier_name"/>
+        <result property="supplierEmail" column="supplier_email"/>
+        <result property="supplierPhone" column="supplier_phone"/>
     </resultMap>
     <select id="getSupplierDetail" resultMap="supplierDetail">
         SELECT
-               id
-             , code
-             , name
-             , ceo_name
-             , company_phone
-             , address
-             , zipcode
-             , business_number
-             , signed_at
-             , is_active
-             , created_at
-             , updated_at
-          FROM supplier
-         WHERE supplier.id = #{supplierId}
+               s.id
+             , s.code
+             , s.name
+             , s.ceo_name
+             , s.company_phone
+             , s.address
+             , s.zipcode
+             , s.business_number
+             , s.signed_at
+             , s.is_active
+             , s.created_at
+             , s.updated_at
+             , u.name AS supplier_name
+             , u.email AS supplier_email
+             , u.phone AS supplier_phone
+          FROM supplier s
+          LEFT JOIN user u On s.id = u.id
+         WHERE s.id = #{supplierId}
     </select>
 </mapper>
