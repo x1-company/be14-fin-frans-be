@@ -1,6 +1,6 @@
 package com.x1.frans.order.command.domain.aggregate;
 
-import com.x1.frans.franchise.command.aggregate.FranchiseEntity;
+import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

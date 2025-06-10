@@ -1,4 +1,4 @@
-package com.x1.frans.franchise.command.aggregate;
+package com.x1.frans.franchise.command.domain.aggregate;
 
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
@@ -7,7 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 @Entity
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class FranchiseEntity {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "address_detail", nullable = false)
+    @Column(name = "address_detail")
     private String addressDetail;
 
     @Column(name = "zipcode", nullable = false)
@@ -43,7 +44,7 @@ public class FranchiseEntity {
     private String phone;
 
     @Column(name = "signed_at", nullable = false)
-    private LocalDateTime signedAt;
+    private LocalDate signedAt;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
@@ -51,7 +52,7 @@ public class FranchiseEntity {
     @Column(name = "manager_id")
     private Long managerId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
 }

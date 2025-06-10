@@ -1,4 +1,4 @@
-package com.x1.frans.user.command.vo;
+package com.x1.frans.franchise.command.domain.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,14 +11,15 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-public class FranchiseUserRequestVO extends CreateUserRequestVO {
+public class UpdateFranchiseRequestVO {
 
-    private String franchiseName;
+    private String name;
     private String address;
     private String addressDetail;
     private String zipcode;
     private String businessNumber;
-    private String franchisePhone;
+    private String phone;
     private LocalDate signedAt;
-    private Long managerId;
+    private Boolean isActive;
+
 }
