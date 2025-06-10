@@ -3,6 +3,7 @@ package com.x1.frans.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.x1.frans.exception.dto.ErrorResponseDTO;
 import com.x1.frans.exception.enums.ErrorCode;
+import com.x1.frans.redis.service.RedisService;
 import com.x1.frans.security.util.JwtUtil;
 import com.x1.frans.user.query.service.UserQueryService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -24,13 +25,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserQueryService userQueryService;
     private final ObjectMapper objectMapper;
+    private final RedisService redisService;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil,
                                    UserQueryService userQueryService,
-                                   ObjectMapper objectMapper) {
+                                   ObjectMapper objectMapper,
+                                   RedisService redisService) {
         this.jwtUtil = jwtUtil;
         this.userQueryService = userQueryService;
         this.objectMapper = objectMapper;
+        this.redisService = redisService;
     }
 
     @Override
@@ -43,6 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (accessToken != null) {
             try {
                 jwtUtil.validateToken(accessToken);
+
+                // 블랙리스트 체크
+                if (redisService.exists("BL", accessToken)) {
+                    sendErrorResponse(response, ErrorCode.INVALID_TOKEN, "로그아웃된 토큰입니다.");
+                    return;
+                }
 
                 String userCode = jwtUtil.getUserCode(accessToken);
                 UserDetails userDetails = userQueryService.loadUserByUsername(userCode);
