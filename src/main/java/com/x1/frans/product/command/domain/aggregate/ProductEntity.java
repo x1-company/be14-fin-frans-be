@@ -1,11 +1,8 @@
 package com.x1.frans.product.command.domain.aggregate;
 
-
+import com.x1.frans.supplier.command.aggregate.SupplierEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,7 +17,7 @@ public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(nullable = false, length = 50)
     private String code;
@@ -41,7 +38,7 @@ public class ProductEntity {
     private String spec;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private boolean active;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -49,11 +46,23 @@ public class ProductEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    private int supplierId;
-    private int productGroupId;
-    private int productTypeId;
-    private int productAttributeId;
+    @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    private SupplierEntity supplier;
 
+    @ManyToOne
+    @JoinColumn(name = "product_group_id")
+    private ProductGroupEntity productGroup;
+
+    @ManyToOne
+    @JoinColumn(name = "product_type_id")
+    private ProductTypeEntity productType;
+
+    @ManyToOne
+    @JoinColumn(name = "product_attribute_id")
+    private ProductAttributeEntity productAttribute;
+
+    /** 자제 등록 */
     public static ProductEntity create(
             String code,
             String name,
@@ -61,11 +70,11 @@ public class ProductEntity {
             BigDecimal salePrice,
             String unit,
             String spec,
-            boolean isActive,
-            int supplierId,
-            int productGroupId,
-            int productTypeId,
-            int productAttributeId
+            boolean active,
+            SupplierEntity supplier,
+            ProductGroupEntity productGroup,
+            ProductTypeEntity productType,
+            ProductAttributeEntity productAttribute
     ) {
         return ProductEntity.builder()
                 .code(code)
@@ -74,13 +83,47 @@ public class ProductEntity {
                 .salePrice(salePrice)
                 .unit(unit)
                 .spec(spec)
-                .isActive(isActive)
+                .active(active)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .supplierId(supplierId)
-                .productGroupId(productGroupId)
-                .productTypeId(productTypeId)
-                .productAttributeId(productAttributeId)
+                .supplier(supplier)
+                .productGroup(productGroup)
+                .productType(productType)
+                .productAttribute(productAttribute)
                 .build();
+    }
+
+    /** 자제 수정 */
+    public void updateInfo(
+            String code,
+            String name,
+            BigDecimal purchasePrice,
+            BigDecimal salePrice,
+            String unit,
+            String spec,
+            boolean active,
+            SupplierEntity supplier,
+            ProductGroupEntity productGroup,
+            ProductTypeEntity productType,
+            ProductAttributeEntity productAttribute
+    ) {
+        this.code = code;
+        this.name = name;
+        this.purchasePrice = purchasePrice;
+        this.salePrice = salePrice;
+        this.unit = unit;
+        this.spec = spec;
+        this.active = active;
+        this.supplier = supplier;
+        this.productGroup = productGroup;
+        this.productType = productType;
+        this.productAttribute = productAttribute;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    /** 미사용/사용 전용 Setter */
+    public void setActive(boolean active) {
+        this.active = active;
+        this.updatedAt = LocalDateTime.now();
     }
 }

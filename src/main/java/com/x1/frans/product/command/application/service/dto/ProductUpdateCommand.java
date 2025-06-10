@@ -6,14 +6,15 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class ProductCreateCommand {
+public class ProductUpdateCommand {
+    private long id;
     private String code;
     private String name;
     private BigDecimal purchasePrice;
     private BigDecimal salePrice;
     private String unit;
     private String spec;
-    private boolean active = true;   // 생략 시 true
+    private boolean active;
     private long supplierId;
     private long productGroupId;
     private long productTypeId;
