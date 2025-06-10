@@ -3,6 +3,8 @@ package com.x1.frans.auth.command.application.controller;
 import com.x1.frans.auth.command.application.service.AuthCommandService;
 import com.x1.frans.auth.command.application.vo.ChangePasswordRequestVO;
 import com.x1.frans.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "🔐 인증, 인가", description = "auth")
 public class AuthCommandController {
 
     private final AuthCommandService authCommandService;
@@ -23,6 +26,10 @@ public class AuthCommandController {
     }
 
     @PostMapping("/reissue")
+    @Operation(
+            summary = "accessToken 재발급",
+            description = "accessToken 만료 시 refreshToken을 이용해서 accessToken 재발급"
+    )
     public ResponseEntity<Void> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
 
         String refreshToken = authCommandService.extractRefreshTokenFromCookie(request);
@@ -35,6 +42,10 @@ public class AuthCommandController {
     }
 
     @PatchMapping("/password")
+    @Operation(
+            summary = "비밀번호 변경",
+            description = "이전 비밀번호가 일치하면 새로운 비밀번호로 변경되고 is_temp_password가 false로 변경"
+    )
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequestVO changePasswordRequestVO,
                                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
@@ -44,6 +55,10 @@ public class AuthCommandController {
     }
 
     @PostMapping("/logout")
+    @Operation(
+            summary = "로그아웃",
+            description = "refreshToken을 지우고 accessToken을 만료 시간까지 redis에 블랙리스트로 등록"
+    )
     public ResponseEntity<Void> logout(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                        @RequestHeader(value = "Authorization", required = false) String accessToken,
                                        HttpServletResponse response) {
