@@ -208,6 +208,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         franchise.setBusinessNumber(vo.getBusinessNumber());
         franchise.setPhone(vo.getFranchisePhone());
         franchise.setSignedAt(vo.getSignedAt());
+        franchise.setDepartmentId(vo.getDepartmentId());
         franchise.setIsActive(true);
         franchise.setOwner(savedUser);
         franchise.setManagerId(vo.getManagerId());
