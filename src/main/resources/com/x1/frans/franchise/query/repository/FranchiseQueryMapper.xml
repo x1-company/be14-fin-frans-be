@@ -10,4 +10,20 @@
          ORDER BY `code` DESC
          LIMIT 1
     </select>
+
+    <resultMap id="findAllFranchiseMap" type="com.x1.frans.franchise.query.dto.FranchiseListDTO">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="ownerName" column="owner_name"/>
+    </resultMap>
+    <select id="findAllFranchise" resultMap="findAllFranchiseMap">
+        SELECT
+               id
+             , name
+             , phone
+             , owner_name
+        FROM franchise
+        ORDER BY name
+    </select>
 </mapper>
