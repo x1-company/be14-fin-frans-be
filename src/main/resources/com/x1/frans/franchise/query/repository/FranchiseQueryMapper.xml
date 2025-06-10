@@ -18,8 +18,7 @@
                f.phone,
                u.name AS ownerName
         FROM franchise f
-                 JOIN department d ON f.department_id = d.id
-                 JOIN hq_user_detail h ON h.department_id = d.id
+                 JOIN hq_user_detail h ON f.department_id = h.department_id
                  JOIN user u ON f.owner_id = u.id
         WHERE h.user_id = #{userId}
           AND f.is_active = 1
