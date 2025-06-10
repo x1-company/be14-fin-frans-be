@@ -11,7 +11,7 @@ import java.util.List;
 public interface FranchiseQueryMapper {
     String findLatestCodeByCodePrefix(String codePrefix);
 
-    List<FranchiseListDTO> findAllFranchise();
+    List<FranchiseListDTO> findFranchisesByUserId(@Param("userId") Long userId);
 
     FranchiseDetailDTO findFranchiseDetailById(@Param("franchiseId") Long franchiseId);
 }
