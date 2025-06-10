@@ -25,17 +25,19 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi franchiseApi() {
-        return  GroupedOpenApi.builder()
+        return GroupedOpenApi.builder()
                 .group("가맹점")
                 .pathsToMatch("/api/franchise/**")
-                .build();}
+                .build();
+    }
 
     @Bean
     public GroupedOpenApi supplierApi() {
         return  GroupedOpenApi.builder()
                 .group("공급처")
                 .pathsToMatch("/api/supplier/**")
-                .build();}
+                .build();
+    }
 
   
     @Bean
@@ -43,6 +45,14 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("인증, 인가")
                 .pathsToMatch("/api/auth/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi productApi() {
+        return GroupedOpenApi.builder()
+                .group("자재")
+                .pathsToMatch("/api/hq/products/**")
                 .build();
     }
 }

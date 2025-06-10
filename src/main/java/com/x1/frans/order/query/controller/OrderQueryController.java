@@ -5,8 +5,8 @@ import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
 import com.x1.frans.order.query.service.OrderQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -17,20 +17,8 @@ public class OrderQueryController {
 
     @GetMapping
     public OrderSearchPageResponseDto searchOrdersPaged(
-            @RequestParam(required = false) Long franchiseId,
-            @RequestParam(required = false) String filterType,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+            @ModelAttribute OrderSearchConditionDto condition
     ) {
-        OrderSearchConditionDto condition = OrderSearchConditionDto.builder()
-                .franchiseId(franchiseId)
-                .filterType(filterType)
-                .keyword(keyword)
-                .page(page)
-                .size(size)
-                .build();
-
         return orderQueryService.searchOrders(condition);
     }
 }
