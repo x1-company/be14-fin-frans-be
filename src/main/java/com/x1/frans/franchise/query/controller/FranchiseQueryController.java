@@ -46,7 +46,7 @@ public class FranchiseQueryController {
      * @return FranchiseDetailDTO 가맹점 상세 정보가 담긴 DTO
      */
     @Operation(summary = "가맹점 상세 조회", description = "가맹점 정보를 상세 조회합니다.")
-    @GetMapping("{franchiseId}/detail")
+    @GetMapping("{franchiseId}")
     public ResponseEntity<FranchiseDetailDTO> findFranchiseDetailById(@PathVariable("franchiseId") Long franchiseId) {
 
         FranchiseDetailDTO detail = franchiseQueryService.findFranchiseDetailById(franchiseId);
