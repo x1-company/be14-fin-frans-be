@@ -11,7 +11,7 @@ public class SwaggerConfig {
     public GroupedOpenApi userApi() {
         return GroupedOpenApi.builder()
                 .group("유저")
-                .pathsToMatch("/user/*")
+                .pathsToMatch("/api/hq/user/**")
                 .build();
     }
 
@@ -28,6 +28,13 @@ public class SwaggerConfig {
         return  GroupedOpenApi.builder()
                 .group("가맹점")
                 .pathsToMatch("/api/franchise/**")
+                .build();
+  
+    @Bean
+    public GroupedOpenApi authApi() {
+        return GroupedOpenApi.builder()
+                .group("인증, 인가")
+                .pathsToMatch("/api/auth/**")
                 .build();
     }
 }

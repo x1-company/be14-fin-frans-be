@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "공급처", description = "공급처 관련 API")
 @RestController
-@RequestMapping("/supplier")
+@RequestMapping("/api/supplier")
 @Slf4j
 public class SupplierQueryController {
 
@@ -39,7 +39,7 @@ public class SupplierQueryController {
 
     @Operation(summary = "공급처 상세 조회", description = "공급처 상세 조회합니다.")
     @GetMapping("/detail/{supplierId}")
-    public ResponseEntity<SupplierDetailDTO> detail(@PathVariable("supplierId") int supplierId) {
+    public ResponseEntity<SupplierDetailDTO> detail(@PathVariable("supplierId") long supplierId) {
 
         SupplierDetailDTO detail = supplierQueryService.getSupplierDetail(supplierId);
 
