@@ -35,20 +35,20 @@
                 o.franchise_id = #{franchiseId}
             </if>
 
-            <if test="filterType == 'code' and keyword != null">
-                AND o.code LIKE CONCAT('%', #{keyword}, '%')
+            <if test="code != null and code != ''">
+                AND o.code LIKE CONCAT('%', #{code}, '%')
             </if>
 
-            <if test="filterType == 'product' and keyword != null">
-                AND p.name LIKE CONCAT('%', #{keyword}, '%')
+            <if test="product != null and product != ''">
+                AND p.name LIKE CONCAT('%', #{product}, '%')
             </if>
 
-            <if test="filterType == 'status' and keyword != null">
-                AND o.status = #{keyword}
+            <if test="status != null and status != ''">
+                AND o.status LIKE CONCAT('%', #{status}, '%')
             </if>
 
-            <if test="filterType == 'date' and keyword != null">
-                AND DATE(o.created_at) = #{keyword}
+            <if test="startDate != null and endDate != null">
+                AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
             </if>
         </where>
         GROUP BY o.id
@@ -68,20 +68,20 @@
                 o.franchise_id = #{franchiseId}
             </if>
 
-            <if test="filterType == 'code' and keyword != null">
-                AND o.code LIKE CONCAT('%', #{keyword}, '%')
+            <if test="code != null and code != ''">
+                AND o.code LIKE CONCAT('%', #{code}, '%')
             </if>
 
-            <if test="filterType == 'product' and keyword != null">
-                AND p.name LIKE CONCAT('%', #{keyword}, '%')
+            <if test="product != null and product != ''">
+                AND p.name LIKE CONCAT('%', #{product}, '%')
             </if>
 
-            <if test="filterType == 'status' and keyword != null">
-                AND o.status = #{keyword}
+            <if test="status != null and status != ''">
+                AND o.status LIKE CONCAT('%', #{status}, '%')
             </if>
 
-            <if test="filterType == 'date' and keyword != null">
-                AND DATE(o.created_at) = #{keyword}
+            <if test="startDate != null and endDate != null">
+                AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
             </if>
         </where>
     </select>
