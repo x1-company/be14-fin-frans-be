@@ -12,9 +12,9 @@ import lombok.Setter;
 @Setter
 public class HqUserRequestVO extends CreateUserRequestVO {
 
-    private Integer departmentId;
-    private Integer positionId;
-    private Integer dutyId;
+    private Long departmentId;
+    private Long positionId;
+    private Long dutyId;
     private String profileUrl;
 
     @Override

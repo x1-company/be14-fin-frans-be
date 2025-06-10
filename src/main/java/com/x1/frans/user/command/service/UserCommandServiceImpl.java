@@ -139,7 +139,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      */
     @Transactional
     @Override
-    public void changePassword(Integer userId, ChangePasswordRequestVO vo) {
+    public void changePassword(Long userId, ChangePasswordRequestVO vo) {
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저는 존재하지 않습니다."));
 

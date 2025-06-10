@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -21,5 +20,5 @@ public class FranchiseUserRequestVO extends CreateUserRequestVO {
     private String businessNumber;
     private String franchisePhone;
     private LocalDate signedAt;
-    private Integer managerId;
+    private Long managerId;
 }

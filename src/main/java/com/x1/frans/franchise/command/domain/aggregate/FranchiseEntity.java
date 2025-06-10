@@ -20,7 +20,7 @@ public class FranchiseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "code", nullable = false)
     private String code;
@@ -50,7 +50,7 @@ public class FranchiseEntity {
     private Boolean isActive = true;
 
     @Column(name = "manager_id")
-    private Integer managerId;
+    private Long managerId;
 
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)

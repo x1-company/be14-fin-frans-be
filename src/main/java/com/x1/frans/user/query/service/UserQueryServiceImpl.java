@@ -4,6 +4,9 @@ import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.security.exception.AccountDeletedException;
 import com.x1.frans.security.exception.AccountLockedException;
 import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
+import com.x1.frans.user.query.dto.SearchHqUserDTO;
+import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
 import com.x1.frans.user.query.repository.UserQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -63,5 +66,23 @@ public class UserQueryServiceImpl implements UserQueryService {
         grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         return new CustomUserDetails(loginUser, grantedAuthorities);
+    }
+
+    @Override
+    public List<SearchHqUserDTO> findHqUser(String name, Integer departmentId) {
+
+        return userQueryMapper.findHqUser(name, departmentId);
+    }
+
+    @Override
+    public List<SearchFranchiseUserDTO> findFranchiseUser(String name) {
+
+        return userQueryMapper.findFranchiseUser(name);
+    }
+
+    @Override
+    public List<SearchSupplierUserDTO> findSupplierUser(String name) {
+
+        return userQueryMapper.findSupplierUser(name);
     }
 }

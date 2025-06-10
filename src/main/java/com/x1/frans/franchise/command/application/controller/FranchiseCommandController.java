@@ -28,7 +28,7 @@ public class FranchiseCommandController {
     public ResponseEntity<Void> UpdateFranchiseInfo(@PathVariable("franchiseId") int franchiseId,
                                                     @RequestBody UpdateFranchiseRequestVO vo,
                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        int userId = customUserDetails.getUserId();
+        long userId = customUserDetails.getUserId();
 
         franchiseCommandService.updateFranchiseInfo(franchiseId, vo, userId);
         
