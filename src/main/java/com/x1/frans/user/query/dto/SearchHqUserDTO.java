@@ -13,8 +13,8 @@ public class SearchHqUserDTO extends SearchUserDTO {
 
     private Long departmentId;
     private String departmentName;
-    private Integer dutyId;
+    private Long dutyId;
     private String dutyName;
-    private Integer positionId;
+    private Long positionId;
     private String positionName;
 }

@@ -69,7 +69,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
-    public List<SearchHqUserDTO> findHqUser(String name, Integer departmentId) {
+    public List<SearchHqUserDTO> findHqUser(String name, Long departmentId) {
 
         return userQueryMapper.findHqUser(name, departmentId);
     }
