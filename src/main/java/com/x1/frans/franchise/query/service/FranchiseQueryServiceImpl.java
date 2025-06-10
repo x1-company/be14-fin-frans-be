@@ -1,5 +1,6 @@
 package com.x1.frans.franchise.query.service;
 
+import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
 import com.x1.frans.franchise.query.repository.FranchiseQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,10 @@ public class FranchiseQueryServiceImpl implements FranchiseQueryService {
     @Override
     public List<FranchiseListDTO> findAllFranchise() {
         return franchiseQueryMapper.findAllFranchise();
+    }
+
+    @Override
+    public FranchiseDetailDTO findFranchiseDetailById(Long franchiseId) {
+        return franchiseQueryMapper.findFranchiseDetailById(franchiseId);
     }
 }
