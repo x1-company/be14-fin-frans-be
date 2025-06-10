@@ -1,12 +1,12 @@
 package com.x1.frans.order.query.dto;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 public class OrderSearchConditionDto {
     private Long franchiseId;
     private String filterType;
