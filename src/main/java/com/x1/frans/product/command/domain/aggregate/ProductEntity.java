@@ -1,6 +1,6 @@
 package com.x1.frans.product.command.domain.aggregate;
 
-import com.x1.frans.supplier.command.aggregate.SupplierEntity;
+import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

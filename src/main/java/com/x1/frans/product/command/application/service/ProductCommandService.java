@@ -3,7 +3,7 @@ package com.x1.frans.product.command.application.service;
 import com.x1.frans.product.command.application.service.dto.*;
 import com.x1.frans.product.command.domain.aggregate.*;
 import com.x1.frans.product.command.domain.repository.*;
-import com.x1.frans.supplier.command.aggregate.SupplierEntity;
+import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
