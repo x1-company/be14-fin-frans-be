@@ -1,4 +1,4 @@
-package com.x1.frans.supplier.command.aggregate;
+package com.x1.frans.supplier.command.domain.aggregate;
 
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
@@ -19,7 +19,7 @@ public class SupplierEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "code", nullable = false)
     private String code;
@@ -55,7 +55,7 @@ public class SupplierEntity {
     private LocalDateTime updatedAt;
 
     @Column(name = "manager_id", nullable = false)
-    private Integer managerId;
+    private Long managerId;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = false)

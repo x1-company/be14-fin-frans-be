@@ -10,4 +10,48 @@
          ORDER BY `code` DESC
          LIMIT 1
     </select>
+
+    <resultMap id="findAllFranchiseMap" type="com.x1.frans.franchise.query.dto.FranchiseListDTO">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="ownerName" column="owner_name"/>
+    </resultMap>
+    <select id="findAllFranchise" resultMap="findAllFranchiseMap">
+        SELECT
+               f.`id`
+             , f.`name`
+             , f.`phone`
+             , u.`name` AS `owner_name`
+        FROM `franchise` f
+        JOIN `user` u ON f.`owner_id` = u.`id`
+        ORDER BY f.`name`
+    </select>
+
+
+    <resultMap id="findFranchiseDetailMap" type="com.x1.frans.franchise.query.dto.FranchiseDetailDTO">
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="address" column="address"/>
+        <result property="addressDetail" column="address_detail"/>
+        <result property="zipcode" column="zipcode"/>
+        <result property="businessNumber" column="business_number"/>
+        <result property="phone" column="phone"/>
+        <result property="signedAt" column="signed_at"/>
+        <result property="isActive" column="is_active"/>
+    </resultMap>
+    <select id="findFranchiseDetailById" resultMap="findFranchiseDetailMap">
+        SELECT
+            f.`code`,
+            f.`name`,
+            f.`address`,
+            f.`address_detail`,
+            f.`zipcode`,
+            f.`business_number`,
+            f.`phone`,
+            f.`signed_at`,
+            f.`is_active`
+        FROM `franchise` f
+        WHERE f.`id` = #{franchiseId}
+    </select>
 </mapper>

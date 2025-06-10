@@ -27,4 +27,116 @@
              WHERE `phone` = #{phone}
         )
     </select>
+
+    <resultMap id="findByCodeResultMap" type="com.x1.frans.user.command.aggregate.UserEntity">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="type" column="type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isDeleted" column="is_deleted" javaType="java.lang.Boolean"/>
+        <result property="isLocked" column="is_locked" javaType="java.lang.Boolean"/>
+        <result property="isTempPassword" column="is_temp_password" javaType="java.lang.Boolean"/>
+        <result property="signUrl" column="sign_url"/>
+        <result property="profileUrl" column="profile_url"/>
+    </resultMap>
+    <select id="findByCode" resultMap="findByCodeResultMap">
+        SELECT
+               `id`
+             , `code`
+             , `password`
+             , `name`
+             , `phone`
+             , `email`
+             , `type`
+             , `created_at`
+             , `is_deleted`
+             , `is_locked`
+             , `is_temp_password`
+             , `sign_url`
+             , `profile_url`
+          FROM `user`
+         WHERE `code` = #{userCode}
+    </select>
+
+    <select id="findHqUser" resultType="com.x1.frans.user.query.dto.SearchHqUserDTO">
+        SELECT
+               a.`id`
+             , a.`code`
+             , a.`name`
+             , a.`phone`
+             , a.`email`
+             , a.`type`
+             , a.`profile_url` AS `profileUrl`
+             , c.`id` AS `departmentId`
+             , c.`name` AS `departmentName`
+             , d.`id` AS `dutyId`
+             , d.`name` AS `dutyName`
+             , e.`id` AS `positionId`
+             , e.`name` AS `positionName`
+          FROM `user` a
+          LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
+          LEFT JOIN `department` c ON b.`department_id` = c.`id`
+          LEFT JOIN `duty` d on b.`duty_id` = d.id
+          LEFT JOIN `position` e on b.`position_id` = e.id
+         WHERE a.`type` = 'HQ'
+           AND a.`name` LIKE CONCAT('%', #{name}, '%')
+           AND a.`is_deleted` = FALSE
+        <if test="departmentId != null">
+            AND c.`id` = #{departmentId}
+        </if>
+    </select>
+
+    <select id="findFranchiseUser" resultType="com.x1.frans.user.query.dto.SearchFranchiseUserDTO">
+        SELECT
+               a.`id`
+             , a.`code`
+             , a.`name`
+             , a.`phone`
+             , a.`email`
+             , a.`type`
+             , a.`profile_url` AS `profileUrl`
+             , b.`id` AS `franchiseId`
+             , b.`code` AS `franchiseCode`
+             , b.`name` AS `franchiseName`
+             , b.`address` AS `franchiseAddress`
+             , b.`address_detail` AS `franchiseAddressDetail`
+             , b.`zipcode` AS `franchiseZipcode`
+             , b.`business_number` AS `franchiseBusinessNumber`
+             , b.`phone` AS `franchisePhone`
+             , b.`signed_at` AS `franchiseSignedAt`
+          FROM `user` a
+          LEFT JOIN `franchise` b ON a.`id` = b.`owner_id`
+         WHERE a.`type` = 'FRANCHISE'
+           AND a.`is_deleted` = FALSE
+           AND a.`name` LIKE CONCAT('%', #{name}, '%')
+    </select>
+
+    <select id="findSupplierUser" resultType="com.x1.frans.user.query.dto.SearchSupplierUserDTO">
+        SELECT
+               a.`id`
+             , a.`code`
+             , a.`name`
+             , a.`phone`
+             , a.`email`
+             , a.`type`
+             , a.`profile_url` AS `profileUrl`
+             , b.`id` AS `supplierId`
+             , b.`code` AS `supplierCode`
+             , b.`name` AS `supplierName`
+             , b.`ceo_name` AS `supplierCeoName`
+             , b.`company_phone` AS `supplierCompanyPhone`
+             , b.`address` AS `supplierAddress`
+             , b.`zipcode` AS `supplierZipcode`
+             , b.`business_number` AS `supplierBusinessNumber`
+             , b.`signed_at` AS `supplierSignedAt`
+          FROM `user` a
+          LEFT JOIN `supplier` b ON a.`id` = b.`supplier_id`
+         WHERE a.`type` = 'SUPPLIER'
+           AND a.`is_deleted` = FALSE
+           AND a.`name` LIKE CONCAT('%', #{name}, '%')
+    </select>
 </mapper>

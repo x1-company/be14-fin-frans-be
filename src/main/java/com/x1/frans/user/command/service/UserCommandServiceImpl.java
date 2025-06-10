@@ -2,14 +2,12 @@ package com.x1.frans.user.command.service;
 
 import com.x1.frans.email.dto.UserCredentialsDTO;
 import com.x1.frans.email.service.EmailService;
-import com.x1.frans.exception.DuplicationException;
-import com.x1.frans.exception.InvalidAddressException;
-import com.x1.frans.exception.InvalidUserTypeException;
-import com.x1.frans.franchise.command.aggregate.FranchiseEntity;
-import com.x1.frans.franchise.command.repository.FranchiseCommandRepository;
+import com.x1.frans.exception.*;
+import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
+import com.x1.frans.franchise.command.domain.repository.FranchiseCommandRepository;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
-import com.x1.frans.supplier.command.aggregate.SupplierEntity;
-import com.x1.frans.supplier.command.repository.SupplierCommandRepository;
+import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
+import com.x1.frans.supplier.command.domain.repository.SupplierCommandRepository;
 import com.x1.frans.supplier.query.service.SupplierQueryService;
 import com.x1.frans.user.command.aggregate.HqUserDetailEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
@@ -203,7 +201,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private FranchiseEntity buildFranchise(UserEntity savedUser, FranchiseUserRequestVO vo) {
         FranchiseEntity franchise = new FranchiseEntity();
         franchise.setCode(createNewFranchiseCode(vo.getAddress(), vo.getSignedAt()));
-        franchise.setName(vo.getName());
+        franchise.setName(vo.getFranchiseName());
         franchise.setAddress(vo.getAddress());
         franchise.setAddressDetail(vo.getAddressDetail());
         franchise.setZipcode(vo.getZipcode());
@@ -330,7 +328,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      * @param address 주소 정보
      * @param signedAt 계약 일자
      */
-    private String createNewFranchiseCode(String address, LocalDateTime signedAt) {
+    private String createNewFranchiseCode(String address, LocalDate signedAt) {
         // 주소에서 서울의 25개 행정구 중 하나인지 확인
         String matchedDistrict = SeoulDistrictCode.CODES.keySet().stream()
                 .filter(address::contains)
