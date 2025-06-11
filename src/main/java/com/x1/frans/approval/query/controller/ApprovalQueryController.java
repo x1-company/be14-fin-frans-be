@@ -3,6 +3,7 @@ package com.x1.frans.approval.query.controller;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
 import com.x1.frans.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +26,13 @@ public class ApprovalQueryController {
         this.approvalQueryService = approvalQueryService;
     }
 
+    @Operation(summary = "결재 목록 조회", description = "결재 리스트를 최신순으로 조회한다.")
     @GetMapping("/list")
     public ResponseEntity<List<ApprovalListDTO>> getApprovalList(@AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
         List<ApprovalListDTO> list = approvalQueryService.getApprovalList(userId);
-        return ResponseEntity.ok(list);
 
+        return ResponseEntity.ok(list);
     }
+
 }

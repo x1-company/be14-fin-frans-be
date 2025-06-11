@@ -37,7 +37,7 @@
           LEFT JOIN approval_line l
             ON a.id = l.approval_id
            AND a.degree = l.approval_degree
-
+            -- 기안자 관련 조인
           LEFT JOIN user drafter
             ON a.user_id = drafter.id
           LEFT JOIN hq_user_detail hq_drafter
@@ -46,7 +46,7 @@
             ON drafter_dept.id = hq_drafter.department_id
           LEFT JOIN position drafter_position
             ON drafter_position.id = hq_drafter.position_id
-
+            -- 결재자 관련 조인
           LEFT JOIN user approver
             ON l.user_id = approver.id
           LEFT JOIN hq_user_detail hq_approver
@@ -57,5 +57,6 @@
             ON approver_position.id = hq_approver.position_id
          WHERE drafter.id = #{userId}
             OR approver.id = #{userId}
+         ORDER BY a.created_at DESC
     </select>
 </mapper>
