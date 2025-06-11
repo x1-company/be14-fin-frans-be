@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "가맹점", description = "가맹점 관련 API")
 @RestController
-@RequestMapping("/api/franchise")
+@RequestMapping("/api/hq/franchise")
 public class FranchiseCommandController {
 
     private final FranchiseCommandService franchiseCommandService;

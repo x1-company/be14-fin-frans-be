@@ -50,7 +50,7 @@ public class FranchiseEntity {
     private Boolean isActive = true;
 
     @Column(name = "department_id")
-    private Integer departmentId;
+    private Long departmentId;
 
     @Column(name = "manager_id")
     private Long managerId;
