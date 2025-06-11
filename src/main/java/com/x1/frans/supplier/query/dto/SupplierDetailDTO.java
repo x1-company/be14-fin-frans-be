@@ -18,10 +18,10 @@ public class SupplierDetailDTO {
     @Schema(description = "공급처 코드")
     private String code;
 
-    @Schema(description = "공급처 이름")
+    @Schema(description = "공급처명")
     private String name;
 
-    @Schema(description = "대표자 이름")
+    @Schema(description = "대표자명")
     private String ceoName;
 
     @Schema(description = "대표자 번호")
@@ -47,5 +47,23 @@ public class SupplierDetailDTO {
 
     @Schema(description = "수정일")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "공급처 담당자명")
+    private String supplierName;
+
+    @Schema(description = "공급처 담당자 이메일")
+    private String supplierEmail;
+
+    @Schema(description = "공급처 담당자 전화번호")
+    private String supplierPhone;
+
+
+
+
+
+
+
+
+
 
 }
