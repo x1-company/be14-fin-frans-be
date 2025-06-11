@@ -10,4 +10,6 @@ public interface UserCommandService {
     void createFranchiseUser(FranchiseUserRequestVO franchiseUserRequestVO);
 
     void createSupplierUser(SupplierUserRequestVO supplierUserRequestVO);
+
+    void accountLock(String userCode);
 }
