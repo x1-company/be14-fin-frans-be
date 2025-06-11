@@ -1,5 +1,7 @@
 package com.x1.frans.user.query.controller;
 
+import com.x1.frans.security.CustomUserDetails;
+import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
 import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
 import com.x1.frans.user.query.dto.SearchHqUserDTO;
 import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +25,19 @@ public class UserQueryController {
     @Autowired
     public UserQueryController(UserQueryService userQueryService) {
         this.userQueryService = userQueryService;
+    }
+    
+    @GetMapping("/dept")
+    @Operation(
+            summary = "본사 직원 본인의 부서 정보 조회",
+            description = "userId로 본사 직원 본인의 부서 정보 조회.(부서id, 부서 이름)"
+    )
+    public ResponseEntity<HqUserDepartmentDTO> getUserDepartment(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        HqUserDepartmentDTO hqUserDepartmentDTO = userQueryService.getDepartmentInfo(customUserDetails.getUserId());
+
+        return ResponseEntity.ok(hqUserDepartmentDTO);
     }
 
     @GetMapping("/hq")

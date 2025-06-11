@@ -4,6 +4,7 @@ import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.security.exception.AccountDeletedException;
 import com.x1.frans.security.exception.AccountLockedException;
 import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
 import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
 import com.x1.frans.user.query.dto.SearchHqUserDTO;
 import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
@@ -84,5 +85,11 @@ public class UserQueryServiceImpl implements UserQueryService {
     public List<SearchSupplierUserDTO> findSupplierUser(String name) {
 
         return userQueryMapper.findSupplierUser(name);
+    }
+
+    @Override
+    public HqUserDepartmentDTO getDepartmentInfo(Long userId) {
+
+        return userQueryMapper.getDepartmentInfo(userId);
     }
 }

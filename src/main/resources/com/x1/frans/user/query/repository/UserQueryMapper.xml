@@ -139,4 +139,15 @@
            AND a.`is_deleted` = FALSE
            AND a.`name` LIKE CONCAT('%', #{name}, '%')
     </select>
+
+    <select id="getDepartmentInfo" resultType="com.x1.frans.user.query.dto.HqUserDepartmentDTO">
+        SELECT
+               c.`id` AS `departmentId`
+             , c.`name` AS `departmentName`
+             , c.`depth` AS `depth`
+          FROM `user` a
+          LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
+          LEFT JOIN `department` c ON b.`department_id` = c.`id`
+         WHERE a.`id` = #{userId}
+    </select>
 </mapper>
