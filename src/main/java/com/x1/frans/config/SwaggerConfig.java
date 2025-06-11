@@ -31,6 +31,16 @@ public class SwaggerConfig {
                 .build();
     }
 
+    @Bean
+    public GroupedOpenApi supplierApi() {
+        return  GroupedOpenApi.builder()
+                .group("공급처")
+                .pathsToMatch("/api/supplier/**")
+                .build();
+    }
+
+  
+    @Bean
     public GroupedOpenApi authApi() {
         return GroupedOpenApi.builder()
                 .group("인증, 인가")

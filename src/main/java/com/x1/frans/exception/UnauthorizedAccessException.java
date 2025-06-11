@@ -7,8 +7,9 @@ public class UnauthorizedAccessException extends BaseCustomException {
         super(message);
     }
 
-    @Override
-    public ErrorCode getErrorCode() {
-        return ErrorCode.UNAUTHORIZED_ACCESS;
-    }
+  @Override
+  public ErrorCode getErrorCode() {
+    return ErrorCode.UNAUTHORIZED_ACCESS;
+  }
+
 }

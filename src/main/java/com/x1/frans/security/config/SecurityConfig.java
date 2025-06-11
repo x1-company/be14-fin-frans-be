@@ -108,7 +108,7 @@ public class SecurityConfig {
 
                                 // 공급사 전용 예시
                                 .requestMatchers("/api/supplier/**").hasRole("SUPPLIER")
-                
+
         );
 
         http.authenticationManager(authenticationManager());
