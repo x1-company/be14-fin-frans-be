@@ -1,7 +1,7 @@
 package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.exception.InvalidTimeFormatException;
-import com.x1.frans.order.command.application.service.StoreOrderDeadlineService;
+import com.x1.frans.order.command.application.service.HqOrderCommandService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,13 +17,13 @@ import java.time.format.DateTimeParseException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/hq/orders/deadline")
+@RequestMapping("/api/hq/orders")
 @Tag(name = "📝 주문", description = "orders")
-public class StoreOrderDeadlineController {
+public class HqOrderCommandController {
 
-    private final StoreOrderDeadlineService storeOrderDeadlineService;
+    private final HqOrderCommandService hqOrderCommandService;
 
-    @PostMapping
+    @PostMapping("/deadline")
     @Operation(
             summary = "주문 마감 시간 등록 또는 수정",
             description = "주문 마감 시간을 등록하거나 기존 시간을 수정합니다. 파라미터는 HH:mm 형식의 문자열입니다."
@@ -34,7 +34,7 @@ public class StoreOrderDeadlineController {
     ) {
         try {
             LocalTime deadlineTime = LocalTime.parse(time);
-            boolean isCreated = storeOrderDeadlineService.createOrUpdateDeadline(deadlineTime);
+            boolean isCreated = hqOrderCommandService.createOrUpdateDeadline(deadlineTime);
             String message = isCreated ? "주문 마감 시간이 등록되었습니다." : "주문 마감 시간이 변경되었습니다.";
             return ResponseEntity.status(isCreated ? 201 : 200).body(message);
         } catch (DateTimeParseException e) {
