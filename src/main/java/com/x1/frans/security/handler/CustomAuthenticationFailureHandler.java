@@ -35,8 +35,10 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         String message = getMessage(exception);
 
+        String errorCode = getErrorCode(exception);
+
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
-                ErrorCode.AUTH_FAILED.getCode(),
+                errorCode,
                 message);
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
@@ -49,5 +51,14 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             return exception.getMessage();
         }
         return "로그인에 실패했습니다.";
+    }
+
+    private static String getErrorCode(AuthenticationException exception) {
+        if (exception instanceof AccountLockedException)
+            return ErrorCode.ACCOUNT_LOCKED.getCode();
+        if (exception instanceof AccountDeletedException)
+            return ErrorCode.ACCOUNT_DELETED.getCode();
+
+        return ErrorCode.AUTH_FAILED.getCode();
     }
 }

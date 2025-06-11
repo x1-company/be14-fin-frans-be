@@ -57,7 +57,7 @@ public class UserQueryServiceImpl implements UserQueryService {
         }
 
         if (loginUser.getIsLocked()) {
-            throw new AccountLockedException("잠긴 계정입니다. 관리자에게 문의해 주세요.");
+            throw new AccountLockedException("잠긴 계정입니다. 관리자에게 문의하거나 비밀번호를 초기화 해주세요.");
         }
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();

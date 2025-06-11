@@ -29,4 +29,8 @@ public class RedisServiceImpl implements RedisService {
     public boolean exists(String prefix, String key) {
         return redisTemplate.hasKey(prefix + ":" + key);
     }
+
+    public void incrementCount(String prefix, String key) {
+        redisTemplate.opsForValue().increment(prefix + ":" + key);
+    }
 }

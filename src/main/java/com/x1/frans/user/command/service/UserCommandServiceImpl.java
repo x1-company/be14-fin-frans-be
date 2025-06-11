@@ -369,4 +369,16 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         return generateSequentialCode(codePrefix, latestCode);
     }
+
+    /**
+     * 회원 계정 잠금(is_locked = true)
+     *
+     * @param userCode 회원 코드
+     */
+    @Transactional
+    @Override
+    public void accountLock(String userCode) {
+        
+        userCommandRepository.accountLock(userCode);
+    }
 }
