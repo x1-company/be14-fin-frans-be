@@ -73,7 +73,7 @@ public class SecurityConfig {
         // TODO: 배포 시 변경 필요
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // 개발 중 origin
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // 쿠키, 인증정보 허용
         config.setExposedHeaders(List.of("Authorization"));

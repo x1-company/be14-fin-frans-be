@@ -49,6 +49,9 @@ public class FranchiseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "department_id")
+    private Integer departmentId;
+
     @Column(name = "manager_id")
     private Long managerId;
 
