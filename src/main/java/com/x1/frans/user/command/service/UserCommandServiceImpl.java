@@ -20,12 +20,12 @@ import com.x1.frans.user.command.vo.SupplierUserRequestVO;
 import com.x1.frans.user.common.SeoulDistrictCode;
 import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
+import com.x1.frans.user.util.GenerateRandomPassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -125,25 +125,6 @@ public class UserCommandServiceImpl implements UserCommandService {
         supplierCommandRepository.save(supplier);
 
         sendUserEmail(vo, userCodeAndRawPw);
-    }
-
-    private static final String CHAR_POOL = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final int PASSWORD_LENGTH = 6;
-    private static final SecureRandom RANDOM = new SecureRandom();
-
-    /**
-     * 초기용 랜덤 비밀번호를 생성
-     *
-     * @return 생성된 랜덤 비밀번호
-     */
-    private String generateRandomPassword() {
-        StringBuilder randomPassword = new StringBuilder();
-
-        for (int i = 0; i < PASSWORD_LENGTH; i++) {
-            randomPassword.append(CHAR_POOL.charAt(RANDOM.nextInt(CHAR_POOL.length())));
-        }
-
-        return randomPassword.toString();
     }
 
     /**
@@ -251,7 +232,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      */
     private UserCodeAndRawPw generateUserCodeAndPassword(UserType userType) {
         String userCode = createNewUserCode(userType);
-        String rawPassword = generateRandomPassword();
+        String rawPassword = GenerateRandomPassword.generate();
         return new UserCodeAndRawPw(userCode, rawPassword);
     }
 
@@ -279,7 +260,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         dto.setName(vo.getName());
         dto.setUserCode(userCodeAndRawPw.userCode());
         dto.setRawPassword(userCodeAndRawPw.rawPassword());
-        emailService.sendUserCredentials(dto);
+        emailService.sendUserCredentials(dto, "SIGNUP");
     }
 
     /**

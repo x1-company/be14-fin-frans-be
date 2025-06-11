@@ -26,24 +26,13 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String userName;
 
-    public void sendUserCredentials(UserCredentialsDTO userCredentialsDTO) {
+    public void sendUserCredentials(UserCredentialsDTO userCredentialsDTO, String type) {
 
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-            String htmlMsg = """
-            <html>
-            <body style="font-family: Arial, sans-serif; background-color: #f0f7ff; color: #003366; padding: 20px;">
-                <h2 style="color: #1a73e8;">환영합니다 %s님! 회원가입이 완료되었습니다.</h2>
-                <p><strong style="color: #0d47a1;">사용자 코드:</strong> %s</p>
-                <p><strong style="color: #0d47a1;">초기 비밀번호:</strong> %s</p>
-                <p style="margin-top: 30px;">로그인 후 비밀번호를 꼭 변경해 주세요.</p>
-            </body>
-            </html>
-            """.formatted(userCredentialsDTO.getName(),
-                    userCredentialsDTO.getUserCode(),
-                    userCredentialsDTO.getRawPassword());
+            String htmlMsg = generateHtmlMessage(userCredentialsDTO, type);
 
             helper.setText(htmlMsg, true);
             helper.setTo(userCredentialsDTO.getTo());
@@ -54,5 +43,34 @@ public class EmailServiceImpl implements EmailService {
         } catch (MailException | MessagingException e) {
             throw new EmailSendingException("이메일 전송 실패");
         }
+    }
+
+    private String generateHtmlMessage(UserCredentialsDTO dto, String type) {
+        return switch (type) {
+            case "SIGNUP" -> """
+                <html>
+                <body style="font-family: Arial, sans-serif; background-color: #f0f7ff; color: #003366; padding: 20px;">
+                    <h2 style="color: #1a73e8;">환영합니다 %s님! 회원가입이 완료되었습니다.</h2>
+                    <p><strong style="color: #0d47a1;">사용자 코드:</strong> %s</p>
+                    <p><strong style="color: #0d47a1;">초기 비밀번호:</strong> %s</p>
+                    <p style="margin-top: 30px;">로그인 후 비밀번호를 꼭 변경해 주세요.</p>
+                </body>
+                </html>
+                """.formatted(dto.getName(), dto.getUserCode(), dto.getRawPassword());
+
+            case "PASSWORD_RESET" -> """
+                <html>
+                <body style="font-family: Arial, sans-serif; background-color: #f0f7ff; color: #003366; padding: 20px;">
+                    <h2 style="color: #1a73e8;">%s님 비밀번호 초기화가 완료되었습니다.</h2>
+                    <p><strong style="color: #0d47a1;">사용자 코드:</strong> %s</p>
+                    <p><strong style="color: #0d47a1;">초기화된 비밀번호:</strong> %s</p>
+                    <p style="margin-top: 30px;">로그인 후 비밀번호를 꼭 변경해 주세요.</p>
+                </body>
+                </html>
+                """.formatted(dto.getName(), dto.getUserCode(), dto.getRawPassword());
+
+            default -> """
+                    """;
+        };
     }
 }

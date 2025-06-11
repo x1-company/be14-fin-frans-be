@@ -1,7 +1,9 @@
 package com.x1.frans.auth.command.application.controller;
 
+import com.x1.frans.auth.command.application.dto.ResetPasswordResponseDTO;
 import com.x1.frans.auth.command.application.service.AuthCommandService;
 import com.x1.frans.auth.command.application.vo.ChangePasswordRequestVO;
+import com.x1.frans.auth.command.application.vo.ResetPasswordRequestVO;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,5 +85,13 @@ public class AuthCommandController {
         response.setHeader("Set-Cookie", deleteCookie.toString());
 
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/password/reset")
+    public ResponseEntity<ResetPasswordResponseDTO> resetPassword(@RequestBody ResetPasswordRequestVO vo) {
+
+        ResetPasswordResponseDTO resetPasswordResponseDTO = authCommandService.resetPassword(vo.getUserCode());
+
+        return ResponseEntity.ok(resetPasswordResponseDTO);
     }
 }
