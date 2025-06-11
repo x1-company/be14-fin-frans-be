@@ -10,7 +10,6 @@ import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
 import com.x1.frans.user.query.repository.UserQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -61,9 +60,6 @@ public class UserQueryServiceImpl implements UserQueryService {
         }
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-
-        // TODO: 조회한 회원 별 권한 추가 로직 작성 필요
-        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         return new CustomUserDetails(loginUser, grantedAuthorities);
     }
