@@ -55,4 +55,12 @@ public class SwaggerConfig {
                 .pathsToMatch("/api/hq/products/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi warehouseApi() {
+        return GroupedOpenApi.builder()
+                .group("창고")
+                .pathsToMatch("/api/hq/warehouses/**")
+                .build();
+    }
 }
