@@ -1,4 +1,4 @@
-package com.x1.frans.order.command.domain.vo;
+package com.x1.frans.order.command.application.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

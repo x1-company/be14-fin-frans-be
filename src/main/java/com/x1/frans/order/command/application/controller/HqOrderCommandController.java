@@ -1,8 +1,8 @@
 package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.exception.InvalidTimeFormatException;
+import com.x1.frans.order.command.application.dto.OrderRejectRequestDto;
 import com.x1.frans.order.command.application.service.HqOrderCommandService;
-import com.x1.frans.order.command.domain.vo.OrderRejectRequestDto;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
