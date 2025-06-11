@@ -1,5 +1,7 @@
 package com.x1.frans.franchise.query.service;
 
+import com.x1.frans.exception.FranchiseNotFoundException;
+import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
 import com.x1.frans.franchise.query.repository.FranchiseQueryMapper;
@@ -30,11 +32,21 @@ public class FranchiseQueryServiceImpl implements FranchiseQueryService {
 
     @Override
     public List<FranchiseListDTO> findFranchisesByManagerId(Long userId) {
+
+        List<FranchiseListDTO> list = franchiseQueryMapper.findFranchisesByManagerId(userId);
+
         return franchiseQueryMapper.findFranchisesByManagerId(userId);
     }
 
     @Override
-    public FranchiseDetailDTO findFranchiseDetailById(Long franchiseId) {
-        return franchiseQueryMapper.findFranchiseDetailById(franchiseId);
+    public FranchiseDetailDTO findFranchiseDetailById(Long franchiseId, Long userId) {
+        FranchiseDetailDTO results = franchiseQueryMapper.findFranchiseDetailById(franchiseId, userId);
+
+        // 해당 가맹점에 접근 권한이 없거나 가맹점이 존재하지 않을때 예외처리
+        if (results == null) {
+            throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없거나 존재하지 않습니다.");
+        }
+
+        return results;
     }
 }

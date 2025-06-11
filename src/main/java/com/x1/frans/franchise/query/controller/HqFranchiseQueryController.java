@@ -6,6 +6,8 @@ import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
 import com.x1.frans.security.CustomUserDetails;
+import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
+import com.x1.frans.user.query.service.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +26,17 @@ import java.util.List;
 public class HqFranchiseQueryController {
 
     private final FranchiseQueryService franchiseQueryService;
+    private final UserQueryService userQueryService;
 
     @Autowired
-    public HqFranchiseQueryController(FranchiseQueryService franchiseQueryService) {
+    public HqFranchiseQueryController(FranchiseQueryService franchiseQueryService, UserQueryService userQueryService) {
         this.franchiseQueryService = franchiseQueryService;
+        this.userQueryService = userQueryService;
     }
 
     /**
      * 자신이 속한 부서가 담당하는 가맹점 목록을 조회할 수 있다
+     *
      * @param userDetails 인증된 사용자 정보
      * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
      */
@@ -42,15 +47,12 @@ public class HqFranchiseQueryController {
         Long userId = userDetails.getUserId();
         List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByDepartmentId(userId);
 
-        if (list.isEmpty()) {
-            throw new UnauthorizedAccessException("가맹점에 대한 조회 권한이 없습니다.");
-        }
-
         return ResponseEntity.ok(list);
     }
 
     /**
      * 자신이 담당하는 가맹점 목록을 조회할 수 있다
+     *
      * @param userDetails 인증된 사용자 정보
      * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
      */
@@ -61,30 +63,26 @@ public class HqFranchiseQueryController {
         Long userId = userDetails.getUserId();
         List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByManagerId(userId);
 
-        if (list.isEmpty()) {
-            throw new UnauthorizedAccessException("가맹점에 대한 조회 권한이 없습니다.");
-        }
-
         return ResponseEntity.ok(list);
     }
 
     /**
-     * ID에 해당하는 가맹점 정보를 상세 조회할 수 있다.
+     * 열람 권한이 있는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.
      *
      * @param franchiseId 가맹점 ID
      * @return FranchiseDetailDTO 가맹점 상세 정보가 담긴 DTO
      */
     @Operation(summary = "가맹점 상세 조회", description = "가맹점 정보를 상세 조회합니다.")
     @GetMapping("{franchiseId}")
-    public ResponseEntity<FranchiseDetailDTO> findFranchiseDetailById(@PathVariable("franchiseId") Long franchiseId) {
+    public ResponseEntity<FranchiseDetailDTO> findFranchiseDetailById(
+            @PathVariable("franchiseId") Long franchiseId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        FranchiseDetailDTO detail = franchiseQueryService.findFranchiseDetailById(franchiseId);
+        Long userId = userDetails.getUserId();
 
-        if (detail == null) {
-            throw new FranchiseNotFoundException("해당 가맹점이 존재하지 않습니다.");
-        }
+        FranchiseDetailDTO detail = franchiseQueryService.findFranchiseDetailById(franchiseId, userId);
 
         return ResponseEntity.ok(detail);
     }
-
 }
+
