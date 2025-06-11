@@ -9,4 +9,6 @@ public interface RedisService {
     void remove(String prefix, String key);
 
     boolean exists(String prefix, String key);
+
+    void incrementCount(String prefix, String key);
 }

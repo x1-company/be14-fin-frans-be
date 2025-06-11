@@ -1,6 +1,9 @@
 package com.x1.frans.auth.command.application.service;
 
+import com.x1.frans.auth.command.application.dto.ResetPasswordResponseDTO;
 import com.x1.frans.auth.command.application.vo.ChangePasswordRequestVO;
+import com.x1.frans.email.dto.UserCredentialsDTO;
+import com.x1.frans.email.service.EmailService;
 import com.x1.frans.exception.ExpiredRefreshTokenException;
 import com.x1.frans.exception.InvalidPasswordException;
 import com.x1.frans.exception.InvalidRefreshTokenException;
@@ -11,6 +14,7 @@ import com.x1.frans.security.util.JwtUtil;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import com.x1.frans.user.query.service.UserQueryService;
+import com.x1.frans.user.util.GenerateRandomPassword;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
@@ -33,6 +37,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     private final UserCommandRepository userCommandRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Autowired
     public AuthCommandServiceImpl(JwtUtil jwtUtil,
@@ -40,13 +45,15 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                                   UserQueryService userQueryService,
                                   UserCommandRepository userCommandRepository,
                                   BCryptPasswordEncoder bCryptPasswordEncoder,
-                                  PasswordEncoder passwordEncoder) {
+                                  PasswordEncoder passwordEncoder,
+                                  EmailService emailService) {
         this.jwtUtil = jwtUtil;
         this.redisService = redisService;
         this.userQueryService = userQueryService;
         this.userCommandRepository = userCommandRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     /**
@@ -136,5 +143,51 @@ public class AuthCommandServiceImpl implements AuthCommandService {
             long expirationMillis = jwtUtil.getRemainingExpiration(accessToken);
             redisService.save("BL", accessToken, "logout", expirationMillis);
         }
+    }
+
+    @Transactional
+    @Override
+    public ResetPasswordResponseDTO resetPassword(String userCode) {
+
+        UserEntity user = userCommandRepository.findByCode(userCode)
+                .orElseThrow(() -> new UserNotFoundException("해당 유저는 존재하지 않습니다."));
+
+        String rawPassword = GenerateRandomPassword.generate();
+        String encryptedPassword = bCryptPasswordEncoder.encode(rawPassword);
+
+        user.setPassword(encryptedPassword);
+        user.setIsLocked(false);
+
+        UserCredentialsDTO userCredentialsDTO = new UserCredentialsDTO();
+        userCredentialsDTO.setTo(user.getEmail());
+        userCredentialsDTO.setName(user.getName());
+        userCredentialsDTO.setUserCode(userCode);
+        userCredentialsDTO.setRawPassword(rawPassword);
+
+        emailService.sendUserCredentials(userCredentialsDTO, "PASSWORD_RESET");
+
+        ResetPasswordResponseDTO resetPasswordResponseDTO = new ResetPasswordResponseDTO();
+        resetPasswordResponseDTO.setMaskedEmail(maskEmail(user.getEmail()));
+        resetPasswordResponseDTO.setMessage("해당 메일로 발송되었습니다. 이후 비밀번호를 꼭 변경해 주세요.");
+
+        return resetPasswordResponseDTO;
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return email;
+
+        String[] parts = email.split("@");
+        String local = parts[0];
+        String domain = parts[1];
+
+        if (local.length() <= 2) {
+            return "*@".concat(domain); // 너무 짧은 경우 전체 마스킹
+        }
+
+        String masked = local.charAt(0) +
+                "*".repeat(Math.max(1, local.length() - 2)) +
+                local.charAt(local.length() - 1);
+
+        return masked + "@" + domain;
     }
 }
