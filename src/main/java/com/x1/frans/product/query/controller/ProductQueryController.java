@@ -56,7 +56,7 @@ public class ProductQueryController {
     }
 
     @Operation(summary = "자재명으로 조회", description = "자재명으로 해당 자제를 검색할 수 있다.")
-    @GetMapping("name/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<List<ProductListDTO>> getProductListByName (@PathVariable String name) {
         List<ProductListDTO> productList =
                 productQueryService.getProductsByName(name);
@@ -65,7 +65,7 @@ public class ProductQueryController {
     }
 
     @Operation(summary = "공급처명으로 조회", description = "공급처명으로 해당 공급처와 거래하는 자재 목록을 검색할 수 있다.")
-    @GetMapping("supplier-name/{supplierName}")
+    @GetMapping("/supplier-name/{supplierName}")
     public ResponseEntity<List<ProductListDTO>> getProductListBySupplierName (@PathVariable String supplierName) {
           List<ProductListDTO> productList =
                 productQueryService.getProductsBySupplierName(supplierName);
