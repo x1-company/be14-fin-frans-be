@@ -8,7 +8,7 @@ import java.util.List;
 public interface FranchiseQueryService {
     String findLatestCodeByPrefixAndYearMonth(String codePrefix);
 
-    List<FranchiseListDTO> findAllFranchise();
+    List<FranchiseListDTO> getFranchisesByUser(Long userId);
 
     FranchiseDetailDTO findFranchiseDetailById(Long franchiseId);
 }

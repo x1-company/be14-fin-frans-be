@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 public class FranchiseListDTO {
 
     private Long id;
+    private String code;
     private String name;
+    private String address;
     private String phone;
     private String ownerName;
 }
