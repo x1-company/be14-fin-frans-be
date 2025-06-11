@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "공급처", description = "공급처 관련 API")
+@Tag(name = "🐔 공급처", description = "공급처 관련 API")
 @RestController
 @RequestMapping("/api/hq/suppliers")
 @Slf4j

@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/hq/products")
 @RequiredArgsConstructor
-@Tag(name = "🐓 자재", description = "products")
+@Tag(name = "🍗 자재", description = "product")
 public class ProductCommandController {
     private final ProductCommandService productCommandService;
 
