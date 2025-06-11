@@ -1,5 +1,6 @@
 package com.x1.frans.user.query.service;
 
+import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
 import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
 import com.x1.frans.user.query.dto.SearchHqUserDTO;
 import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
@@ -20,4 +21,6 @@ public interface UserQueryService extends UserDetailsService {
     List<SearchFranchiseUserDTO> findFranchiseUser(String name);
 
     List<SearchSupplierUserDTO> findSupplierUser(String name);
+
+    HqUserDepartmentDTO getDepartmentInfo(Long userId);
 }
