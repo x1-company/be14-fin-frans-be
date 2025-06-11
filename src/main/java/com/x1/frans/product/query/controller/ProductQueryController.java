@@ -28,7 +28,6 @@ public class ProductQueryController {
         this.productQueryService = productQueryService;
     }
 
-    // 자재 목록 조회
     @Operation(
             summary = "자재 목록 조회",
             description = "자재 목록을 필터를 사용하여 조회할 수 있다. 필터 항목으로는 자재 구분, 자재 분류, 자재 속성, 자재 사용 여부가 있다."
@@ -47,7 +46,6 @@ public class ProductQueryController {
         return ResponseEntity.ok(productList);
     }
 
-    // 자재 코드로 검색
     @Operation(summary = "자재 코드로 조회", description = "자재 코드로 해당 자재를 검색할 수 있다.")
     @GetMapping("/code/{code}")
     public ResponseEntity<ProductListDTO> getProductByCode (@PathVariable String code) {
@@ -57,7 +55,6 @@ public class ProductQueryController {
         return ResponseEntity.ok(productList);
     }
 
-    // 자재명으로 검색
     @Operation(summary = "자재명으로 조회", description = "자재명으로 해당 자제를 검색할 수 있다.")
     @GetMapping("name/{name}")
     public ResponseEntity<List<ProductListDTO>> getProductListByName (@PathVariable String name) {
@@ -67,7 +64,6 @@ public class ProductQueryController {
         return ResponseEntity.ok(productList);
     }
 
-    // 공급처명으로 검색
     @Operation(summary = "공급처명으로 조회", description = "공급처명으로 해당 공급처와 거래하는 자재 목록을 검색할 수 있다.")
     @GetMapping("supplier-name/{supplierName}")
     public ResponseEntity<List<ProductListDTO>> getProductListBySupplierName (@PathVariable String supplierName) {
@@ -77,7 +73,6 @@ public class ProductQueryController {
         return ResponseEntity.ok(productList);
     }
 
-    // 자제 상세 조회
     @Operation(summary = "자재 상세 조회", description = "자재 ID로 자재 상세 정보를 조회합니다.")
     @GetMapping("/details/{id}")
     public ProductDetailDTO getProductDetail(@PathVariable Long id) {
