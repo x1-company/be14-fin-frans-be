@@ -156,6 +156,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         String encryptedPassword = bCryptPasswordEncoder.encode(rawPassword);
 
         user.setPassword(encryptedPassword);
+        user.setIsLocked(false);
 
         UserCredentialsDTO userCredentialsDTO = new UserCredentialsDTO();
         userCredentialsDTO.setTo(user.getEmail());
