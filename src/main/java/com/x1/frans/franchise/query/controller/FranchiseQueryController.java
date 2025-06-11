@@ -19,7 +19,7 @@ import java.util.List;
 
 @Tag(name = "가맹점", description = "가맹점 관련 API")
 @RestController
-@RequestMapping("/api/franchise")
+@RequestMapping("/api/hq/franchise")
 public class FranchiseQueryController {
 
     private final FranchiseQueryService franchiseQueryService;
