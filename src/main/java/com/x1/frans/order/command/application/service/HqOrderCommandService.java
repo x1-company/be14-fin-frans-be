@@ -2,6 +2,8 @@ package com.x1.frans.order.command.application.service;
 
 import java.time.LocalTime;
 
-public interface StoreOrderDeadlineService {
+public interface HqOrderCommandService {
     boolean createOrUpdateDeadline(LocalTime deadlineTime);
+
+    void rejectOrder(Long orderId, String reason, Long userId);
 }

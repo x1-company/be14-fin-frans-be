@@ -1,20 +1,15 @@
 package com.x1.frans.order.command.domain.aggregate;
 
+import com.x1.frans.exception.InvalidOrderRejectConditionException;
+import com.x1.frans.exception.OrderRejectReasonRequiredException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -25,7 +20,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "code", nullable = false, unique = true)
     private String code;
@@ -55,4 +50,23 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
+
+    public void reject(String reason) {
+        if (!status.equals("검토중") && !status.equals("검토 완료")) {
+            throw new InvalidOrderRejectConditionException("해당 주문 상태에서는 반려할 수 없습니다.");
+        }
+
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new OrderRejectReasonRequiredException("반려 사유는 필수입니다.");
+        }
+
+        this.status = "반려";
+        this.rejectedReason = reason;
+        this.rejectedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

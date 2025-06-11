@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StoreOrderDeadlineRepository extends JpaRepository<StoreOrderDeadline, Integer> {
+public interface StoreOrderDeadlineRepository extends JpaRepository<StoreOrderDeadline, Long> {
 }
