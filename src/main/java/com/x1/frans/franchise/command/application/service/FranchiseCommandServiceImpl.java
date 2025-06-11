@@ -2,9 +2,14 @@ package com.x1.frans.franchise.command.application.service;
 
 import com.x1.frans.exception.FranchiseNotFoundException;
 import com.x1.frans.exception.InvalidFranchiseArgumentException;
+import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.domain.repository.FranchiseCommandRepository;
 import com.x1.frans.franchise.command.domain.vo.UpdateFranchiseRequestVO;
+import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.command.repository.UserCommandRepository;
+import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
+import com.x1.frans.user.query.service.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class FranchiseCommandServiceImpl implements FranchiseCommandService {
 
     private final FranchiseCommandRepository franchiseCommandRepository;
+    private final UserQueryService userQueryService;
 
-    public FranchiseCommandServiceImpl(FranchiseCommandRepository franchiseCommandRepository) {
+    public FranchiseCommandServiceImpl(FranchiseCommandRepository franchiseCommandRepository, UserQueryService userQueryService) {
         this.franchiseCommandRepository = franchiseCommandRepository;
+        this.userQueryService = userQueryService;
     }
 
     /**
@@ -32,6 +39,12 @@ public class FranchiseCommandServiceImpl implements FranchiseCommandService {
 
         // 유효성 검사 수행
         validateFranchiseUpdateRequest(vo);
+
+        // 본인이 속한 부서의 가맹점 정보에만 접근 권한 부여
+        HqUserDepartmentDTO dept = userQueryService.getDepartmentInfo(userId);
+        if (!(dept.getDepartmentId().equals(franchise.getDepartmentId()))) {
+            throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없습니다");
+        }
 
         franchise.setName(vo.getName());
         franchise.setAddress(vo.getAddress());

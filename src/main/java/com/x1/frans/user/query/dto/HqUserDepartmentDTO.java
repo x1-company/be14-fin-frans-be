@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class HqUserDepartmentDTO {
 
-    private Long departmentId;
+    private Integer departmentId;
     private String departmentName;
     private Integer depth;
 }

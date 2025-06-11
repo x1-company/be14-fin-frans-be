@@ -27,7 +27,8 @@ public enum ErrorCode {
 
     // 가맹점 관련 에러
     ENTITY_NOT_FOUND("ENTITY_NOT_FOUND", HttpStatus.NOT_FOUND),
-    INVALID_FRANCHISE_ARGUMENT("INVALID_FRANCHISE_ARGUMENT", HttpStatus.BAD_REQUEST);
+    INVALID_FRANCHISE_ARGUMENT("INVALID_FRANCHISE_ARGUMENT", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACCESS("UNAUTHORIZED_ACCESS", HttpStatus.UNAUTHORIZED);
 
     private final String code;
     private final HttpStatus httpStatus;
