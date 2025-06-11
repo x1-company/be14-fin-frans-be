@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x1.frans.product.query.repository.ProductQueryMapper">
+    <resultMap id="productListResultMap" type="com.x1.frans.product.query.dto.ProductListDTO">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="spec" column="spec"/>
+        <result property="purchaseUnit" column="purchase_unit"/>
+        <result property="unit" column="unit"/>
+        <result property="productGroupId" column="product_group_id"/>
+        <result property="productTypeId" column="product_type_id"/>
+        <result property="productAttributeId" column="product_attribute_id"/>
+        <result property="isActive" column="is_active"/>
+        <result property="supplierName" column="supplier_name"/>
+    </resultMap>
+    <resultMap id="productDetailResultMap" type="com.x1.frans.product.query.dto.ProductDetailDTO">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="spec" column="spec"/>
+        <result property="purchaseUnit" column="purchase_unit"/>
+        <result property="unit" column="unit"/>
+        <result property="productGroupId" column="product_group_id"/>
+        <result property="productTypeId" column="product_type_id"/>
+        <result property="productAttributeId" column="product_attribute_id"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="purchasePrice" column="purchase_price"/>
+        <result property="salePrice" column="sale_price"/>
+    </resultMap>
+
+    <select id="selectByFilter" resultMap="productListResultMap">
+        SELECT
+               p.id
+             , p.code
+             , p.name
+             , p.spec
+             , p.purchase_unit
+             , p.unit
+             , p.product_group_id
+             , p.product_type_id
+             , p.product_attribute_id
+             , p.is_active
+             , s.name AS supplier_name
+          FROM product p
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE 1=1
+        <if test="productTypeId != null">
+           AND p.product_type_id = #{productTypeId}
+        </if>
+        <if test="productGroupId != null">
+           AND p.product_group_id = #{productGroupId}
+        </if>
+        <if test="productAttributeId != null">
+           AND p.product_attribute_id = #{productAttributeId}
+        </if>
+        <if test="isActive != null">
+           AND p.is_active = #{isActive}
+        </if>
+    </select>
+
+    <select id="selectByCode" resultMap="productListResultMap">
+        SELECT
+               p.id
+             , p.code
+             , p.name
+             , p.spec
+             , p.purchase_unit
+             , p.unit
+             , p.product_group_id
+             , p.product_type_id
+             , p.product_attribute_id
+             , p.is_active
+             , s.name AS supplier_name
+          FROM product p
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE p.code = #{code}
+    </select>
+
+    <select id="selectByName" resultMap="productListResultMap">
+        SELECT
+               p.id
+             , p.code
+             , p.name
+             , p.spec
+             , p.purchase_unit
+             , p.unit
+             , p.product_group_id
+             , p.product_type_id
+             , p.product_attribute_id
+             , p.is_active
+             , s.name AS supplier_name
+        FROM product p
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE p.name LIKE CONCAT('%', #{name}, '%')
+    </select>
+
+    <select id="selectBySupplierName" resultMap="productListResultMap">
+        SELECT
+               p.id
+             , p.code
+             , p.name
+             , p.spec
+             , p.purchase_unit
+             , p.unit
+             , p.product_group_id
+             , p.product_type_id
+             , p.product_attribute_id
+             , p.is_active
+             , s.name AS supplier_name
+          FROM product p
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE s.name LIKE CONCAT('%', #{supplierName}, '%')
+    </select>
+
+    <select id="selectDetailById" resultMap="productDetailResultMap">
+        SELECT
+               p.id
+             , p.code
+             , p.name
+             , p.spec
+             , p.purchase_unit
+             , p.unit
+             , p.product_group_id
+             , p.product_type_id
+             , p.product_attribute_id
+             , p.purchase_price
+             , p.sale_price
+             , s.name AS supplier_name
+          FROM product p
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE p.id = #{id}
+    </select>
+
+</mapper>
