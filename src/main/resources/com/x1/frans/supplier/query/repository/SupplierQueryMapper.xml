@@ -56,7 +56,7 @@
              , u.email AS supplier_email
              , u.phone AS supplier_phone
           FROM supplier s
-          LEFT JOIN user u On s.id = u.id
+          LEFT JOIN user u On s.supplier_id = u.id
          WHERE s.id = #{supplierId}
     </select>
 </mapper>
