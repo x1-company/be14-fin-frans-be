@@ -21,26 +21,45 @@ import java.util.List;
 @Tag(name = "가맹점", description = "가맹점 관련 API")
 @RestController
 @RequestMapping("/api/hq/franchise")
-public class FranchiseQueryController {
+public class HqFranchiseQueryController {
 
     private final FranchiseQueryService franchiseQueryService;
 
     @Autowired
-    public FranchiseQueryController(FranchiseQueryService franchiseQueryService) {
+    public HqFranchiseQueryController(FranchiseQueryService franchiseQueryService) {
         this.franchiseQueryService = franchiseQueryService;
     }
 
     /**
-     * 자신이 속한 부서가 담당하는 모든 가맹점의 목록을 조회할 수 있다
-     *
+     * 자신이 속한 부서가 담당하는 가맹점 목록을 조회할 수 있다
+     * @param userDetails 인증된 사용자 정보
      * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
      */
-    @Operation(summary = "가맹점 목록 조회", description = "가맹점 목록을 조회합니다.")
-    @GetMapping("/list")
-    public ResponseEntity<List<FranchiseListDTO>> getFranchises(
+    @Operation(summary = "부서별 가맹점 목록 조회", description = "부서별 가맹점 목록을 조회합니다.")
+    @GetMapping("/department")
+    public ResponseEntity<List<FranchiseListDTO>> findFranchisesByDepartmentId(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        List<FranchiseListDTO> list = franchiseQueryService.getFranchisesByUser(userId);
+        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByDepartmentId(userId);
+
+        if (list.isEmpty()) {
+            throw new UnauthorizedAccessException("가맹점에 대한 조회 권한이 없습니다.");
+        }
+
+        return ResponseEntity.ok(list);
+    }
+
+    /**
+     * 자신이 담당하는 가맹점 목록을 조회할 수 있다
+     * @param userDetails 인증된 사용자 정보
+     * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
+     */
+    @Operation(summary = "담당자별 가맹점 목록 조회", description = "담당자별 가맹점 목록을 조회합니다.")
+    @GetMapping("/manager")
+    public ResponseEntity<List<FranchiseListDTO>> findFranchisesByManagerId(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
+        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByManagerId(userId);
 
         if (list.isEmpty()) {
             throw new UnauthorizedAccessException("가맹점에 대한 조회 권한이 없습니다.");

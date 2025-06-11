@@ -10,7 +10,7 @@
         ORDER BY `code` DESC LIMIT 1
     </select>
 
-    <select id="findFranchisesByUserId" resultType="com.x1.frans.franchise.query.dto.FranchiseListDTO">
+    <select id="findFranchisesByDepartmentId" resultType="com.x1.frans.franchise.query.dto.FranchiseListDTO">
         SELECT f.id,
                f.code,
                f.name,
@@ -21,8 +21,20 @@
                  JOIN hq_user_detail h ON f.department_id = h.department_id
                  JOIN user u ON f.owner_id = u.id
         WHERE h.user_id = #{userId}
-          AND f.is_active = 1
     </select>
+
+    <select id="findFranchisesByManagerId" resultType="com.x1.frans.franchise.query.dto.FranchiseListDTO">
+        SELECT f.id,
+               f.code,
+               f.name,
+               f.address,
+               f.phone,
+               u.name AS ownerName
+        FROM franchise f
+                 JOIN user u ON f.owner_id = u.id
+        WHERE f.manager_id = #{userId}
+    </select>
+
 
     <resultMap id="findFranchiseDetailMap" type="com.x1.frans.franchise.query.dto.FranchiseDetailDTO">
         <result property="code" column="code"/>

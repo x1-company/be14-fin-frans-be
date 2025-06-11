@@ -24,8 +24,13 @@ public class FranchiseQueryServiceImpl implements FranchiseQueryService {
     }
 
     @Override
-    public List<FranchiseListDTO> getFranchisesByUser(Long userId) {
-        return franchiseQueryMapper.findFranchisesByUserId(userId);
+    public List<FranchiseListDTO> findFranchisesByDepartmentId(Long userId) {
+        return franchiseQueryMapper.findFranchisesByDepartmentId(userId);
+    }
+
+    @Override
+    public List<FranchiseListDTO> findFranchisesByManagerId(Long userId) {
+        return franchiseQueryMapper.findFranchisesByManagerId(userId);
     }
 
     @Override
