@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class WarehouseCreateCommand {
-    private String code;
     private String name;
     private String address;
     private Long userId;

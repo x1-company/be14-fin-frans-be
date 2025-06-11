@@ -18,19 +18,35 @@ public class WarehouseCommandService {
 
     @Transactional
     public Long create(WarehouseCreateCommand command) {
-        if (warehouseRepository.existsByCode(command.getCode())) {
-            throw new IllegalArgumentException("이미 존재하는 창고 코드입니다.");
-        }
+        // code는 프론트에서 안 받고, 백엔드에서 자동 생성
+        String nextCode = generateNextWarehouseCode();
 
         UserEntity user = UserCommandRepository.findById(command.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
 
         WarehouseEntity warehouse = WarehouseEntity.create(
-                command.getCode(),
+                nextCode,
                 command.getName(),
                 command.getAddress(),
                 user
         );
         return warehouseRepository.save(warehouse).getId();
+    }
+
+    /** 창고코드 자동 생성 */
+    private String generateNextWarehouseCode() {
+
+        // DB에 WH-xxx 패턴이 없으면 기본값 WH-001
+        String lastCode = warehouseRepository.findTopByOrderByIdDesc()
+                .map(WarehouseEntity::getCode)
+                .orElse(null);
+
+        if (lastCode == null || !lastCode.matches("WH-\\d{3}")) {
+            return "WH-001";
+        }
+
+        int lastNum = Integer.parseInt(lastCode.substring(3));
+        int nextNum = lastNum + 1;
+        return String.format("WH-%03d", nextNum); // WH-001, WH-002 ...
     }
 }
