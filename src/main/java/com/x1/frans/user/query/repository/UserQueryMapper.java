@@ -1,6 +1,7 @@
 package com.x1.frans.user.query.repository;
 
 import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
 import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
 import com.x1.frans.user.query.dto.SearchHqUserDTO;
 import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
@@ -27,4 +28,6 @@ public interface UserQueryMapper {
     List<SearchFranchiseUserDTO> findFranchiseUser(@Param("name") String name);
 
     List<SearchSupplierUserDTO> findSupplierUser(@Param("name") String name);
+
+    HqUserDepartmentDTO getDepartmentInfo(@Param("userId") Long userId);
 }
