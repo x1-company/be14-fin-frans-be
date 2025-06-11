@@ -1,6 +1,7 @@
 package com.x1.frans.franchise.query.controller;
 
 import com.x1.frans.exception.FranchiseNotFoundException;
+import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @Tag(name = "가맹점", description = "가맹점 관련 API")
 @RestController
-@RequestMapping("/api/franchise")
+@RequestMapping("/api/hq/franchise")
 public class FranchiseQueryController {
 
     private final FranchiseQueryService franchiseQueryService;
@@ -36,10 +37,16 @@ public class FranchiseQueryController {
      */
     @Operation(summary = "가맹점 목록 조회", description = "가맹점 목록을 조회합니다.")
     @GetMapping("/list")
-    public List<FranchiseListDTO> getFranchises
-    (@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<FranchiseListDTO>> getFranchises(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        return franchiseQueryService.getFranchisesByUser(userId);
+        List<FranchiseListDTO> list = franchiseQueryService.getFranchisesByUser(userId);
+
+        if (list.isEmpty()) {
+            throw new UnauthorizedAccessException("가맹점에 대한 조회 권한이 없습니다.");
+        }
+
+        return ResponseEntity.ok(list);
     }
 
     /**
