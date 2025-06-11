@@ -9,7 +9,7 @@ public class UnauthorizedAccessException extends BaseCustomException {
 
   @Override
   public ErrorCode getErrorCode() {
-    return ErrorCode.UNAUTHORIZED_ACCESS;
+    return ErrorCode.FRANCHISE_UNAUTHORIZED_ACCESS;
   }
 
 }
