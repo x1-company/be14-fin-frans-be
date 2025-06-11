@@ -3,6 +3,7 @@ package com.x1.frans.security;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.enums.UserType;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -30,7 +31,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getType().name()));
     }
 
     public Long getUserId() {
