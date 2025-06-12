@@ -7,6 +7,8 @@ import java.util.List;
 
 @Mapper
 public interface ApprovalQueryMapper  {
+    
+    List<ApprovalListDTO> getApprovalListNewest(long userId);
 
-    List<ApprovalListDTO> getApprovalList(long userId);
+    List<ApprovalListDTO> getApprovalListOldest(long userId);
 }

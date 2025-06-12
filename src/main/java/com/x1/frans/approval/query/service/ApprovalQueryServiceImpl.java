@@ -18,7 +18,12 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public List<ApprovalListDTO> getApprovalList(long userId) {
-        return approvalQueryMapper.getApprovalList(userId);
+    public List<ApprovalListDTO> getApprovalListNewest(long userId) {
+        return approvalQueryMapper.getApprovalListNewest(userId);
+    }
+
+    @Override
+    public List<ApprovalListDTO> getApprovalListOldest(long userId) {
+        return approvalQueryMapper.getApprovalListOldest(userId);
     }
 }

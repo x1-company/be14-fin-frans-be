@@ -17,7 +17,6 @@ import java.util.List;
 @Tag(name = "결재", description = "결재 관련 API")
 @RequestMapping("/api/hq/approval")
 @RestController
-@Slf4j
 public class ApprovalQueryController {
 
     private final ApprovalQueryService approvalQueryService;
@@ -26,13 +25,23 @@ public class ApprovalQueryController {
         this.approvalQueryService = approvalQueryService;
     }
 
-    @Operation(summary = "결재 목록 조회", description = "결재 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalList(@AuthenticationPrincipal CustomUserDetails user) {
+    @Operation(summary = "결재 목록 조회 - 최신순", description = "전체 결재 리스트를 최신순으로 조회한다.")
+    @GetMapping("/list/newest")
+    public ResponseEntity<List<ApprovalListDTO>> getApprovalListNewest(@AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalList(userId);
+        List<ApprovalListDTO> list = approvalQueryService.getApprovalListNewest(userId);
 
         return ResponseEntity.ok(list);
     }
+
+    @Operation(summary = "결재 목록 조회 - 오래된순", description = "전체 결재 리스트를 오래된순으로 조회한다.")
+    @GetMapping("/list/oldest")
+    public ResponseEntity<List<ApprovalListDTO>> getApprovalListOldest(@AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+        List<ApprovalListDTO> list = approvalQueryService.getApprovalListOldest(userId);
+
+        return ResponseEntity.ok(list);
+    }
+
 
 }

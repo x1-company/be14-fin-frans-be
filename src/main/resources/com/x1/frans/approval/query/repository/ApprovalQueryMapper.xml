@@ -16,7 +16,7 @@
         <result property="approvalLineStatus" column="approval_line_status"/>
 
     </resultMap>
-    <select id="getApprovalList" resultMap="getApprovalListMap">
+    <select id="getApprovalListNewest" resultMap="getApprovalListMap">
         SELECT
                a.id
              , a.code
@@ -58,5 +58,49 @@
          WHERE drafter.id = #{userId}
             OR approver.id = #{userId}
          ORDER BY a.created_at DESC
+    </select>
+
+    <select id="getApprovalListOldest" resultMap="getApprovalListMap">
+        SELECT
+            a.id
+             , a.code
+             , a.title
+             , a.status
+             , a.created_at
+             , a.is_requested
+             , drafter.name AS drafter_name
+             , drafter_dept.name AS drafter_dept_name
+             , drafter_position.name AS drafter_position_name
+             , approver.name AS approver_name
+             , approver_dept.name AS approver_dept_name
+             , approver_position.name AS approver_position_name
+             , l.seq
+             , l.approval_type
+             , l.status AS approval_line_status
+        FROM approval a
+                 LEFT JOIN approval_line l
+                           ON a.id = l.approval_id
+                               AND a.degree = l.approval_degree
+            -- 기안자 관련 조인
+                 LEFT JOIN user drafter
+                           ON a.user_id = drafter.id
+                 LEFT JOIN hq_user_detail hq_drafter
+                           ON hq_drafter.user_id = drafter.id
+                 LEFT JOIN department drafter_dept
+                           ON drafter_dept.id = hq_drafter.department_id
+                 LEFT JOIN position drafter_position
+                           ON drafter_position.id = hq_drafter.position_id
+            -- 결재자 관련 조인
+                 LEFT JOIN user approver
+                           ON l.user_id = approver.id
+                 LEFT JOIN hq_user_detail hq_approver
+                           ON hq_approver.user_id = approver.id
+                 LEFT JOIN department approver_dept
+                           ON approver_dept.id = hq_approver.department_id
+                 LEFT JOIN position approver_position
+                           ON approver_position.id = hq_approver.position_id
+        WHERE drafter.id = #{userId}
+           OR approver.id = #{userId}
+        ORDER BY a.created_at
     </select>
 </mapper>
