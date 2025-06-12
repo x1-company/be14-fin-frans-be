@@ -1,7 +1,10 @@
 package com.x1.frans.warehouse.command.application.service;
 
 import com.x1.frans.exception.InvalidDepartmentException;
+import com.x1.frans.exception.UserNotFoundException;
+import com.x1.frans.exception.WarehouseNotFoundException;
 import com.x1.frans.warehouse.command.application.service.dto.WarehouseCreateCommand;
+import com.x1.frans.warehouse.command.application.service.dto.WarehouseUpdateCommand;
 import com.x1.frans.warehouse.command.domain.aggregate.WarehouseEntity;
 import com.x1.frans.warehouse.command.domain.repository.WarehouseRepository;
 import com.x1.frans.user.command.aggregate.UserEntity;
@@ -62,5 +65,22 @@ public class WarehouseCommandServiceImpl implements WarehouseCommandService {
         int lastNum = Integer.parseInt(lastCode.substring(3));
         int nextNum = lastNum + 1;
         return String.format("WH-%03d", nextNum); // WH-001, WH-002 ...
+    }
+
+    @Override
+    @Transactional
+    public void update(WarehouseUpdateCommand command, Long departmentId) {
+        List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L);
+        if (!allowedDeptIds.contains(departmentId)) {
+            throw new InvalidDepartmentException("창고 수정은 '물류팀' 소속만 가능합니다.");
+        }
+
+        WarehouseEntity entity = warehouseRepository.findById(command.getId())
+                .orElseThrow(() -> new WarehouseNotFoundException("해당 창고를 찾을 수 없습니다."));
+
+        UserEntity user = userCommandRepository.findById(command.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("담당자 정보 없음"));
+
+        entity.updateInfo(command.getName(), command.getAddress(), user);
     }
 }
