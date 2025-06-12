@@ -4,6 +4,8 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "warehouse")
 @Getter
@@ -29,7 +31,10 @@ public class WarehouseEntity {
     private UserEntity user;
 
     @Column(nullable = false)
-    private java.time.LocalDateTime createdAt;
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
     /** 창고 등록 */
     public static WarehouseEntity create(String code, String name, String address, UserEntity user) {
@@ -38,7 +43,8 @@ public class WarehouseEntity {
                 .name(name)
                 .address(address)
                 .user(user)
-                .createdAt(java.time.LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 }
