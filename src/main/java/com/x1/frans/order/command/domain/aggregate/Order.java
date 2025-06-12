@@ -3,6 +3,7 @@ package com.x1.frans.order.command.domain.aggregate;
 import com.x1.frans.exception.InvalidOrderRejectConditionException;
 import com.x1.frans.exception.OrderRejectReasonRequiredException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
+import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,8 +26,9 @@ public class Order {
     @Column(name = "code", nullable = false, unique = true)
     private String code;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private OrderStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -56,7 +58,7 @@ public class Order {
     private Delivery delivery;
 
     public void reject(String reason) {
-        if (!status.equals("검토중") && !status.equals("검토 완료")) {
+        if (status != OrderStatus.REVIEWING && status != OrderStatus.REVIEW_COMPLETED) {
             throw new InvalidOrderRejectConditionException("해당 주문 상태에서는 반려할 수 없습니다.");
         }
 
@@ -64,17 +66,17 @@ public class Order {
             throw new OrderRejectReasonRequiredException("반려 사유는 필수입니다.");
         }
 
-        this.status = "반려";
+        this.status = OrderStatus.REJECTED;
         this.rejectedReason = reason;
         this.rejectedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     public void markReviewComplete() {
-        if (!"검토중".equals(this.status)) {
+        if (this.status != OrderStatus.REVIEWING) {
             throw new InvalidOrderRejectConditionException("검토중 상태에서만 검토 완료로 변경할 수 있습니다.");
         }
-        this.status = "검토 완료";
+        this.status = OrderStatus.REVIEW_COMPLETED;
         this.updatedAt = LocalDateTime.now();
     }
 }
