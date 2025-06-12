@@ -15,5 +15,9 @@ public interface FranchiseQueryMapper {
 
     List<FranchiseListDTO> findFranchisesByManagerId(@Param("userId") Long userId);
 
+    List<FranchiseListDTO> findFranchisesByOwnerId(@Param("userId") Long userId);
+
+    FranchiseDetailDTO findHqFranchiseDetailById(@Param("franchiseId") Long franchiseId, @Param("userId") Long userId);
+
     FranchiseDetailDTO findFranchiseDetailById(@Param("franchiseId") Long franchiseId, @Param("userId") Long userId);
 }
