@@ -1,10 +1,6 @@
 package com.x1.frans.user.query.repository;
 
-import com.x1.frans.user.command.aggregate.UserEntity;
-import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
-import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
-import com.x1.frans.user.query.dto.SearchHqUserDTO;
-import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
+import com.x1.frans.user.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,7 +16,7 @@ public interface UserQueryMapper {
 
     boolean isPhoneExist(@Param("phone") String phone);
 
-    UserEntity findByCode(@Param("userCode") String userCode);
+    LoginUserDTO findByCode(@Param("userCode") String userCode);
 
     List<SearchHqUserDTO> findHqUser(@Param("name") String name,
                                      @Param("departmentId") Long departmentId);

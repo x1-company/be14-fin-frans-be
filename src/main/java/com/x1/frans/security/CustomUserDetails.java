@@ -1,7 +1,7 @@
 package com.x1.frans.security;
 
-import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.enums.UserType;
+import com.x1.frans.user.query.dto.LoginUserDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,10 +11,10 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final UserEntity user;
+    private final LoginUserDTO user;
     private final List<GrantedAuthority> authorities;
 
-    public CustomUserDetails(UserEntity user, List<GrantedAuthority> authorities) {
+    public CustomUserDetails(LoginUserDTO user, List<GrantedAuthority> authorities) {
         this.user = user;
         this.authorities = authorities;
     }
@@ -48,6 +48,18 @@ public class CustomUserDetails implements UserDetails {
 
     public UserType getUserType() {
         return user.getType();
+    }
+
+    public Long getDepartmentId() {
+        return user.getDepartmentId();
+    }
+
+    public Long getPositionId() {
+        return user.getPositionId();
+    }
+
+    public Long getDutyId() {
+        return user.getDutyId();
     }
 
     // 주의. org.springframework.boot version 3.5.0 => 3.2.5로 변경하면서 필수적으로 오버라딩해야 하는 메소드들

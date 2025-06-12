@@ -24,6 +24,14 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi hqFranchiseApi() {
+        return GroupedOpenApi.builder()
+                .group("가맹점(본사)")
+                .pathsToMatch("/api/hq/franchise/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi franchiseApi() {
         return GroupedOpenApi.builder()
                 .group("가맹점")

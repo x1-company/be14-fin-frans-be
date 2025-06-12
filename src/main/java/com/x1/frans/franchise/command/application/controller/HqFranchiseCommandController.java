@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "가맹점", description = "가맹점 관련 API")
+@Tag(name = "🏬 가맹점", description = "가맹점 관련 API")
 @RestController
 @RequestMapping("/api/hq/franchise")
 public class HqFranchiseCommandController {
