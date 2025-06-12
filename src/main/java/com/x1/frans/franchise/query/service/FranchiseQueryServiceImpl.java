@@ -1,12 +1,9 @@
 package com.x1.frans.franchise.query.service;
 
-import com.x1.frans.exception.FranchiseNotFoundException;
 import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
 import com.x1.frans.franchise.query.repository.FranchiseQueryMapper;
-import com.x1.frans.user.enums.UserType;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +35,7 @@ public class FranchiseQueryServiceImpl implements FranchiseQueryService {
     }
 
     @Override
-    public List<FranchiseListDTO> findFranchisesByOwnerId(Long userId, UserType userType) {
+    public List<FranchiseListDTO> findFranchisesByOwnerId(Long userId) {
         return franchiseQueryMapper.findFranchisesByOwnerId(userId);
     }
 

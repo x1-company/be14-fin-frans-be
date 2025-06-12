@@ -4,7 +4,6 @@ import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
 import com.x1.frans.security.CustomUserDetails;
-import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,31 +31,18 @@ public class FranchiseQueryController {
         this.userQueryService = userQueryService;
     }
 
-    /**
-     * 가맹점주가 담당하는 가맹점 목록을 조회할 수 있다.
-     *
-     * @param userDetails 인증된 사용자 정보
-     * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
-     */
-    @Operation(summary = "가맹점주의 가맹점 목록 조회", description = "가맹점주 별 가맹점 목록을 조회합니다 ")
+    @Operation(summary = "가맹점주의 가맹점 목록 조회", description = "가맹점주가 담당하는 가맹점 목록을 조회할 수 있다. ")
     @GetMapping
     public ResponseEntity<List<FranchiseListDTO>> findFranchisesByOwnerId(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
-        UserType userType = userDetails.getUserType();
-        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByOwnerId(userId, userType);
+        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByOwnerId(userId);
 
         return ResponseEntity.ok(list);
     }
 
-    /**
-     * 가맹점주가 담당하는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.
-     *
-     * @param franchiseId 가맹점 ID
-     * @return FranchiseDetailDTO 가맹점 상세 정보가 담긴 DTO
-     */
-    @Operation(summary = "가맹점 상세 조회", description = "가맹점 정보를 상세 조회합니다.")
+    @Operation(summary = "가맹점 상세 조회", description = "가맹점주가 담당하는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.")
     @GetMapping("{franchiseId}")
     public ResponseEntity<FranchiseDetailDTO> findFranchiseDetailById(
             @PathVariable("franchiseId") Long franchiseId,

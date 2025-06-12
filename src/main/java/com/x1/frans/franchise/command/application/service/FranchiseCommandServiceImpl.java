@@ -6,8 +6,6 @@ import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.domain.repository.FranchiseCommandRepository;
 import com.x1.frans.franchise.command.domain.vo.UpdateFranchiseRequestVO;
-import com.x1.frans.user.command.aggregate.UserEntity;
-import com.x1.frans.user.command.repository.UserCommandRepository;
 import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
 import com.x1.frans.user.query.service.UserQueryService;
 import org.springframework.stereotype.Service;

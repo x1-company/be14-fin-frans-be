@@ -2,7 +2,6 @@ package com.x1.frans.franchise.query.service;
 
 import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
-import com.x1.frans.user.enums.UserType;
 
 import java.util.List;
 
@@ -17,5 +16,5 @@ public interface FranchiseQueryService {
 
     List<FranchiseListDTO> findFranchisesByManagerId(Long userId);
 
-    List<FranchiseListDTO> findFranchisesByOwnerId(Long userId, UserType userType);
+    List<FranchiseListDTO> findFranchisesByOwnerId(Long userId);
 }

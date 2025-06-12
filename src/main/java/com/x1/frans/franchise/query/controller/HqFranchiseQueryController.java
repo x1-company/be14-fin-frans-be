@@ -31,13 +31,7 @@ public class HqFranchiseQueryController {
         this.userQueryService = userQueryService;
     }
 
-    /**
-     * 자신이 속한 부서가 담당하는 가맹점 목록을 조회할 수 있다
-     *
-     * @param userDetails 인증된 사용자 정보
-     * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
-     */
-    @Operation(summary = "부서별 가맹점 목록 조회", description = "부서별 가맹점 목록을 조회합니다.")
+    @Operation(summary = "부서별 가맹점 목록 조회", description = "자신이 속한 부서가 담당하는 가맹점 목록을 조회할 수 있다")
     @GetMapping("/department")
     public ResponseEntity<List<FranchiseListDTO>> findFranchisesByDepartmentId(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -47,13 +41,7 @@ public class HqFranchiseQueryController {
         return ResponseEntity.ok(list);
     }
 
-    /**
-     * 자신이 담당하는 가맹점 목록을 조회할 수 있다
-     *
-     * @param userDetails 인증된 사용자 정보
-     * @return List<FranchiseListDTO> 가맹점 목록이 담긴 DTO 리스트
-     */
-    @Operation(summary = "담당자별 가맹점 목록 조회", description = "담당자별 가맹점 목록을 조회합니다.")
+    @Operation(summary = "담당자별 가맹점 목록 조회", description = "자신이 담당하는 가맹점 목록을 조회할 수 있다")
     @GetMapping("/manager")
     public ResponseEntity<List<FranchiseListDTO>> findFranchisesByManagerId(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -63,13 +51,7 @@ public class HqFranchiseQueryController {
         return ResponseEntity.ok(list);
     }
 
-    /**
-     * 열람 권한이 있는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.
-     *
-     * @param franchiseId 가맹점 ID
-     * @return FranchiseDetailDTO 가맹점 상세 정보가 담긴 DTO
-     */
-    @Operation(summary = "가맹점 상세 조회", description = "가맹점 정보를 상세 조회합니다.")
+    @Operation(summary = "가맹점 상세 조회", description = "열람 권한이 있는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.")
     @GetMapping("{franchiseId}")
     public ResponseEntity<FranchiseDetailDTO> findHqFranchiseDetailById(
             @PathVariable("franchiseId") Long franchiseId,
