@@ -25,7 +25,7 @@ public class StatisticsScheduler {
 
         log.info("[Scheduler] {}월 가맹점 주문 금액 통계 생성 시작", targetMonth);
         try {
-            franchiseOrderAmountStatGenerator.generate(targetMonth); // ✅ YearMonth만 넘김
+            franchiseOrderAmountStatGenerator.generate(targetMonth);
             log.info("[Scheduler] {}월 통계 생성 완료", targetMonth);
         } catch (Exception e) {
             log.error("[Scheduler] {}월 통계 생성 실패", targetMonth, e);
