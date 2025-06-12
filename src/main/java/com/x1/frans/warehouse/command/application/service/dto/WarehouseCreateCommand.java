@@ -8,5 +8,4 @@ import lombok.Setter;
 public class WarehouseCreateCommand {
     private String name;
     private String address;
-    private Long userId;
 }
