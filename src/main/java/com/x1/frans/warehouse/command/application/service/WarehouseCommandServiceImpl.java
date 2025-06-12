@@ -49,6 +49,7 @@ public class WarehouseCommandServiceImpl {
                 .address(command.getAddress())
                 .user(user)
                 .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         warehouseRepository.save(entity);
