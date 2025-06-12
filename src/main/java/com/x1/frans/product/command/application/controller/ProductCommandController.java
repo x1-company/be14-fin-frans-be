@@ -2,7 +2,7 @@ package com.x1.frans.product.command.application.controller;
 
 import com.x1.frans.product.command.application.service.ProductCommandService;
 import com.x1.frans.product.command.application.service.dto.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +11,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/hq/products")
-@RequiredArgsConstructor
 @Tag(name = "🍗 자재", description = "product")
 public class ProductCommandController {
     private final ProductCommandService productCommandService;
+
+    @Autowired
+    public ProductCommandController(ProductCommandService productCommandService) {
+        this.productCommandService = productCommandService;
+    }
     
     @PostMapping
     @Operation(
