@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -20,4 +21,6 @@ public class FranchiseDetailDTO {
     private String phone;
     private LocalDate signedAt;
     private Boolean isActive;
+    private String ownerName;
+    private Long departmentId;
 }

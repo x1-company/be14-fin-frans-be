@@ -4,5 +4,5 @@ import com.x1.frans.email.dto.UserCredentialsDTO;
 
 public interface EmailService {
 
-    void sendUserCredentials(UserCredentialsDTO userCredentialsDTO);
+    void sendUserCredentials(UserCredentialsDTO userCredentialsDTO, String type);
 }
