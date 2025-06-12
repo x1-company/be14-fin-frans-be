@@ -4,12 +4,10 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 public class HqUserRequestVO extends CreateUserRequestVO {
 
     private Long departmentId;

@@ -38,6 +38,9 @@ public class JwtUtil {
         claims.put("userId", userDetails.getUserId());
         claims.put("userProfileUrl", userDetails.getProfileUrl());
         claims.put("userType", userDetails.getUserType().name());
+        claims.put("departmentId", userDetails.getDepartmentId());
+        claims.put("positionId", userDetails.getPositionId());
+        claims.put("dutyId", userDetails.getDutyId());
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

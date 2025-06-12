@@ -6,7 +6,6 @@ import com.x1.frans.security.config.properties.TokenProperties;
 import com.x1.frans.security.util.JwtUtil;
 import com.x1.frans.security.vo.RequestLoginVO;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseCookie;
@@ -56,7 +55,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException {
+                                            Authentication authResult) throws IOException {
 
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
         String userCode = userDetails.getUsername();
@@ -85,6 +84,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("needChangePassword", userDetails.getIsTempPassword());
         responseBody.put("timestamp", LocalDateTime.now().toString());
+        responseBody.put("userType", userDetails.getUserType());
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json; charset=utf-8");
