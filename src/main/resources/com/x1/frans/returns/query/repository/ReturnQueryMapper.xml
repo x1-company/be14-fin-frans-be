@@ -3,5 +3,27 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.x1.frans.returns.query.repository.ReturnQueryMapper">
-
+    <resultMap id="shippedOrderResultMap" type="com.x1.frans.returns.query.dto.ShippedOrderDTO">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="deliveredAt" column="delivered_at"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="status" column="status"/>
+    </resultMap>
+    <select id="findDeliveredOrdersWithinLastWeek" resultMap="shippedOrderResultMap">
+        SELECT
+            o.`id`,
+            o.`code`,
+            o.`created_at`,
+            d.`delivered_at`,
+            o.`total_amount`,
+            o.`status`
+        FROM `orders` o
+        JOIN `delivery` d ON o.`delivery_id` = d.`id`
+        WHERE o.`franchise_id` = #{franchiseId}
+          AND o.`user_id` = #{userId}
+          AND o.`status` = 'DELIVERED'
+          AND d.delivered_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    </select>
 </mapper>
