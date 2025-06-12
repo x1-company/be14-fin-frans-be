@@ -8,4 +8,6 @@ public interface HqOrderCommandService {
     void rejectOrder(Long orderId, String reason, Long userId);
 
     void markReviewComplete(Long orderId, Long userId);
+
+    void cancelReviewComplete(Long orderId, Long userId);
 }

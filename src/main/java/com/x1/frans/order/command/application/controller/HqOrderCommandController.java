@@ -61,7 +61,7 @@ public class HqOrderCommandController {
 
     @PatchMapping("/{orderId}/review-complete")
     @Operation(
-            summary = "주문 상태 변경 (검토중 -> 검토 완료)",
+            summary = "주문 상태 변경 (검토 중 -> 검토 완료)",
             description = "검토중인 주문을 검토 완료로 변경합니다."
     )
     public ResponseEntity<Void> completeReview(
@@ -69,6 +69,20 @@ public class HqOrderCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         hqOrderCommandService.markReviewComplete(orderId, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/review-cancel")
+    @Operation(
+            summary = "주문 상태 변경 (검토 완료 -> 검토 중)",
+            description = "검토 완료된 주문을 검토 취소 처리하여 검토 중으로 변경합니다."
+    )
+    public ResponseEntity<Void> cancelReview(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.cancelReviewComplete(orderId, userDetails.getUserId());
 
         return ResponseEntity.ok().build();
     }
