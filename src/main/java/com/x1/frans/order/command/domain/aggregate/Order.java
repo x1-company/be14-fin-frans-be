@@ -69,4 +69,12 @@ public class Order {
         this.rejectedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void markReviewComplete() {
+        if (!"검토중".equals(this.status)) {
+            throw new InvalidOrderRejectConditionException("검토중 상태에서만 검토 완료로 변경할 수 있습니다.");
+        }
+        this.status = "검토 완료";
+        this.updatedAt = LocalDateTime.now();
+    }
 }
