@@ -79,4 +79,12 @@ public class Order {
         this.status = OrderStatus.REVIEW_COMPLETED;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void cancelReviewComplete() {
+        if (this.status != OrderStatus.REVIEW_COMPLETED) {
+            throw new InvalidOrderRejectConditionException("검토 완료 상태에서만 검토중으로 변경할 수 있습니다.");
+        }
+        this.status = OrderStatus.REVIEWING;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

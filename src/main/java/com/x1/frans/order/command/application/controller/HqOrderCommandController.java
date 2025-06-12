@@ -72,4 +72,14 @@ public class HqOrderCommandController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{orderId}/review-cancel")
+    public ResponseEntity<Void> cancelReview(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.cancelReviewComplete(orderId, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
 }
