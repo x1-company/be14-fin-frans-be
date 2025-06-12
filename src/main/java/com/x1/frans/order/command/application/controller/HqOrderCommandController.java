@@ -58,4 +58,14 @@ public class HqOrderCommandController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{orderId}/review-complete")
+    public ResponseEntity<Void> completeReview(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.markReviewComplete(orderId, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
 }

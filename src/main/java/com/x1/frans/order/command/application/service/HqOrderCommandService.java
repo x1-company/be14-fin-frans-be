@@ -6,4 +6,6 @@ public interface HqOrderCommandService {
     boolean createOrUpdateDeadline(LocalTime deadlineTime);
 
     void rejectOrder(Long orderId, String reason, Long userId);
+
+    void markReviewComplete(Long orderId, Long userId);
 }
