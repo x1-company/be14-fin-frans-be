@@ -1,7 +1,6 @@
 package com.x1.frans.warehouse.command.application.service;
 
 import com.x1.frans.exception.InvalidDepartmentException;
-import com.x1.frans.exception.UserNotFoundException;
 import com.x1.frans.warehouse.command.application.service.dto.WarehouseCreateCommand;
 import com.x1.frans.warehouse.command.domain.aggregate.WarehouseEntity;
 import com.x1.frans.warehouse.command.domain.repository.WarehouseRepository;
@@ -23,16 +22,14 @@ public class WarehouseCommandServiceImpl implements WarehouseCommandService {
 
     @Transactional
     @Override
-    public Long create(WarehouseCreateCommand command, Long userId, Long departmentId) {
-        // 물류팀 권한 체크
+    public Long create(WarehouseCreateCommand command, Long departmentId) {
         List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L); // 물류팀, 물류1팀, 물류2팀, 물류3팀
         if (!allowedDeptIds.contains(departmentId)) {
             throw new InvalidDepartmentException("창고 등록은 '물류팀' 소속만 가능합니다.");
         }
 
-        // 담당자(유저) 정보 조회
-        UserEntity user = userCommandRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("담당자 정보 없음"));
+        UserEntity user = userCommandRepository.findById(command.getUserId())
+                .orElseThrow(() -> new com.x1.frans.exception.UserNotFoundException("담당자 정보 없음"));
 
         String newCode = generateNextWarehouseCode();
 
@@ -48,6 +45,7 @@ public class WarehouseCommandServiceImpl implements WarehouseCommandService {
         warehouseRepository.save(entity);
         return entity.getId();
     }
+
 
     /** 창고코드 자동 생성 */
     private String generateNextWarehouseCode() {

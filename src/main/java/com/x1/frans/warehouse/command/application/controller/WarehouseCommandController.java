@@ -31,7 +31,7 @@ public class WarehouseCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody WarehouseCreateCommand command
     ) {
-        Long id = warehouseCommandService.create(command, userDetails.getUserId(), userDetails.getDepartmentId());
+        Long id = warehouseCommandService.create(command, userDetails.getDepartmentId());
         return ResponseEntity.ok(id);
     }
 }
