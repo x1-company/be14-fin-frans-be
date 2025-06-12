@@ -19,7 +19,7 @@ public class StatisticsScheduler {
         this.franchiseOrderAmountStatGenerator = franchiseOrderAmountStatGenerator;
     }
 
-    @Scheduled(cron = "0 28 15 12 * *")
+    @Scheduled(cron = "0 0 2 1 * *")
     public void generateLastMonthStats() {
         YearMonth targetMonth = YearMonth.now().minusMonths(1);
 
