@@ -45,6 +45,18 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     @Override
     @Transactional
     public void rejectOrder(Long orderId, String reason, Long userId) {
+        Order order = getAuthorizedOrder(orderId, userId);
+        order.reject(reason);
+    }
+
+    @Override
+    @Transactional
+    public void markReviewComplete(Long orderId, Long userId) {
+        Order order = getAuthorizedOrder(orderId, userId);
+        order.markReviewComplete();
+    }
+
+    private Order getAuthorizedOrder(Long orderId, Long userId) {
         Order order = orderCommandRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
 
@@ -62,6 +74,7 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
             throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없습니다");
         }
 
-        order.reject(reason);
+        return order;
     }
+
 }

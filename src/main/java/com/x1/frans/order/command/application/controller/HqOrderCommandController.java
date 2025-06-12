@@ -58,4 +58,18 @@ public class HqOrderCommandController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{orderId}/review-complete")
+    @Operation(
+            summary = "주문 상태 변경 (검토중 -> 검토 완료)",
+            description = "검토중인 주문을 검토 완료로 변경합니다."
+    )
+    public ResponseEntity<Void> completeReview(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.markReviewComplete(orderId, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
 }
