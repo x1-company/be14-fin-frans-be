@@ -76,11 +76,10 @@
                f.`phone`,
                f.`signed_at`,
                f.`is_active`,
-               u.`name` AS `ownerName`,
-               f.`department_id`
+               u.`name` AS `owner_name`
         FROM `franchise` f
         JOIN `hq_user_detail` h ON f.`department_id` = h.`department_id`
-        JOIN user u ON f.`owner_id` = u.`id`
+        LEFT JOIN user u ON f.`owner_id` = u.`id`
         WHERE f.`id` = #{franchiseId}
           AND h.`user_id` = #{userId}
     </select>
@@ -95,10 +94,9 @@
                f.`phone`,
                f.`signed_at`,
                f.`is_active`,
-               u.`name` AS `ownerName`,
-               f.`department_id`
+               u.`name` AS `owner_name`
         FROM `franchise` f
-        JOIN user u ON f.`owner_id` = u.`id`
+        LEFT JOIN user u ON f.`owner_id` = u.`id`
         WHERE f.`id` = #{franchiseId}
           AND f.`owner_id` = #{userId}
     </select>
