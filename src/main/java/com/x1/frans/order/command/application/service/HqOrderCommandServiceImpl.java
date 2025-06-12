@@ -56,6 +56,13 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
         order.markReviewComplete();
     }
 
+    @Override
+    @Transactional
+    public void cancelReviewComplete(Long orderId, Long userId) {
+        Order order = getAuthorizedOrder(orderId, userId);
+        order.cancelReviewComplete();
+    }
+
     private Order getAuthorizedOrder(Long orderId, Long userId) {
         Order order = orderCommandRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
