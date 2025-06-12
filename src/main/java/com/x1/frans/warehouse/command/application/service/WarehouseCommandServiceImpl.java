@@ -12,20 +12,19 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class WarehouseCommandServiceImpl {
+public class WarehouseCommandServiceImpl implements WarehouseCommandService {
 
     private final WarehouseRepository warehouseRepository;
     private final UserCommandRepository userCommandRepository;
     private final UserQueryService userQueryService;
 
-    @Transactional
+    @Override
     public Long create(WarehouseCreateCommand command) {
         UserEntity user = userCommandRepository.findById(command.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("담당자 정보 없음"));
@@ -35,7 +34,7 @@ public class WarehouseCommandServiceImpl {
             throw new DepartmentNotFound("부서 정보를 찾을 수 없습니다.");
         }
         Long deptId = deptInfo.getDepartmentId();
-        List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L); // 실제 id로
+        List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L);
 
         if (!allowedDeptIds.contains(deptId)) {
             throw new InvalidDepartmentException("창고 등록은 '물류팀' 소속만 가능합니다.");
