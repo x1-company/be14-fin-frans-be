@@ -10,7 +10,11 @@ public interface FranchiseQueryService {
 
     List<FranchiseListDTO> findFranchisesByDepartmentId(Long userId);
 
+    FranchiseDetailDTO findHqFranchiseDetailById(Long franchiseId, Long userId);
+
     FranchiseDetailDTO findFranchiseDetailById(Long franchiseId, Long userId);
 
     List<FranchiseListDTO> findFranchisesByManagerId(Long userId);
+
+    List<FranchiseListDTO> findFranchisesByOwnerId(Long userId);
 }

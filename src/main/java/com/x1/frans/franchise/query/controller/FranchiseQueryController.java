@@ -19,49 +19,39 @@ import java.util.List;
 
 @Tag(name = "🏬 가맹점", description = "가맹점 관련 API")
 @RestController
-@RequestMapping("/api/hq/franchise")
-public class HqFranchiseQueryController {
+@RequestMapping("/api/franchise")
+public class FranchiseQueryController {
 
     private final FranchiseQueryService franchiseQueryService;
     private final UserQueryService userQueryService;
 
     @Autowired
-    public HqFranchiseQueryController(FranchiseQueryService franchiseQueryService, UserQueryService userQueryService) {
+    public FranchiseQueryController(FranchiseQueryService franchiseQueryService, UserQueryService userQueryService) {
         this.franchiseQueryService = franchiseQueryService;
         this.userQueryService = userQueryService;
     }
 
-    @Operation(summary = "부서별 가맹점 목록 조회", description = "자신이 속한 부서가 담당하는 가맹점 목록을 조회할 수 있다")
-    @GetMapping("/department")
-    public ResponseEntity<List<FranchiseListDTO>> findFranchisesByDepartmentId(
+    @Operation(summary = "가맹점주의 가맹점 목록 조회", description = "가맹점주가 담당하는 가맹점 목록을 조회할 수 있다. ")
+    @GetMapping
+    public ResponseEntity<List<FranchiseListDTO>> findFranchisesByOwnerId(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
         Long userId = userDetails.getUserId();
-        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByDepartmentId(userId);
+        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByOwnerId(userId);
 
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "담당자별 가맹점 목록 조회", description = "자신이 담당하는 가맹점 목록을 조회할 수 있다")
-    @GetMapping("/manager")
-    public ResponseEntity<List<FranchiseListDTO>> findFranchisesByManagerId(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        List<FranchiseListDTO> list = franchiseQueryService.findFranchisesByManagerId(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "가맹점 상세 조회", description = "열람 권한이 있는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.")
+    @Operation(summary = "가맹점 상세 조회", description = "가맹점주가 담당하는 가맹점에 한해서 가맹점 정보를 상세 조회할 수 있다.")
     @GetMapping("{franchiseId}")
-    public ResponseEntity<FranchiseDetailDTO> findHqFranchiseDetailById(
+    public ResponseEntity<FranchiseDetailDTO> findFranchiseDetailById(
             @PathVariable("franchiseId") Long franchiseId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
 
-        FranchiseDetailDTO detail = franchiseQueryService.findHqFranchiseDetailById(franchiseId, userId);
+        FranchiseDetailDTO detail = franchiseQueryService.findFranchiseDetailById(franchiseId, userId);
 
         return ResponseEntity.ok(detail);
     }
 }
-

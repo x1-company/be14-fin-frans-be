@@ -22,5 +22,4 @@ public class FranchiseDetailDTO {
     private LocalDate signedAt;
     private Boolean isActive;
     private String ownerName;
-    private Long departmentId;
 }
