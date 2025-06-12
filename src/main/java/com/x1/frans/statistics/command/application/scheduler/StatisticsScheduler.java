@@ -1,6 +1,7 @@
 package com.x1.frans.statistics.command.application.scheduler;
 
-import com.x1.frans.statistics.command.application.generator.FranchiseOrderAmountStatGenerator;
+import com.x1.frans.statistics.command.application.generator.StatisticsGenerator;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,24 +13,28 @@ import java.time.YearMonth;
 @Component
 public class StatisticsScheduler {
 
-    private final FranchiseOrderAmountStatGenerator franchiseOrderAmountStatGenerator;
+    private final List<StatisticsGenerator> statisticsGenerators;
 
     @Autowired
-    public StatisticsScheduler(FranchiseOrderAmountStatGenerator franchiseOrderAmountStatGenerator) {
-        this.franchiseOrderAmountStatGenerator = franchiseOrderAmountStatGenerator;
+    public StatisticsScheduler(List<StatisticsGenerator> statisticsGenerators) {
+        this.statisticsGenerators = statisticsGenerators;
     }
 
-    @Scheduled(cron = "0 0 2 1 * *")
+    @Scheduled(cron = "0 30 18 12 * *")
     public void generateLastMonthStats() {
         YearMonth targetMonth = YearMonth.now().minusMonths(1);
 
-        log.info("[Scheduler] {}월 가맹점 주문 금액 통계 생성 시작", targetMonth);
-        try {
-            franchiseOrderAmountStatGenerator.generate(targetMonth);
-            log.info("[Scheduler] {}월 통계 생성 완료", targetMonth);
-        } catch (Exception e) {
-            log.error("[Scheduler] {}월 통계 생성 실패", targetMonth, e);
+        log.info("[Scheduler] {}월 통계 생성 시작", targetMonth);
+
+        for (StatisticsGenerator generator : statisticsGenerators) {
+            try {
+                generator.generate(targetMonth);
+            } catch (Exception e) {
+                log.error("[Scheduler] {}월 통계 생성 실패: {}", targetMonth, generator.getClass().getSimpleName(), e);
+            }
         }
+
+        log.info("[Scheduler] {}월 통계 생성 완료", targetMonth);
     }
 
 }
