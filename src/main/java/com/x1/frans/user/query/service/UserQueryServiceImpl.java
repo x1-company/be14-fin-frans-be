@@ -4,10 +4,7 @@ import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.security.exception.AccountDeletedException;
 import com.x1.frans.security.exception.AccountLockedException;
 import com.x1.frans.user.command.aggregate.UserEntity;
-import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
-import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
-import com.x1.frans.user.query.dto.SearchHqUserDTO;
-import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
+import com.x1.frans.user.query.dto.*;
 import com.x1.frans.user.query.repository.UserQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,7 +43,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     @Override
     public UserDetails loadUserByUsername(String userCode) throws UsernameNotFoundException {
 
-        UserEntity loginUser = userQueryMapper.findByCode(userCode);
+        LoginUserDTO loginUser = userQueryMapper.findByCode(userCode);
 
         if (loginUser == null) {
             throw new UsernameNotFoundException("존재하지 않는 아이디입니다.");

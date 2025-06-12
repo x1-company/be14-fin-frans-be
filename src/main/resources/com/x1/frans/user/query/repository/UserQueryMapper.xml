@@ -28,7 +28,7 @@
         )
     </select>
 
-    <resultMap id="findByCodeResultMap" type="com.x1.frans.user.command.aggregate.UserEntity">
+    <resultMap id="findByCodeResultMap" type="com.x1.frans.user.query.dto.LoginUserDTO">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
         <result property="password" column="password"/>
@@ -42,23 +42,36 @@
         <result property="isTempPassword" column="is_temp_password" javaType="java.lang.Boolean"/>
         <result property="signUrl" column="sign_url"/>
         <result property="profileUrl" column="profile_url"/>
+        <result property="departmentId" column="departmentId"/>
+        <result property="departmentName" column="departmentName"/>
+        <result property="positionId" column="positionId"/>
+        <result property="positionName" column="positionName"/>
+        <result property="dutyId" column="dutyId"/>
+        <result property="dutyName" column="dutyName"/>
     </resultMap>
     <select id="findByCode" resultMap="findByCodeResultMap">
         SELECT
-               `id`
-             , `code`
-             , `password`
-             , `name`
-             , `phone`
-             , `email`
-             , `type`
-             , `created_at`
-             , `is_deleted`
-             , `is_locked`
-             , `is_temp_password`
-             , `sign_url`
-             , `profile_url`
-          FROM `user`
+               a.`id`
+             , a.`code`
+             , a.`password`
+             , a.`name`
+             , a.`phone`
+             , a.`email`
+             , a.`type`
+             , a.`created_at`
+             , a.`is_deleted`
+             , a.`is_locked`
+             , a.`is_temp_password`
+             , a.`sign_url`
+             , a.`profile_url`
+             , c.`id` AS `departmentId`
+             , d.`id` AS `dutyId`
+             , e.`id` AS `positionId`
+          FROM `user` a
+          LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
+          LEFT JOIN `department` c ON b.`department_id` = c.`id`
+          LEFT JOIN `duty` d on b.`duty_id` = d.id
+          LEFT JOIN `position` e on b.`position_id` = e.id
          WHERE `code` = #{userCode}
     </select>
 
