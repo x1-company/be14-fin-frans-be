@@ -89,6 +89,10 @@ public class HqOrderCommandController {
     }
 
     @PatchMapping("/{orderId}/status")
+    @Operation(
+            summary = "주문 배송 상태 변경",
+            description = "결재 완료 이후의 상태들을 결재 완료, 배송 준비 중, 배송 중, 배송 완료 중 하나로 변경합니다."
+    )
     public ResponseEntity<Void> updateOrderStatusAndDelivery(
             @PathVariable Long orderId,
             @RequestBody OrderStatusUpdateRequestDto dto,
