@@ -1,6 +1,6 @@
 package com.x1.frans.order.command.domain.aggregate;
 
-import com.x1.frans.exception.InvalidOrderRejectConditionException;
+import com.x1.frans.exception.InvalidRejectConditionException;
 import com.x1.frans.exception.OrderRejectReasonRequiredException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.order.command.domain.vo.OrderStatus;
@@ -59,7 +59,7 @@ public class Order {
 
     public void reject(String reason) {
         if (status != OrderStatus.REVIEWING && status != OrderStatus.REVIEW_COMPLETED) {
-            throw new InvalidOrderRejectConditionException("해당 주문 상태에서는 반려할 수 없습니다.");
+            throw new InvalidRejectConditionException("해당 주문 상태에서는 반려할 수 없습니다.");
         }
 
         if (reason == null || reason.trim().isEmpty()) {
@@ -74,7 +74,7 @@ public class Order {
 
     public void markReviewComplete() {
         if (this.status != OrderStatus.REVIEWING) {
-            throw new InvalidOrderRejectConditionException("검토중 상태에서만 검토 완료로 변경할 수 있습니다.");
+            throw new InvalidRejectConditionException("검토중 상태에서만 검토 완료로 변경할 수 있습니다.");
         }
         this.status = OrderStatus.REVIEW_COMPLETED;
         this.updatedAt = LocalDateTime.now();
@@ -82,7 +82,7 @@ public class Order {
 
     public void cancelReviewComplete() {
         if (this.status != OrderStatus.REVIEW_COMPLETED) {
-            throw new InvalidOrderRejectConditionException("검토 완료 상태에서만 검토중으로 변경할 수 있습니다.");
+            throw new InvalidRejectConditionException("검토 완료 상태에서만 검토중으로 변경할 수 있습니다.");
         }
         this.status = OrderStatus.REVIEWING;
         this.updatedAt = LocalDateTime.now();
