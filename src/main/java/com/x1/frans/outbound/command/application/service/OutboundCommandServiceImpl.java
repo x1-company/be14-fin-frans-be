@@ -89,5 +89,7 @@ public class OutboundCommandServiceImpl implements OutboundCommandService {
         outbound.setDeliveryId(vo.getDeliveryId());
 
         outboundCommandRepository.save(outbound);
+
+        // TODO: 자재 연동 추가 필요
     }
 }
