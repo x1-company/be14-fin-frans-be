@@ -13,12 +13,12 @@
     </resultMap>
     <select id="findDeliveredOrdersWithinLastWeek" resultMap="shippedOrderResultMap">
         SELECT
-            o.`id`,
-            o.`code`,
-            o.`created_at`,
-            d.`delivered_at`,
-            o.`total_amount`,
-            o.`status`
+               o.`id`
+             , o.`code`
+             , o.`created_at`
+             , d.`delivered_at`
+             , o.`total_amount`
+             , o.`status`
         FROM `orders` o
         JOIN `delivery` d ON o.`delivery_id` = d.`id`
         WHERE o.`franchise_id` = #{franchiseId}
