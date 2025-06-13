@@ -1,18 +1,25 @@
 package com.x1.frans.user.command.controller;
 
+import com.x1.frans.exception.AccessDeniedException;
+import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.user.command.service.UserCommandService;
 import com.x1.frans.user.command.vo.FranchiseUserRequestVO;
 import com.x1.frans.user.command.vo.HqUserRequestVO;
 import com.x1.frans.user.command.vo.SupplierUserRequestVO;
+import com.x1.frans.user.enums.DepartmentType;
+import com.x1.frans.user.enums.PositionType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/hq/user")
@@ -29,9 +36,13 @@ public class UserCommandController {
     @PostMapping("/hq")
     @Operation(
             summary = "본사 직원 등록",
-            description = "본사 직원 정보를 받아 등록 후 메일 발송"
+            description = "본사 직원 정보를 받아 등록 후 메일 발송. 인사팀 혹은 부장 직급만 가능"
     )
-    public ResponseEntity<Void> createHqUser(@RequestBody HqUserRequestVO hqUserRequestVO) {
+    public ResponseEntity<Void> createHqUser(@RequestBody HqUserRequestVO hqUserRequestVO,
+                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        validateDPTIsHRM(customUserDetails.getDepartmentId(), customUserDetails.getPositionId());
+
         userCommandService.createHqUser(hqUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -40,9 +51,13 @@ public class UserCommandController {
     @PostMapping("/franchise")
     @Operation(
             summary = "가맹점주 및 가맹점 등록",
-            description = "가맹점주 및 가맹점 정보를 받아 등록 후 메일 발송"
+            description = "가맹점주 및 가맹점 정보를 받아 등록 후 메일 발송. 인사팀 혹은 부장 직급만 가능"
     )
-    public ResponseEntity<Void> createFranchiseUser(@RequestBody FranchiseUserRequestVO franchiseUserRequestVO) {
+    public ResponseEntity<Void> createFranchiseUser(@RequestBody FranchiseUserRequestVO franchiseUserRequestVO,
+                                                    @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        validateDPTIsHRM(customUserDetails.getDepartmentId(), customUserDetails.getPositionId());
+
         userCommandService.createFranchiseUser(franchiseUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -51,11 +66,24 @@ public class UserCommandController {
     @PostMapping("/supplier")
     @Operation(
             summary = "공급처 직원 및 공급처 등록",
-            description = "공급처 직원 및 공급처 정보를 받아 등록 후 메일 발송"
+            description = "공급처 직원 및 공급처 정보를 받아 등록 후 메일 발송. 인사팀 혹은 부장 직급만 가능"
     )
-    public ResponseEntity<Void> createSupplierUser(@RequestBody SupplierUserRequestVO supplierUserRequestVO) {
+    public ResponseEntity<Void> createSupplierUser(@RequestBody SupplierUserRequestVO supplierUserRequestVO,
+                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        validateDPTIsHRM(customUserDetails.getDepartmentId(), customUserDetails.getPositionId());
+
         userCommandService.createSupplierUser(supplierUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    private void validateDPTIsHRM(Long departmentId, Long positionId) {
+
+       if (!Objects.equals(departmentId, DepartmentType.HRM.getId()) &&
+               !Objects.equals(PositionType.GM.getId(), positionId)
+       ) {
+           throw new AccessDeniedException("해당 기능에 대한 권한이 없습니다!");
+       }
     }
 }
