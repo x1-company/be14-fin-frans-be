@@ -87,4 +87,19 @@ public class Order {
         this.status = OrderStatus.REVIEWING;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateStatus(OrderStatus newStatus) {
+        if (!isUpdatableStatus()) {
+            throw new InvalidRejectConditionException("현재 상태에서는 주문 상태를 변경할 수 없습니다.");
+        }
+        this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    private boolean isUpdatableStatus() {
+        return status == OrderStatus.APPROVED ||
+                status == OrderStatus.READY_FOR_DELIVERY ||
+                status == OrderStatus.DELIVERING ||
+                status == OrderStatus.DELIVERED;
+    }
 }

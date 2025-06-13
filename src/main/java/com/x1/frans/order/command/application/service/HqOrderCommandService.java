@@ -1,5 +1,7 @@
 package com.x1.frans.order.command.application.service;
 
+import com.x1.frans.order.command.application.dto.OrderStatusUpdateRequestDto;
+
 import java.time.LocalTime;
 
 public interface HqOrderCommandService {
@@ -10,4 +12,6 @@ public interface HqOrderCommandService {
     void markReviewComplete(Long orderId, Long userId);
 
     void cancelReviewComplete(Long orderId, Long userId);
+
+    void updateOrderStatusAndDelivery(Long orderId, OrderStatusUpdateRequestDto dto, Long userId);
 }
