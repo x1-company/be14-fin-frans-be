@@ -23,12 +23,10 @@ import java.util.List;
 public class HqFranchiseQueryController {
 
     private final FranchiseQueryService franchiseQueryService;
-    private final UserQueryService userQueryService;
 
     @Autowired
-    public HqFranchiseQueryController(FranchiseQueryService franchiseQueryService, UserQueryService userQueryService) {
+    public HqFranchiseQueryController(FranchiseQueryService franchiseQueryService) {
         this.franchiseQueryService = franchiseQueryService;
-        this.userQueryService = userQueryService;
     }
 
     @Operation(summary = "부서별 가맹점 목록 조회", description = "자신이 속한 부서가 담당하는 가맹점 목록을 조회할 수 있다")
