@@ -51,8 +51,10 @@ public enum ErrorCode {
 
     // 창고 관련 에러
     DEPARTMENT_NOT_FOUND("DEPARTMENT_NOT_FOUND", HttpStatus.BAD_REQUEST),
-    INVALID_DEPARTMENT("INVALID_DEPARTMENT", HttpStatus.FORBIDDEN);
+    INVALID_DEPARTMENT("INVALID_DEPARTMENT", HttpStatus.FORBIDDEN),
 
+    // 통계 관련 에러
+    STATISTICS_UNAUTHORIZED_ACCESS("STATISTICS_UNAUTHORIZED_ACCESS", HttpStatus.FORBIDDEN);
 
     private final String code;
     private final HttpStatus httpStatus;
