@@ -31,45 +31,45 @@
     <!-- 3. 매니저별 월별 통계 -->
     <select id="selectStatsByManager" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
-            s.id,
-            f.id AS franchise_id,
-            f.name AS franchise_name,
-            s.year,
-            s.month,
-            s.order_amount,
-            s.created_at
-        FROM franchise_order_amount_stat s
-                 JOIN franchise f ON s.franchise_id = f.id
-        WHERE f.manager_id = #{managerId}
+               s.id,
+               f.id AS franchise_id,
+               f.name AS franchise_name,
+               s.year,
+               s.month,
+               s.order_amount,
+               s.created_at
+          FROM franchise_order_amount_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+         WHERE f.manager_id = #{managerId}
     </select>
 
     <!-- 4. 부서별 월별 통계 -->
     <select id="selectStatsByDepartment" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
-            s.id,
-            f.id AS franchise_id,
-            f.name AS franchise_name,
-            s.year,
-            s.month,
-            s.order_amount,
-            s.created_at
-        FROM franchise_order_amount_stat s
-                 JOIN franchise f ON s.franchise_id = f.id
-        WHERE f.department_id = #{departmentId}
+               s.id,
+               f.id AS franchise_id,
+               f.name AS franchise_name,
+               s.year,
+               s.month,
+               s.order_amount,
+               s.created_at
+          FROM franchise_order_amount_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+         WHERE f.department_id = #{departmentId}
     </select>
 
     <!-- 5. 전체 통계 조회 (권한 체크는 서비스 단에서 처리됨) -->
     <select id="selectAllStats" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
-            s.id,
-            f.id AS franchise_id,
-            f.name AS franchise_name,
-            s.year,
-            s.month,
-            s.order_amount,
-            s.created_at
-        FROM franchise_order_amount_stat s
-                 JOIN franchise f ON s.franchise_id = f.id
+               s.id,
+               f.id AS franchise_id,
+               f.name AS franchise_name,
+               s.year,
+               s.month,
+               s.order_amount,
+               s.created_at
+          FROM franchise_order_amount_stat s
+          JOIN franchise f ON s.franchise_id = f.id
     </select>
 
     <!-- 6. 직책 이름 조회 -->
