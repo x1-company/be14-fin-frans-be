@@ -45,6 +45,6 @@ public class SupplierCommandController {
         long userId = customUserDetails.getUserId();
         supplierCommandService.updateSupplier(userId, supplierId, supplierUpdateRequestVO);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

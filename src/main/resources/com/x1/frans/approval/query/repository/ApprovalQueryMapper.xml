@@ -16,8 +16,8 @@
         <result property="approvalLineStatus" column="approval_line_status"/>
 
     </resultMap>
-    <!-- 결재 수신 관련 -->
-    <select id="getApprovalListReceivedAll" resultMap="getApprovalListMap">
+    <!-- 결재 상신 관련 -->
+    <select id="getApprovalListSubmittedAll" resultMap="getApprovalListMap">
         SELECT
                a.id
              , a.code
@@ -1002,6 +1002,15 @@
          WHERE l.user_id = #{userId}
            AND l.approval_type = '수신'
          ORDER BY a.created_at DESC
+    </select>
+
+<!--  결재 코드 조회  -->
+    <select id="findLatestApprovalCode" resultType="string">
+        SELECT code
+        FROM approval
+        WHERE code LIKE CONCAT(#{codePrefix}, '%')
+        ORDER BY code DESC
+            LIMIT 1
     </select>
 
 </mapper>
