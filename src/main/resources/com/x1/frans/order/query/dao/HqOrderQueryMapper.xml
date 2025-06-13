@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.order.query.dao.HqOrderQueryMapper">
+
+    <resultMap id="OrderSummaryMap" type="com.x1.frans.order.query.dto.OrderSummaryResponseDto">
+        <id property="orderId" column="order_id"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="productSummary" column="product_summary"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="franchiseName" column="franchise_name"/>
+    </resultMap>
+
+    <!-- 주문 목록 조회 (검색, 페이징 포함) -->
+    <select id="searchOrders" resultMap="OrderSummaryMap"
+            parameterType="com.x1.frans.order.query.dto.OrderSearchConditionDto">
+        SELECT
+        o.id AS order_id
+        , o.code AS order_code
+        , CONCAT(p.name, ' 외 ', COUNT(*) - 1, '건') AS product_summary
+        , o.status
+        , o.created_at
+        , o.total_amount
+        , f.name AS franchise_name
+        FROM orders o
+        JOIN franchise f ON o.franchise_id = f.id
+        JOIN product_order po ON o.id = po.order_id
+        JOIN product p ON po.product_id = p.id
+        <where>
+            <if test="franchiseId != null">
+                o.franchise_id = #{franchiseId}
+            </if>
+
+            <if test="code != null and code != ''">
+                AND o.code LIKE CONCAT('%', #{code}, '%')
+            </if>
+
+            <if test="product != null and product != ''">
+                AND p.name LIKE CONCAT('%', #{product}, '%')
+            </if>
+
+            <if test="status != null and status != ''">
+                AND o.status LIKE CONCAT('%', #{status}, '%')
+            </if>
+
+            <if test="startDate != null and endDate != null">
+                AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+        GROUP BY o.id
+        ORDER BY o.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 주문 개수 조회 (페이징 계산용) -->
+    <select id="countOrders" resultType="int"
+            parameterType="com.x1.frans.order.query.dto.OrderSearchConditionDto">
+        SELECT COUNT(DISTINCT o.id)
+        FROM orders o
+        JOIN product_order po ON o.id = po.order_id
+        JOIN product p ON po.product_id = p.id
+        <where>
+            <if test="franchiseId != null">
+                o.franchise_id = #{franchiseId}
+            </if>
+
+            <if test="code != null and code != ''">
+                AND o.code LIKE CONCAT('%', #{code}, '%')
+            </if>
+
+            <if test="product != null and product != ''">
+                AND p.name LIKE CONCAT('%', #{product}, '%')
+            </if>
+
+            <if test="status != null and status != ''">
+                AND o.status LIKE CONCAT('%', #{status}, '%')
+            </if>
+
+            <if test="startDate != null and endDate != null">
+                AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- 주문 기본 정보 + 가맹점 + 배송 + 출고 + 결재 -->
+    <select id="findOrderDetailById" resultType="com.x1.frans.order.query.dto.OrderDetailDto">
+        SELECT
+            -- 가맹점 정보
+            f.name            AS franchiseName,
+            f.code            AS franchiseCode,
+            f.business_number AS businessNumber,
+            u.name            AS ceoName,
+            f.signed_at       AS franchiseSignedAt,
+            f.address         AS franchiseAddress,
+            f.zipcode         AS zipCode,
+            f.phone           AS franchisePhone,
+
+            -- 주문 정보
+            o.code, DATE (o.created_at) AS orderDate, o.status, o.total_amount, CASE WHEN o.status = 'REJECTED' THEN o.rejected_reason ELSE NULL
+        END AS rejectedReason,
+
+        -- 배송 정보
+        d.delivery_company AS deliveryCompany,
+        d.name AS driverName,
+        d.phone AS driverPhone,
+        d.tracking_number AS trackingNumber,
+
+        -- 출고 정보
+        ob_sub.code AS outboundCode,
+        DATE(ob_sub.shipped_at) AS outboundDate,
+        u2.name AS outboundManager,
+
+        -- 결재 정보
+        a_sub.code AS approvalCode,
+        u3.name AS approvalRequester,
+        DATE(a_sub.created_at) AS approvalRequestedAt,
+        a_sub.status AS approvalStatus,
+        DATE(a_sub.processed_at) AS approvalCompletedAt
+
+    FROM orders o
+        JOIN franchise f ON o.franchise_id = f.id
+        JOIN user u ON f.owner_id = u.id
+        LEFT JOIN delivery d ON o.delivery_id = d.id
+
+        LEFT JOIN (
+            SELECT ob.*, ROW_NUMBER() OVER (PARTITION BY ob.delivery_id ORDER BY ob.shipped_at DESC) AS rn
+            FROM outbound ob
+        ) ob_sub ON ob_sub.delivery_id = d.id AND ob_sub.rn = 1
+
+        LEFT JOIN user u2 ON ob_sub.user_id = u2.id
+
+        LEFT JOIN (
+            SELECT a.*, oa.orders_id, ROW_NUMBER() OVER (PARTITION BY oa.orders_id ORDER BY a.created_at DESC) AS rn
+            FROM order_approval oa
+            JOIN approval a ON a.id = oa.approval_id AND a.degree = oa.approval_degree
+        ) a_sub ON a_sub.orders_id = o.id AND a_sub.rn = 1
+
+        LEFT JOIN user u3 ON a_sub.user_id = u3.id
+
+    WHERE o.id =
+        #{orderId}
+    </select>
+
+    <!-- 자재 리스트 -->
+    <select id="findProductsByOrderId" resultType="com.x1.frans.product.query.dto.ProductDetailDTO">
+        SELECT p.id,
+               p.code,
+               p.name,
+               p.spec,
+               p.purchase_unit        AS purchaseUnit,
+               p.unit,
+               p.product_group_id     AS productGroupId,
+               p.product_type_id      AS productTypeId,
+               p.product_attribute_id AS productAttributeId,
+               p.purchase_price       AS purchasePrice,
+               p.sale_price           AS salePrice,
+               s.name                 AS supplierName,
+               po.quantity            AS quantity
+
+        FROM product_order po
+                 JOIN product p ON p.id = po.product_id
+                 JOIN supplier s ON s.id = p.supplier_id
+                 JOIN orders o ON o.id = po.order_id
+
+        WHERE o.id = #{orderId}
+    </select>
+
+</mapper>
