@@ -52,8 +52,10 @@ public enum ErrorCode {
     // 창고 관련 에러
     DEPARTMENT_NOT_FOUND("DEPARTMENT_NOT_FOUND", HttpStatus.BAD_REQUEST),
     INVALID_DEPARTMENT("INVALID_DEPARTMENT", HttpStatus.FORBIDDEN),
-    WAREHOUSE_NOT_FOUND("WAREHOUSE_NOT_FOUND", HttpStatus.NOT_FOUND);
+    WAREHOUSE_NOT_FOUND("WAREHOUSE_NOT_FOUND", HttpStatus.NOT_FOUND),
 
+    // 반품 관련 에러
+    INVALID_RETURN_REJECT_CONDITION("INVALID_REJECT_CONDITION", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final HttpStatus httpStatus;
