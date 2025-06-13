@@ -3,6 +3,7 @@ package com.x1.frans.warehouse.command.application.controller;
 import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.warehouse.command.application.service.WarehouseCommandService;
 import com.x1.frans.warehouse.command.application.service.dto.WarehouseCreateCommand;
+import com.x1.frans.warehouse.command.application.service.dto.WarehouseUpdateCommand;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,18 @@ public class WarehouseCommandController {
     ) {
         Long id = warehouseCommandService.create(command, userDetails.getDepartmentId());
         return ResponseEntity.ok(id);
+    }
+
+    @PutMapping
+    @Operation(
+            summary = "창고 정보 수정",
+            description = "창고 정보를 수정합니다. name, address, 담당자 userId 모두 수정 가능."
+    )
+    public ResponseEntity<Void> update(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody WarehouseUpdateCommand command
+    ) {
+        warehouseCommandService.update(command, userDetails.getDepartmentId());
+        return ResponseEntity.ok().build();
     }
 }

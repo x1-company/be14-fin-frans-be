@@ -3,7 +3,7 @@ package com.x1.frans.order.query.controller;
 import com.x1.frans.order.query.dao.FranchiseOrderQueryMapper;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
-import com.x1.frans.order.query.service.OrderQueryService;
+import com.x1.frans.order.query.service.HqOrderQueryService;
 import com.x1.frans.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class FranchiseOrderQueryController {
 
-    private final OrderQueryService orderQueryService;
+    private final HqOrderQueryService orderQueryService;
     private final FranchiseOrderQueryMapper franchiseOrderQueryMapper; // userId → franchiseId 조회용
 
     @GetMapping

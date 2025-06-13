@@ -21,7 +21,7 @@ public class Delivery {
     private String code;
 
     @Column(nullable = false)
-    private String status; // 예: 접수 대기, 배송 중, 배송 완료 등
+    private String status;
 
     @Column(name = "delivery_company")
     private String deliveryCompany;

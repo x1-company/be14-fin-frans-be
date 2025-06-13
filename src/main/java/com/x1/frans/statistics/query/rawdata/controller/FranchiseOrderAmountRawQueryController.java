@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "주문 금액 원천 데이터 조회", description = "스케줄러가 통계 생성에 사용할 원천 데이터를 조회하는 기능")
+@Tag(name = "📊 주문 금액 원천 데이터 조회", description = "스케줄러가 통계 생성에 사용할 원천 데이터를 조회하는 기능")
 @Slf4j
 @RestController
 @RequestMapping("/api/statistics/rawdata")

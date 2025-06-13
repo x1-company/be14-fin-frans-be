@@ -19,7 +19,7 @@ import java.time.format.DateTimeParseException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/hq/orders")
-@Tag(name = "📝 주문", description = "orders")
+@Tag(name = "📝 주문 처리", description = "주문 상태 변경, 처리 관련 API")
 public class HqOrderCommandController {
 
     private final HqOrderCommandService hqOrderCommandService;

@@ -2,9 +2,9 @@ package com.x1.frans.exception;
 
 import com.x1.frans.exception.enums.ErrorCode;
 
-public class InvalidOrderRejectConditionException extends BaseCustomException {
+public class InvalidRejectConditionException extends BaseCustomException {
 
-    public InvalidOrderRejectConditionException(String message) {
+    public InvalidRejectConditionException(String message) {
         super(message);
     }
 

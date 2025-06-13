@@ -47,4 +47,12 @@ public class WarehouseEntity {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+
+    /** 창고 수정 */
+    public void updateInfo(String name, String address, UserEntity user) {
+        this.name = name;
+        this.address = address;
+        this.user = user;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

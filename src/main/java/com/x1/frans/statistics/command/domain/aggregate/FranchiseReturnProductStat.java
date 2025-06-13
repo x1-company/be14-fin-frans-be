@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "")
+@Table(name = "franchise_return_product_stat")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
