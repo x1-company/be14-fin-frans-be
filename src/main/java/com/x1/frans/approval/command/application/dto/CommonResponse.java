@@ -16,8 +16,4 @@ public class CommonResponse<T> {
         return new CommonResponse<>(true, data, message);
     }
 
-    // 실패 응답 생성
-//    public static <T> CommonResponse<T> fail(String message) {
-//        return new CommonResponse<>(false, null, message);
-//    }
 }

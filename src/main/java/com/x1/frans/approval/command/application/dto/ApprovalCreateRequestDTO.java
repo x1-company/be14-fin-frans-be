@@ -1,5 +1,6 @@
 package com.x1.frans.approval.command.application.dto;
 
+import com.x1.frans.approval.common.ApprovalCategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -25,9 +26,9 @@ public class ApprovalCreateRequestDTO {
     @NotNull(message = "요청여부는 필수입니다.")
     private Boolean isRequest;
 
-    @Schema(description = "결재 유형 ID ( 주문, 반품, 발주 )")
-    @NotNull(message = "결재 유형 ID는 필수입니다.")
-    private Long approvalCategoryId;  // 또는 enum ID 등
+    @Schema(description = "결재에 포함될 문서 정보")
+    @NotNull(message = "결재 문서 정보는 필수입니다.")
+    private ApprovalDocumentDTO approvalDocuments;
 
     @Schema(description = "결재선 정보")
     @NotNull(message = "결재선 정보는 필수입니다.")

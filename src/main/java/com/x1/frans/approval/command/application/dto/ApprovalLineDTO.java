@@ -1,7 +1,14 @@
 package com.x1.frans.approval.command.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
 
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class ApprovalLineDTO {
 
     @Schema(description = "결재 id")
@@ -24,7 +31,6 @@ public class ApprovalLineDTO {
 
     @Schema(description = "반려 사유 또는 승인 의견")
     private String opnion;
-
 
 
 

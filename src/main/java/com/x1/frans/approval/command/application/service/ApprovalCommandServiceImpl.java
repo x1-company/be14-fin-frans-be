@@ -1,9 +1,8 @@
 package com.x1.frans.approval.command.application.service;
 
 import com.x1.frans.approval.command.application.dto.ApprovalCreateResponseDTO;
-import com.x1.frans.approval.command.application.repository.ApprovalCommandRepository;
-import com.x1.frans.approval.command.application.repository.ApprovalFileCommandRepository;
-import com.x1.frans.approval.command.application.repository.ApprovalLineCommandRepository;
+import com.x1.frans.approval.command.application.dto.ApprovalDocumentDTO;
+import com.x1.frans.approval.command.domain.repository.*;
 import com.x1.frans.approval.command.domain.aggregate.*;
 import com.x1.frans.approval.command.application.dto.ApprovalCreateRequestDTO;
 import com.x1.frans.approval.common.ApprovalLineType;
@@ -33,18 +32,27 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final ApprovalLineCommandRepository approvalLineCommandRepository;
     private final ApprovalQueryService approvalQueryService;
     private final ApprovalFileCommandRepository approvalFileCommandRepository;
+    private final OrderApprovalCommandRepository orderApprovalCommandRepository;
+    private final ReturnApprovalCommandRepository returnApprovalCommandRepository;
+    private final PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository;
 
     @Autowired
     public ApprovalCommandServiceImpl(UserCommandRepository userCommandRepository,
                                       ApprovalCommandRepository approvalCommandRepository,
                                       ApprovalLineCommandRepository approvalLineCommandRepository,
                                       ApprovalQueryService approvalQueryService,
-                                      ApprovalFileCommandRepository approvalFileCommandRepository) {
+                                      ApprovalFileCommandRepository approvalFileCommandRepository,
+                                      OrderApprovalCommandRepository orderApprovalCommandRepository,
+                                      ReturnApprovalCommandRepository returnApprovalCommandRepository,
+                                      PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository) {
         this.userCommandRepository = userCommandRepository;
         this.approvalCommandRepository = approvalCommandRepository;
         this.approvalLineCommandRepository = approvalLineCommandRepository;
         this.approvalQueryService = approvalQueryService;
         this.approvalFileCommandRepository = approvalFileCommandRepository;
+        this.orderApprovalCommandRepository = orderApprovalCommandRepository;
+        this.returnApprovalCommandRepository = returnApprovalCommandRepository;
+        this.purchaseOrderApprovalCommandRepository = purchaseOrderApprovalCommandRepository;
     }
 
     @Transactional
@@ -69,6 +77,38 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         // 저장
         approvalCommandRepository.save(approval);
+
+
+
+        // 결재 문서
+        ApprovalDocumentDTO doc = request.getApprovalDocuments();
+        Long approvalId = approval.getId();
+        Integer degree = approval.getDegree();
+
+        switch (doc.getCategoryType()) {
+            case ORDER -> {
+                List<OrderApprovalEntity> orderDocs = doc.getDocumentIds().stream()
+                        .map(docId -> new OrderApprovalEntity(approval, docId))
+                        .toList();
+                orderApprovalCommandRepository.saveAll(orderDocs);
+            }
+
+            case RETURN -> {
+                List<ReturnApprovalEntity> returnDocs = doc.getDocumentIds().stream()
+                        .map(docId -> new ReturnApprovalEntity(approval, docId))
+                        .toList();
+                returnApprovalCommandRepository.saveAll(returnDocs);
+            }
+
+            case PURCHASE_ORDER -> {
+                List<PurchaseOrderApprovalEntity> purchaseOrderDocs = doc.getDocumentIds().stream()
+                        .map(docId -> new PurchaseOrderApprovalEntity(approval, docId))
+                        .toList();
+                purchaseOrderApprovalCommandRepository.saveAll(purchaseOrderDocs);
+            }
+
+            default -> throw new IllegalArgumentException("알 수 없는 문서 유형입니다.");
+        }
 
         // 결재선 처리
         List<ApprovalLineEntity> approvalLines = request.getApprovalLines().stream()
@@ -154,6 +194,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             }
         }
 
-        return String.format("%s%04d", codePrefix, nextSeq); // APP2024060001
+        return String.format("%s%04d", codePrefix, nextSeq);
     }
 }

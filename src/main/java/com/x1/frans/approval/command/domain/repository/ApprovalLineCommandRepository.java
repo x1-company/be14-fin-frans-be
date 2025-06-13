@@ -1,4 +1,4 @@
-package com.x1.frans.approval.command.application.repository;
+package com.x1.frans.approval.command.domain.repository;
 
 import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
