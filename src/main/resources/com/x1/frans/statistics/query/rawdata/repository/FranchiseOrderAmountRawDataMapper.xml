@@ -8,12 +8,12 @@
     <select id="findTotalOrderAmountByFranchise"
             resultType="com.x1.frans.statistics.query.rawdata.dto.FranchiseOrderAmountRawDTO">
         SELECT
-               franchise_id AS franchiseId,
-               SUM(total_amount) AS totalAmount
-          FROM orders
-         WHERE created_at BETWEEN #{from} AND #{to}
-           AND status = 'DELIVERED'
-         GROUP BY franchise_id
+            franchise_id AS franchiseId,
+            SUM(total_amount) AS totalAmount
+        FROM orders
+        WHERE created_at BETWEEN #{from} AND #{to}
+          AND status = 'DELIVERED'
+        GROUP BY franchise_id
     </select>
 
 </mapper>

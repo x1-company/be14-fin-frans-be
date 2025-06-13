@@ -10,28 +10,32 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-public class FranchiseOrderAmountStatGenerator {
+@Transactional
+public class FranchiseOrderAmountStatGenerator implements StatisticsGenerator {
 
-    private final FranchiseOrderAmountRawQueryService rawQueryService;
-    private final FranchiseOrderAmountStatRepository statRepository;
+    private final FranchiseOrderAmountRawQueryService franchiseOrderAmountRawQueryService;
+    private final FranchiseOrderAmountStatRepository franchiseOrderAmountStatRepository;
 
     @Autowired
-    public FranchiseOrderAmountStatGenerator(FranchiseOrderAmountRawQueryService rawQueryService,
-                                             FranchiseOrderAmountStatRepository statRepository) {
-        this.rawQueryService = rawQueryService;
-        this.statRepository = statRepository;
+    public FranchiseOrderAmountStatGenerator(FranchiseOrderAmountRawQueryService franchiseOrderAmountRawQueryService,
+                                             FranchiseOrderAmountStatRepository franchiseOrderAmountStatRepository) {
+        this.franchiseOrderAmountRawQueryService = franchiseOrderAmountRawQueryService;
+        this.franchiseOrderAmountStatRepository = franchiseOrderAmountStatRepository;
     }
+
+
 
     public void generate(YearMonth targetMonth) {
         LocalDateTime from = targetMonth.atDay(1).atStartOfDay();
         LocalDateTime to = targetMonth.atEndOfMonth().atTime(23, 59, 59);
 
-        log.info("[FranchiseOrderAmountStatGenerator] {}~{} 기간 통계 생성 시작", from, to);
+        log.info("[FranchiseOrderAmountStatGenerator] {}~{} 기간 가맹점별 주문 금액 통계 생성 시작", from, to);
 
-        List<FranchiseOrderAmountRawDTO> rawData = rawQueryService.getOrderAmounts(from, to);
+        List<FranchiseOrderAmountRawDTO> rawData = franchiseOrderAmountRawQueryService.getOrderAmounts(from, to);
         int year = targetMonth.getYear();
         int month = targetMonth.getMonthValue();
         LocalDateTime createdAt = LocalDateTime.now();
@@ -45,10 +49,10 @@ public class FranchiseOrderAmountStatGenerator {
                     .franchiseId(dto.getFranchiseId())
                     .build();
 
-            statRepository.save(stat);
+            franchiseOrderAmountStatRepository.save(stat);
         }
 
-        log.info("[FranchiseOrderAmountStatGenerator] {}월 통계 {}건 저장 완료"
+        log.info("[FranchiseOrderAmountStatGenerator] {}월 가맹점별 주문 금액 통계 {}건 저장 완료"
                     , targetMonth, rawData != null ? rawData.size() : 0);
     }
 

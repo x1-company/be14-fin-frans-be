@@ -10,16 +10,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class FranchiseOrderAmountRawQueryServiceImpl implements FranchiseOrderAmountRawQueryService {
 
-    private final FranchiseOrderAmountRawDataMapper rawDataMapper;
+    private final FranchiseOrderAmountRawDataMapper franchiseOrderAmountRawDataMapper;
 
     @Autowired
-    public FranchiseOrderAmountRawQueryServiceImpl(FranchiseOrderAmountRawDataMapper rawDataMapper) {
-        this.rawDataMapper = rawDataMapper;
+    public FranchiseOrderAmountRawQueryServiceImpl(FranchiseOrderAmountRawDataMapper franchiseOrderAmountRawDataMapper) {
+        this.franchiseOrderAmountRawDataMapper = franchiseOrderAmountRawDataMapper;
     }
 
     @Override
     public List<FranchiseOrderAmountRawDTO> getOrderAmounts(LocalDateTime from, LocalDateTime to) {
-        return rawDataMapper.findTotalOrderAmountByFranchise(from, to);
+        return franchiseOrderAmountRawDataMapper.findTotalOrderAmountByFranchise(from, to);
     }
 
 }
