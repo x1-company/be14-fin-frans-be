@@ -12,6 +12,7 @@ import com.x1.frans.exception.UserNotFoundException;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import static java.util.stream.Collectors.toList;
 
 
 @Service
+@RequiredArgsConstructor
 public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     private final UserCommandRepository userCommandRepository;
@@ -35,25 +37,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final OrderApprovalCommandRepository orderApprovalCommandRepository;
     private final ReturnApprovalCommandRepository returnApprovalCommandRepository;
     private final PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository;
-
-    @Autowired
-    public ApprovalCommandServiceImpl(UserCommandRepository userCommandRepository,
-                                      ApprovalCommandRepository approvalCommandRepository,
-                                      ApprovalLineCommandRepository approvalLineCommandRepository,
-                                      ApprovalQueryService approvalQueryService,
-                                      ApprovalFileCommandRepository approvalFileCommandRepository,
-                                      OrderApprovalCommandRepository orderApprovalCommandRepository,
-                                      ReturnApprovalCommandRepository returnApprovalCommandRepository,
-                                      PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository) {
-        this.userCommandRepository = userCommandRepository;
-        this.approvalCommandRepository = approvalCommandRepository;
-        this.approvalLineCommandRepository = approvalLineCommandRepository;
-        this.approvalQueryService = approvalQueryService;
-        this.approvalFileCommandRepository = approvalFileCommandRepository;
-        this.orderApprovalCommandRepository = orderApprovalCommandRepository;
-        this.returnApprovalCommandRepository = returnApprovalCommandRepository;
-        this.purchaseOrderApprovalCommandRepository = purchaseOrderApprovalCommandRepository;
-    }
 
     @Transactional
     @Override
