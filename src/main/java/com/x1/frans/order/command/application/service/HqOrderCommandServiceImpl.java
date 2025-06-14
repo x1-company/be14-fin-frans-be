@@ -1,6 +1,7 @@
 package com.x1.frans.order.command.application.service;
 
 import com.x1.frans.exception.DuplicateDeadlineTimeException;
+import com.x1.frans.exception.InvalidRejectConditionException;
 import com.x1.frans.order.command.application.dto.DeliveryInfoRequestDto;
 import com.x1.frans.order.command.application.dto.OrderStatusUpdateRequestDto;
 import com.x1.frans.order.command.domain.aggregate.Delivery;
@@ -77,7 +78,7 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
 
         if (!(order.getStatus().equals(OrderStatus.APPROVED) || order.getStatus().equals(OrderStatus.DELIVERING))) {
-            throw new IllegalStateException("배송 정보는 '결재 완료' 또는 '배송 중' 상태에서만 등록/수정할 수 있습니다.");
+            throw new InvalidRejectConditionException("배송 정보는 '결재 완료' 또는 '배송 중' 상태에서만 등록/수정할 수 있습니다.");
         }
 
         Delivery delivery = order.getDelivery();
