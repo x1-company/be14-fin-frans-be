@@ -1026,7 +1026,7 @@
     </select>
 
     <!-- resultMap: 주문-->
-    <resultMap id="OrderContentMap" type="com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnContentDTO">
+    <resultMap id="OrderContentMap" type="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnContentDTO">
         <result property="createdAt" column="created_at"/>
         <result property="drafterName" column="drafter_name"/>
         <result property="userName" column="user_name"/>
@@ -1034,17 +1034,17 @@
         <result property="approvalId" column="id"/>
 
 <!--        첨부파일-->
-        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.ApprovalFileDTO" column="id"
+        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO" column="id"
                     select="findApprovalFilesByApprovalId" />
 
 <!--        주문 결재이력-->
-        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnHistoryDTO" column="id"
+        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO" column="id"
                     select="findOrderHistoryByApprovalId" />
     </resultMap>
 
     <!--    주문 이력-->
     <select id="findOrderHistoryByApprovalId"
-            resultType="com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnHistoryDTO">
+            resultType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO">
         SELECT
                o.id AS historyId
              , p.name AS productName
@@ -1091,7 +1091,7 @@
     </select>
 
     <!-- resultMap: 반품-->
-    <resultMap id="ReturnContentMap" type="com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnContentDTO">
+    <resultMap id="ReturnContentMap" type="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnContentDTO">
         <result property="createdAt" column="created_at"/>
         <result property="drafterName" column="drafter_name"/>
         <result property="userName" column="user_name"/>
@@ -1099,17 +1099,17 @@
         <result property="approvalId" column="id"/>
 
         <!--        첨부파일-->
-        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.ApprovalFileDTO" column="id"
+        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO" column="id"
                     select="findApprovalFilesByApprovalId" />
 
         <!--        반품 결재이력-->
-        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnHistoryDTO" column="id"
+        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO" column="id"
                     select="findReturnHistoryByApprovalId" />
     </resultMap>
 
     <!--    반품 이력-->
     <select id="findReturnHistoryByApprovalId"
-            resultType="com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnHistoryDTO">
+            resultType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO">
         SELECT
                r.id AS historyId
              , p.name AS productName
@@ -1159,7 +1159,7 @@
 
 
     <!-- 발주 resultMap -->
-    <resultMap id="PurchaseOrderContentMap" type="com.x1.frans.approval.query.dto.Detail.PurchaseOrder.ApprovalPurchaseOrderContentDTO">
+    <resultMap id="PurchaseOrderContentMap" type="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderContentDTO">
         <result property="createdAt" column="created_at"/>
         <result property="drafterName" column="drafter_name"/>
         <result property="userId" column="user_id"/>
@@ -1167,10 +1167,10 @@
         <result property="approvalId" column="id"/>
 
 <!--        첨부파일-->
-        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.ApprovalFileDTO" column="id"
+        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO" column="id"
                     select="findApprovalFilesByApprovalId" />
 <!--        발주 결재이력-->
-        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO" column="id"
+        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO" column="id"
                     select="findPurchaseOrderHistoryByApprovalId" />
     </resultMap>
 
@@ -1205,7 +1205,7 @@
     </select>
 
     <!-- 첨부파일 -->
-    <select id="findApprovalFilesByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.ApprovalFileDTO">
+    <select id="findApprovalFilesByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO">
         SELECT
                 id AS fileId
              , name AS fileName
@@ -1215,7 +1215,7 @@
     </select>
 
     <!-- 발주 이력 -->
-    <select id="findPurchaseOrderHistoryByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO">
+    <select id="findPurchaseOrderHistoryByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO">
         SELECT
                po.id AS historyId
              , p.name AS productName
@@ -1231,6 +1231,34 @@
           JOIN product p
             ON pop.product_id = p.id
         WHERE poa.approval_id = #{id}
+    </select>
+
+
+    <select id="findApprovalDetailLines" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO">
+        SELECT
+               al.id AS id
+             , u.name AS userName
+             , al.approval_type AS type
+             , dept.name AS departmentName
+             , pos.name AS positionName
+             , al.seq
+             , al.status
+             , al.processed_at AS processedAt
+             , al.is_checked AS isChecked
+             , al.checked_at AS checkedAt
+          FROM approval_line al
+          LEFT JOIN user u
+            ON al.user_id = u.id
+          LEFT JOIN hq_user_detail hud
+            ON hud.user_id = u.id
+          LEFT JOIN department dept
+            ON dept.id = hud.department_id
+          LEFT JOIN position pos
+            ON pos.id = hud.position_id
+          LEFT JOIN approval a
+            ON a.id = al.approval_id
+         WHERE a.id = #{approvalId}
+         ORDER BY al.seq
     </select>
 
 

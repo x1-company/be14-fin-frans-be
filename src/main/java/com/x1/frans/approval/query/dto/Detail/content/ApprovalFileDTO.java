@@ -1,4 +1,4 @@
-package com.x1.frans.approval.query.dto.Detail;
+package com.x1.frans.approval.query.dto.Detail.content;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

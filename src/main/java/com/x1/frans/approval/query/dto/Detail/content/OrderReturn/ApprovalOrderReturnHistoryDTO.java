@@ -1,6 +1,6 @@
-package com.x1.frans.approval.query.dto.Detail.OrderReturn;
+package com.x1.frans.approval.query.dto.Detail.content.OrderReturn;
 
-import com.x1.frans.approval.query.dto.Detail.ApprovalHistoryDTO;
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalHistoryDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

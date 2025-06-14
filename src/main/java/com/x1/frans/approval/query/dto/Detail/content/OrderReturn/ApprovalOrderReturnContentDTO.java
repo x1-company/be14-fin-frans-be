@@ -1,18 +1,19 @@
-package com.x1.frans.approval.query.dto.Detail.PurchaseOrder;
+package com.x1.frans.approval.query.dto.Detail.content.OrderReturn;
 
-import com.x1.frans.approval.query.dto.Detail.ApprovalFileDTO;
+
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Schema(description = "결재 상세 본문조회 DTO - 반품")
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApprovalPurchaseOrderContentDTO {
+public class ApprovalOrderReturnContentDTO implements ApprovalContentDTO {
 
     @Schema(description = "결재 ID")
     private Long approvalId;
@@ -42,9 +43,10 @@ public class ApprovalPurchaseOrderContentDTO {
     private String userType;
 
     @Schema(description = "결재 내역")
-    private List<ApprovalPurchaseOrderHistoryDTO> history;
+    private List<ApprovalOrderReturnHistoryDTO> history;
 
     @Schema(description = "첨부파일")
     private List<ApprovalFileDTO> files;
+
 
 }

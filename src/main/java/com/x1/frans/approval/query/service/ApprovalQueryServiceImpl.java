@@ -1,7 +1,8 @@
 package com.x1.frans.approval.query.service;
 
-import com.x1.frans.approval.query.dto.Detail.ApprovalContentDTO;
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
+import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,10 +141,14 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return switch (category) {
             case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId,userId);
             case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId,userId);
-//            case "ORDER", "RETURN" -> List.of(approvalQueryMapper.findOrderReturnHistoryByApprovalId(approvalId, userId));
             case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId,userId);
             default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
         };
 
+    }
+
+    @Override
+    public List<ApprovalLinesDTO> getApprovalDetailLines(long approvalId) {
+        return approvalQueryMapper.findApprovalDetailLines(approvalId);
     }
 }
