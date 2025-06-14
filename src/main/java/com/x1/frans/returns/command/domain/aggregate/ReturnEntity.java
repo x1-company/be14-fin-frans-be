@@ -1,15 +1,9 @@
 package com.x1.frans.returns.command.domain.aggregate;
 
 import com.x1.frans.exception.InvalidOrderRejectConditionException;
-import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
-import com.x1.frans.order.command.domain.aggregate.Delivery;
 import com.x1.frans.returns.enums.ReturnStatus;
-import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "return")
 public class ReturnEntity {
 
@@ -48,17 +43,14 @@ public class ReturnEntity {
     @Column(name = "rejected_reason")
     private String rejectedReason;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "delivery_id")
-    private Delivery delivery;
+    @Column(name = "delivery_id")
+    private Long deliveryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "franchise_id", nullable = false)
-    private FranchiseEntity franchise;
+    @Column(name = "franchise_id")
+    private Long franchiseId;
 
     public void reject(String reason) {
         if (status != ReturnStatus.WAITING_FOR_RECEIPT) {

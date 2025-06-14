@@ -34,13 +34,11 @@ public class ReturnDetailEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product;
+    @Column(name = "product_id", nullable = false)
+    private Long producId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "return_id", nullable = false)
