@@ -1,7 +1,9 @@
 package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.exception.InvalidTimeFormatException;
+import com.x1.frans.order.command.application.dto.DeliveryInfoRequestDto;
 import com.x1.frans.order.command.application.dto.OrderRejectRequestDto;
+import com.x1.frans.order.command.application.dto.OrderStatusUpdateRequestDto;
 import com.x1.frans.order.command.application.service.HqOrderCommandService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -84,6 +86,35 @@ public class HqOrderCommandController {
     ) {
         hqOrderCommandService.cancelReviewComplete(orderId, userDetails.getUserId());
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/status")
+    @Operation(
+            summary = "주문 배송 상태 변경",
+            description = "결재 완료 이후의 상태들을 결재 완료, 배송 준비 중, 배송 중, 배송 완료 중 하나로 변경합니다."
+    )
+    public ResponseEntity<Void> updateOrderStatusAndDelivery(
+            @PathVariable Long orderId,
+            @RequestBody OrderStatusUpdateRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.updateOrderStatusAndDelivery(orderId, dto, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/delivery")
+    @Operation(
+            summary = "배송 정보 등록 또는 수정",
+            description = "결재 완료 상태의 주문에 배송 정보를 입력하고 상태를 배송 중으로 변경합니다. (주문 상태도 같이 변경)"
+    )
+    public ResponseEntity<Void> registerOrUpdateDelivery(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody DeliveryInfoRequestDto dto
+    ) {
+        hqOrderCommandService.registerOrUpdateDelivery(orderId, userDetails.getUserId(), dto);
         return ResponseEntity.ok().build();
     }
 }

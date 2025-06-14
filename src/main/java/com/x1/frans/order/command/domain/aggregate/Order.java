@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -87,4 +89,43 @@ public class Order {
         this.status = OrderStatus.REVIEWING;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateStatus(OrderStatus newStatus) {
+        if (!isValidTransition(this.status, newStatus)) {
+            throw new InvalidRejectConditionException("현재 상태에서는 해당 상태로 변경할 수 없습니다.");
+        }
+
+        if (newStatus == OrderStatus.DELIVERING && this.delivery == null) {
+            throw new InvalidRejectConditionException("배송 중 상태로 변경하려면 배송 정보가 등록되어 있어야 합니다.");
+        }
+
+        this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    private boolean isValidTransition(OrderStatus current, OrderStatus target) {
+        return switch (current) {
+            case APPROVED, DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            case DELIVERING -> Set.of(OrderStatus.DELIVERED).contains(target);
+            default -> false;
+        };
+    }
+
+    public void assignDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public void cancelByFranchise(LocalTime currentTime, LocalTime deadlineTime) {
+        if (this.status != OrderStatus.WAITING_FOR_RECEIPT) {
+            throw new InvalidRejectConditionException("접수 대기 상태에서만 취소할 수 있습니다.");
+        }
+
+        if (currentTime.isAfter(deadlineTime)) {
+            throw new InvalidRejectConditionException("주문 마감 시간 이후에는 취소할 수 없습니다.");
+        }
+
+        this.status = OrderStatus.RECEIPT_CANCELED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

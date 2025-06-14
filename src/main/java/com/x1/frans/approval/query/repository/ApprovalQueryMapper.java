@@ -54,4 +54,5 @@ public interface ApprovalQueryMapper  {
 
     List<ApprovalListDTO> getApprovalListNotifications(long userId);
 
+    String findLatestApprovalCode(String codePrefix);
 }
