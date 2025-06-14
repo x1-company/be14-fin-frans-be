@@ -163,4 +163,10 @@
           LEFT JOIN `department` c ON b.`department_id` = c.`id`
          WHERE a.`id` = #{userId}
     </select>
+
+    <select id="findFranchiseIdsByDepartmentId" resultType="long">
+        SELECT id FROM franchise
+         WHERE department_id = #{departmentId}
+    </select>
+
 </mapper>

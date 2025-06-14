@@ -23,4 +23,6 @@ public interface UserQueryService extends UserDetailsService {
     List<SearchSupplierUserDTO> findSupplierUser(String name);
 
     HqUserDepartmentDTO getDepartmentInfo(Long userId);
+
+    List<Long> getAccessibleFranchiseIdsForUser(Long userId);
 }
