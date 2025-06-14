@@ -13,7 +13,6 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -65,8 +64,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         // 결재 문서
         ApprovalDocumentDTO doc = request.getApprovalDocuments();
-        Long approvalId = approval.getId();
-        Integer degree = approval.getDegree();
 
         switch (doc.getCategoryType()) {
             case ORDER -> {
@@ -150,8 +147,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 }).toList();
 
         approvalFileCommandRepository.saveAll(fileEntities);
-
-//        return approval.getId();
         return new ApprovalCreateResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
 }
 

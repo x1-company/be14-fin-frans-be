@@ -1,6 +1,5 @@
 package com.x1.frans.approval.command.application.dto;
 
-import com.x1.frans.approval.common.ApprovalCategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
