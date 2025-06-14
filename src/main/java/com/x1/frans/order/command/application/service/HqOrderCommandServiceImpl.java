@@ -76,8 +76,8 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     public void registerOrUpdateDelivery(Long orderId, Long userId, DeliveryInfoRequestDto dto) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
 
-        if (!order.getStatus().equals(OrderStatus.APPROVED)) {
-            throw new IllegalStateException("배송 정보는 '결재 완료' 상태에서만 등록할 수 있습니다.");
+        if (!(order.getStatus().equals(OrderStatus.APPROVED) || order.getStatus().equals(OrderStatus.DELIVERING))) {
+            throw new IllegalStateException("배송 정보는 '결재 완료' 또는 '배송 중' 상태에서만 등록/수정할 수 있습니다.");
         }
 
         Delivery delivery = order.getDelivery();
