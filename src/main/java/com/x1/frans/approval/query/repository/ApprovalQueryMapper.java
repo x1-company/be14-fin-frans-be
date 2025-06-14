@@ -1,7 +1,12 @@
 package com.x1.frans.approval.query.repository;
 
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
+import com.x1.frans.approval.query.dto.Detail.ApprovalContentDTO;
+import com.x1.frans.approval.query.dto.Detail.ApprovalFileDTO;
+import com.x1.frans.approval.query.dto.Detail.OrderReturn.ApprovalOrderReturnHistoryDTO;
+import com.x1.frans.approval.query.dto.Detail.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -53,5 +58,33 @@ public interface ApprovalQueryMapper  {
     List<ApprovalListDTO> getApprovalListReferences(long userId);
 
     List<ApprovalListDTO> getApprovalListNotifications(long userId);
+
+    String findCategoryByApprovalId(@Param("approvalId") long approvalId);
+
+    // 발주 조회
+    List<ApprovalContentDTO> findPurchaseOrderContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+
+    // 반품 조회
+    List<ApprovalContentDTO> findReturnContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+
+    // 주문 조회
+    List<ApprovalContentDTO> findOrderContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+
+
+
+    // 주문 이력 조회
+    List<ApprovalOrderReturnHistoryDTO> findOrderHistoryByApprovalId(@Param("id") Long approvalId);
+
+    // 반품 이력 조회
+    List<ApprovalOrderReturnHistoryDTO> findReturnHistoryByApprovalId(@Param("id") Long approvalId);
+
+    // 발주 이력 조회
+    List<ApprovalPurchaseOrderHistoryDTO> findPurchaseOrderHistoryByApprovalId(@Param("id") Long approvalId);
+
+    // 첨부 파일 조회
+    List<ApprovalFileDTO> findApprovalFilesByApprovalId(@Param("id") Long approvalId);
+
+
+
 
 }
