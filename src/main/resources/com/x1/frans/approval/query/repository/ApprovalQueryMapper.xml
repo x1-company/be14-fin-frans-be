@@ -1246,6 +1246,7 @@
              , al.processed_at AS processedAt
              , al.is_checked AS isChecked
              , al.checked_at AS checkedAt
+             , al.opinion
           FROM approval_line al
           LEFT JOIN user u
             ON al.user_id = u.id

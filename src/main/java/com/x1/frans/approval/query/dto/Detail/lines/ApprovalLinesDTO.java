@@ -38,6 +38,9 @@ public class ApprovalLinesDTO {
     @Schema(description = "열람 시간")
     private LocalDateTime checkedAt;
 
+    @Schema(description = "의견")
+    private String opinion;
+
 
 
 
