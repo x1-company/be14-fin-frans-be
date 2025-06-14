@@ -27,12 +27,18 @@ public class OrderAuthorizationService {
         }
 
         HqUserDepartmentDTO dept = userQueryService.getDepartmentInfo(userId);
-        if (dept == null || dept.getDepartmentId() == null) {
-            throw new UnauthorizedAccessException("부서 정보가 없어서 접근 권한이 없습니다.");
-        }
 
-        if (!dept.getDepartmentId().equals(franchise.getDepartmentId())) {
-            throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없습니다.");
+        // 본사 직원(HQ)인 경우
+        if (dept != null && dept.getDepartmentId() != null) {
+            if (!dept.getDepartmentId().equals(franchise.getDepartmentId())) {
+                throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없습니다.");
+            }
+        }
+        // 가맹점 유저(FRANCHISE)인 경우
+        else {
+            if (!order.getUser().getId().equals(userId)) {
+                throw new UnauthorizedAccessException("본인이 소유한 주문이 아닙니다.");
+            }
         }
 
         return order;
