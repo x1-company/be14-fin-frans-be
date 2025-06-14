@@ -2,6 +2,7 @@ package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.exception.InvalidTimeFormatException;
 import com.x1.frans.order.command.application.dto.OrderRejectRequestDto;
+import com.x1.frans.order.command.application.dto.OrderStatusUpdateRequestDto;
 import com.x1.frans.order.command.application.service.HqOrderCommandService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +84,21 @@ public class HqOrderCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         hqOrderCommandService.cancelReviewComplete(orderId, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/status")
+    @Operation(
+            summary = "주문 배송 상태 변경",
+            description = "결재 완료 이후의 상태들을 결재 완료, 배송 준비 중, 배송 중, 배송 완료 중 하나로 변경합니다."
+    )
+    public ResponseEntity<Void> updateOrderStatusAndDelivery(
+            @PathVariable Long orderId,
+            @RequestBody OrderStatusUpdateRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.updateOrderStatusAndDelivery(orderId, dto, userDetails.getUserId());
 
         return ResponseEntity.ok().build();
     }

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -86,5 +87,28 @@ public class Order {
         }
         this.status = OrderStatus.REVIEWING;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateStatus(OrderStatus newStatus) {
+        if (!isValidTransition(this.status, newStatus)) {
+            throw new InvalidRejectConditionException("현재 상태에서는 해당 상태로 변경할 수 없습니다.");
+        }
+
+        if (newStatus == OrderStatus.DELIVERING && this.delivery == null) {
+            throw new InvalidRejectConditionException("배송 중 상태로 변경하려면 배송 정보가 등록되어 있어야 합니다.");
+        }
+
+        this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    private boolean isValidTransition(OrderStatus current, OrderStatus target) {
+        return switch (current) {
+            case APPROVED -> Set.of(OrderStatus.READY_FOR_DELIVERY, OrderStatus.DELIVERING).contains(target);
+            case READY_FOR_DELIVERY -> Set.of(OrderStatus.APPROVED, OrderStatus.DELIVERING).contains(target);
+            case DELIVERING -> Set.of(OrderStatus.DELIVERED, OrderStatus.READY_FOR_DELIVERY).contains(target);
+            case DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            default -> false;
+        };
     }
 }
