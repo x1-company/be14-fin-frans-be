@@ -29,9 +29,8 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
     @Transactional
     public OrderSearchPageResponseDto searchOrders(OrderSearchConditionDto condition, Long userId) {
 
-        // ✅ franchiseId가 null이면 HQ 유저, null 아니면 프랜차이즈 유저로 간주
+        // franchiseId가 null이면 HQ 유저, null 아니면 프랜차이즈 유저
         if (condition.getDepartmentFranchiseIds() == null || condition.getDepartmentFranchiseIds().isEmpty()) {
-            // 👉 HQ 유저만 접근 가능한 경우
             List<Long> allowedFranchiseIds = userQueryService.getAccessibleFranchiseIdsForUser(userId);
             condition.setDepartmentFranchiseIds(allowedFranchiseIds);
         }

@@ -40,7 +40,6 @@ public class FranchiseOrderQueryController {
         int offset = condition.getSize() * (condition.getPage() - 1);
         condition.setOffset(offset);
 
-        // ✅ 프랜차이즈 유저는 자신이 소속된 가맹점만 조회하도록 설정
         condition.setDepartmentFranchiseIds(franchiseIds);
 
         return orderQueryService.searchOrders(condition, userId);
