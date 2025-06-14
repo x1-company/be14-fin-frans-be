@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -84,4 +85,9 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
         return order;
     }
 
+    @Override
+    public void setOrderStatusToDelivering(List<Long> orderIds) {
+
+        orderCommandRepository.updateOrderStatusToDelivering(orderIds);
+    }
 }

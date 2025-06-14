@@ -1,6 +1,7 @@
 package com.x1.frans.order.command.application.service;
 
 import java.time.LocalTime;
+import java.util.List;
 
 public interface HqOrderCommandService {
     boolean createOrUpdateDeadline(LocalTime deadlineTime);
@@ -10,4 +11,6 @@ public interface HqOrderCommandService {
     void markReviewComplete(Long orderId, Long userId);
 
     void cancelReviewComplete(Long orderId, Long userId);
+
+    void setOrderStatusToDelivering(List<Long> orderIds);
 }

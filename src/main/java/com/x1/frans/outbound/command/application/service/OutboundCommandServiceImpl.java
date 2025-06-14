@@ -1,6 +1,7 @@
 package com.x1.frans.outbound.command.application.service;
 
 import com.x1.frans.exception.OutboundNotFoundException;
+import com.x1.frans.order.command.application.service.HqOrderCommandService;
 import com.x1.frans.outbound.command.application.vo.RegisterOutboundInfoVO;
 import com.x1.frans.outbound.command.domain.aggregate.OrderOutboundEntity;
 import com.x1.frans.outbound.command.domain.aggregate.OutboundEntity;
@@ -19,12 +20,15 @@ public class OutboundCommandServiceImpl implements OutboundCommandService {
 
     private final OutBoundCommandRepository outboundCommandRepository;
     private final OrderOutboundCommandRepository orderOutboundCommandRepository;
+    private final HqOrderCommandService hqOrderCommandService;
 
     @Autowired
     public OutboundCommandServiceImpl(OutBoundCommandRepository outboundCommandRepository,
-                                      OrderOutboundCommandRepository orderOutboundCommandRepository) {
+                                      OrderOutboundCommandRepository orderOutboundCommandRepository,
+                                      HqOrderCommandService hqOrderCommandService) {
         this.outboundCommandRepository = outboundCommandRepository;
         this.orderOutboundCommandRepository = orderOutboundCommandRepository;
+        this.hqOrderCommandService = hqOrderCommandService;
     }
 
     /**
@@ -77,6 +81,7 @@ public class OutboundCommandServiceImpl implements OutboundCommandService {
      * 
      * @param vo 출고 등록에 필요한 정보
      */
+    @Transactional
     @Override
     public void registerOutboundInfo(RegisterOutboundInfoVO vo, Long userId) {
 
@@ -89,6 +94,9 @@ public class OutboundCommandServiceImpl implements OutboundCommandService {
         outbound.setDeliveryId(vo.getDeliveryId());
 
         outboundCommandRepository.save(outbound);
+
+        // 출고에 해당하는 주문들 데이터에 status를 DELIVERING으로 변경
+        hqOrderCommandService.setOrderStatusToDelivering(vo.getOrderIds());
 
         // TODO: 자재 연동 추가 필요
     }
