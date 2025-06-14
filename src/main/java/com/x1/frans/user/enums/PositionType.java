@@ -21,11 +21,4 @@ public enum PositionType {
         this.id = id;
         this.label = label;
     }
-
-    public static PositionType fromId(long id) {
-        for (PositionType type : PositionType.values()) {
-            if (type.getId() == id) return type;
-        }
-        throw new IllegalArgumentException("Invalid Position Id: " + id);
-    }
 }

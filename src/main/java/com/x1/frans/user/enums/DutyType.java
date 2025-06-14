@@ -16,11 +16,4 @@ public enum DutyType {
         this.id = id;
         this.label = label;
     }
-
-    public static DutyType fromId(long id) {
-        for (DutyType type : DutyType.values()) {
-            if (type.getId() == id) return type;
-        }
-        throw new IllegalArgumentException("Invalid Duty Id: " + id);
-    }
 }

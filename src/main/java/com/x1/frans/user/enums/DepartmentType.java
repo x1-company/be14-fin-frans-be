@@ -23,11 +23,4 @@ public enum DepartmentType {
         this.id = id;
         this.label = label;
     }
-
-    public static DepartmentType fromId(long id) {
-        for (DepartmentType type : values()) {
-            if (type.getId() == id) return type;
-        }
-        throw new IllegalArgumentException("Invalid Department ID: " + id);
-    }
 }
