@@ -2,6 +2,7 @@ package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.order.command.application.service.FranchiseOrderCommandService;
 import com.x1.frans.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,10 @@ public class FranchiseOrderCommandController {
     private final FranchiseOrderCommandService franchiseOrderCommandService;
 
     @PatchMapping("/{orderId}/cancel")
+    @Operation(
+            summary = "주문 취소 처리",
+            description = "가맹점주가 접수 대기 상태인 주문을 취소합니다."
+    )
     public ResponseEntity<Void> cancelOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails userDetails
