@@ -104,11 +104,13 @@ public class Order {
 
     private boolean isValidTransition(OrderStatus current, OrderStatus target) {
         return switch (current) {
-            case APPROVED -> Set.of(OrderStatus.READY_FOR_DELIVERY, OrderStatus.DELIVERING).contains(target);
-            case READY_FOR_DELIVERY -> Set.of(OrderStatus.APPROVED, OrderStatus.DELIVERING).contains(target);
-            case DELIVERING -> Set.of(OrderStatus.DELIVERED, OrderStatus.READY_FOR_DELIVERY).contains(target);
-            case DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            case APPROVED, DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            case DELIVERING -> Set.of(OrderStatus.DELIVERED).contains(target);
             default -> false;
         };
+    }
+
+    public void assignDelivery(Delivery delivery) {
+        this.delivery = delivery;
     }
 }
