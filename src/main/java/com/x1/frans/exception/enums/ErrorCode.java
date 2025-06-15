@@ -55,7 +55,10 @@ public enum ErrorCode {
     WAREHOUSE_NOT_FOUND("WAREHOUSE_NOT_FOUND", HttpStatus.NOT_FOUND),
 
     // 통계 관련 에러
-    STATISTICS_UNAUTHORIZED_ACCESS("STATISTICS_UNAUTHORIZED_ACCESS", HttpStatus.FORBIDDEN);
+    STATISTICS_UNAUTHORIZED_ACCESS("STATISTICS_UNAUTHORIZED_ACCESS", HttpStatus.FORBIDDEN),
+
+    // 출고 관련 에러
+    OUTBOUND_NOT_FOUND("OUTBOUND_NOT_FOUND", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final HttpStatus httpStatus;

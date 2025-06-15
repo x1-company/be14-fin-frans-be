@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -107,6 +108,13 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
             // 최초 등록 시에만 주문 상태도 배송 중으로 변경
             order.updateStatus(OrderStatus.DELIVERING);
         }
+    }
+
+
+    @Override
+    public void setOrderStatusToDelivering(List<Long> orderIds) {
+
+        orderCommandRepository.updateOrderStatusToDelivering(orderIds);
     }
 
 
