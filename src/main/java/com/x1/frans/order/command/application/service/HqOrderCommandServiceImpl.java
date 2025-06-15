@@ -8,6 +8,7 @@ import com.x1.frans.order.command.domain.aggregate.Delivery;
 import com.x1.frans.order.command.domain.aggregate.Order;
 import com.x1.frans.order.command.domain.aggregate.StoreOrderDeadline;
 import com.x1.frans.order.command.domain.repository.DeliveryRepository;
+import com.x1.frans.order.command.domain.repository.OrderCommandRepository;
 import com.x1.frans.order.command.domain.repository.StoreOrderDeadlineRepository;
 import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.order.common.OrderAuthorizationService;
@@ -26,6 +27,7 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     private final StoreOrderDeadlineRepository storeOrderDeadlineRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderAuthorizationService orderAuthorizationService;
+    private final OrderCommandRepository orderCommandRepository;
 
     @Override
     @Transactional
