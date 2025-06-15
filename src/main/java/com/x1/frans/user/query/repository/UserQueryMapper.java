@@ -26,4 +26,6 @@ public interface UserQueryMapper {
     List<SearchSupplierUserDTO> findSupplierUser(@Param("name") String name);
 
     HqUserDepartmentDTO getDepartmentInfo(@Param("userId") Long userId);
+
+    List<Long> findFranchiseIdsByDepartmentId(Long departmentId);
 }

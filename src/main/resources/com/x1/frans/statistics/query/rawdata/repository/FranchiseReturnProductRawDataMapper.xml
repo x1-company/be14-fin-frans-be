@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.statistics.query.rawdata.repository.FranchiseReturnProductRawDataMapper">
+
+    <select id="findTotalReturnProductByFranchise"
+            resultType="com.x1.frans.statistics.query.rawdata.dto.FranchiseReturnProductRawDTO">
+        SELECT
+               rd.product_id AS productId,
+               r.franchise_id AS franchiseId,
+               SUM(rd.quantity) AS totalQuantity
+          FROM `RETURN` r
+         INNER JOIN return_detail rd ON r.id = rd.return_id
+         WHERE r.created_at BETWEEN #{from} AND #{to}
+           AND r.STATUS = 'COMPLETED'
+           AND rd.STATUS = 'APPROVED'
+         GROUP BY r.franchise_id, rd.product_id
+    </select>
+
+</mapper>

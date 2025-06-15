@@ -127,4 +127,9 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     public List<ApprovalListDTO> getApprovalListNotifications(long userId) {
         return approvalQueryMapper.getApprovalListNotifications(userId);
     }
+
+    @Override
+    public String findLatestApprovalCode(String codePrefix) {
+        return approvalQueryMapper.findLatestApprovalCode(codePrefix);
+    }
 }
