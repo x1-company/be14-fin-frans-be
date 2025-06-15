@@ -6,6 +6,8 @@ import com.x1.frans.approval.command.domain.aggregate.*;
 import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.approval.common.ApprovalStatus;
+import com.x1.frans.approval.query.repository.ApprovalCategoryQueryMapper;
+import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
 import com.x1.frans.exception.ApprovalActionFailedException;
 import com.x1.frans.exception.ApprovalLineNotFoundException;
@@ -39,6 +41,8 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final OrderApprovalCommandRepository orderApprovalCommandRepository;
     private final ReturnApprovalCommandRepository returnApprovalCommandRepository;
     private final PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository;
+    private final ApprovalQueryMapper approvalQueryMapper;
+    private final ApprovalCategoryQueryMapper approvalCategoryQueryMapper;
 
     @Transactional
     @Override
@@ -215,6 +219,32 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 approvalLineCommandRepository.save(nextLine);
             }
         });
+
+        // 다음 결재선이 없을때 결재 완료 처리
+        if (nextLineOpt.isEmpty()) {
+            // 결재 상태 변경
+            approval.setStatus(ApprovalStatus.APPROVED);
+            approval.setProcessedAt(LocalDateTime.now());
+            approvalCommandRepository.save(approval);
+
+            // 결재 카테고리 조회
+            String category = approvalQueryMapper.findCategoryByApprovalId(approval.getId());
+
+            switch (category) {
+                case "ORDER" -> {
+                    approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId,"APPROVED");
+                }
+                case "RETURN" -> {
+                    approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId,"APPROVED");
+                }
+                case "PURCHASE_ORDER" -> {
+                    approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId,"APPROVED");
+                }
+                default -> {
+                    throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
+                }
+            }
+        }
 
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }
