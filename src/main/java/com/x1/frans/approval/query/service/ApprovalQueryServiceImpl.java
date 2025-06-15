@@ -1,13 +1,17 @@
 package com.x1.frans.approval.query.service;
 
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
+import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     private final ApprovalQueryMapper approvalQueryMapper;
@@ -129,6 +133,24 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
+    public List<ApprovalContentDTO> getApprovalDetailContent(Long userId, long approvalId) {
+
+        // ORDER, RETURN, PURCHASE_ORDER
+        String category = approvalQueryMapper.findCategoryByApprovalId(approvalId);
+
+        return switch (category) {
+            case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId,userId);
+            case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId,userId);
+            case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId,userId);
+            default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
+        };
+
+    }
+
+    @Override
+    public List<ApprovalLinesDTO> getApprovalDetailLines(long approvalId) {
+        return approvalQueryMapper.findApprovalDetailLines(approvalId);
+
     public String findLatestApprovalCode(String codePrefix) {
         return approvalQueryMapper.findLatestApprovalCode(codePrefix);
     }
