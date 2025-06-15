@@ -10,6 +10,7 @@ import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.approval.common.ApprovalStatus;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
+import com.x1.frans.exception.ApprovalActionFailedException;
 import com.x1.frans.exception.ApprovalLineNotFoundException;
 import com.x1.frans.exception.ApprovalNotFoundException;
 import com.x1.frans.exception.UserNotFoundException;
@@ -181,6 +182,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     }
 
 
+    @Transactional
     @Override
     public Optional<ApprovalResponseDTO> ApproverApprove(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
 
@@ -191,6 +193,10 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         // 현재 사용자의 결재선 찾기
         ApprovalLineEntity currentLine = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
+
+        if (!currentLine.getStatus().equals(ApprovalLineStatus.WAITING)) {
+            throw new ApprovalActionFailedException("결재선이 대기 상태가 아닙니다.");
+        }
 
         // 결재 or 협조인 경우 → 상태를 승인으로 변경
         if ("결재".equals(request.getApprovalType()) || "협조".equals(request.getApprovalType())) {
@@ -215,4 +221,38 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }
+
+    @Transactional
+    @Override
+    public Optional<ApprovalResponseDTO> ApproverReject(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
+
+        // 결재 본문 조회
+        ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("결재를 찾을 수 없습니다."));
+
+        // 현재 사용자의 결재선 찾기
+        ApprovalLineEntity line = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
+                .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
+
+        if (!line.getStatus().equals(ApprovalLineStatus.WAITING)) {
+            throw new ApprovalActionFailedException("결재선이 대기 상태가 아닙니다.");
+        }
+
+
+        // 결재 or 협조인 경우 → 상태를 반려로 변경
+        if ("결재".equals(request.getApprovalType()) || "협조".equals(request.getApprovalType())) {
+            line.setStatus(ApprovalLineStatus.REJECTED);
+            line.setOpinion(request.getOpinion());
+            line.setProcessedAt(LocalDateTime.now());
+
+            approvalLineCommandRepository.save(line);
+        }
+
+            // 결재 상태 반려 처리
+            approval.setStatus(ApprovalStatus.REJECTED);
+            approvalCommandRepository.save(approval);
+
+        return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
+    }
+
 }

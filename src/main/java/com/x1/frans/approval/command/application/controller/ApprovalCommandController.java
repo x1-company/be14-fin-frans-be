@@ -57,4 +57,22 @@ public class ApprovalCommandController {
                 .body(CommonResponse.success(responseDTO, "승인 처리되었습니다."));
 
     }
+
+    @Operation(summary = "결재자/협조자 반려", description = "결재자/협조자가 결재를 반려합니다.")
+    @PostMapping("/{approvalId}/reject")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> ApproverReject(@RequestBody ApprovalDecisionRequestDTO request,
+                                                                               @PathVariable long approvalId,
+                                                                               @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+
+
+        ApprovalResponseDTO responseDTO = approvalCommandService
+                .ApproverReject(request, approvalId, userId)
+                .orElseThrow(() -> new ApprovalActionFailedException("결재 반려 처리 실패"));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "반려 처리되었습니다."));
+
+    }
 }
