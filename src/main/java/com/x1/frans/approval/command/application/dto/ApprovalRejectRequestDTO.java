@@ -5,10 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class ApprovalDecisionRequestDTO {
-
+@Setter
+public class ApprovalRejectRequestDTO {
     @Schema(description = "결재타입")
     @NotNull(message = "결재 타입은 필수입니다.")
     private String approvalType;
@@ -17,7 +16,7 @@ public class ApprovalDecisionRequestDTO {
     @NotNull(message = "결재 상태는 필수입니다.")
     private String status;
 
-    @Schema(description = "의견")
+    @Schema(description = "의견(반려 사유)")
+    @NotNull(message = "반려 사유는 필수입니다.")
     private String opinion;
-
 }

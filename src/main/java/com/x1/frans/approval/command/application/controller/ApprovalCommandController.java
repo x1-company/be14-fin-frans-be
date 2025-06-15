@@ -42,7 +42,7 @@ public class ApprovalCommandController {
 
     @Operation(summary = "결재자/협조자 승인", description = "결재자/협조자가 결재를 승인합니다.")
     @PostMapping("/{approvalId}/approve")
-    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverApprove(@RequestBody ApprovalDecisionRequestDTO request,
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverApprove(@RequestBody ApprovalApproveRequestDTO request,
                                                                                       @PathVariable long approvalId,
                                                                                       @AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
@@ -60,7 +60,7 @@ public class ApprovalCommandController {
 
     @Operation(summary = "결재자/협조자 반려", description = "결재자/협조자가 결재를 반려합니다.")
     @PostMapping("/{approvalId}/reject")
-    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverReject(@RequestBody ApprovalDecisionRequestDTO request,
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverReject(@RequestBody ApprovalRejectRequestDTO request,
                                                                                @PathVariable long approvalId,
                                                                                @AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();

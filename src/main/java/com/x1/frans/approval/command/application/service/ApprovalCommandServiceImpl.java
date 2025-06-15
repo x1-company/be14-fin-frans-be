@@ -1,11 +1,8 @@
 package com.x1.frans.approval.command.application.service;
 
-import com.x1.frans.approval.command.application.dto.ApprovalDecisionRequestDTO;
-import com.x1.frans.approval.command.application.dto.ApprovalResponseDTO;
-import com.x1.frans.approval.command.application.dto.ApprovalDocumentDTO;
+import com.x1.frans.approval.command.application.dto.*;
 import com.x1.frans.approval.command.domain.repository.*;
 import com.x1.frans.approval.command.domain.aggregate.*;
-import com.x1.frans.approval.command.application.dto.ApprovalCreateRequestDTO;
 import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.approval.common.ApprovalStatus;
@@ -184,7 +181,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public Optional<ApprovalResponseDTO> approverApprove(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
+    public Optional<ApprovalResponseDTO> approverApprove(ApprovalApproveRequestDTO request, long approvalId, long userId) {
 
         // 결재 본문 조회
         ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
@@ -224,7 +221,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public Optional<ApprovalResponseDTO> approverReject(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
+    public Optional<ApprovalResponseDTO> approverReject(ApprovalRejectRequestDTO request, long approvalId, long userId) {
 
         // 결재 본문 조회
         ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
