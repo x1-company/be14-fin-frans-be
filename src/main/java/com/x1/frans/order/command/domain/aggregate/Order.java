@@ -134,5 +134,6 @@ public class Order {
         }
 
         this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
     }
 }
