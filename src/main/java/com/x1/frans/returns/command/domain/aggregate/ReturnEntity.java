@@ -1,6 +1,6 @@
 package com.x1.frans.returns.command.domain.aggregate;
 
-import com.x1.frans.exception.InvalidOrderRejectConditionException;
+import com.x1.frans.exception.InvalidRejectConditionException;
 import com.x1.frans.returns.enums.ReturnStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -54,7 +54,7 @@ public class ReturnEntity {
 
     public void reject(String reason) {
         if (status != ReturnStatus.WAITING_FOR_RECEIPT) {
-            throw new InvalidOrderRejectConditionException("해당 반품 상태에서는 반려할 수 없습니다.");
+            throw new InvalidRejectConditionException("해당 반품 상태에서는 반려할 수 없습니다.");
         }
 
         this.status = ReturnStatus.REJECTED;
@@ -63,14 +63,14 @@ public class ReturnEntity {
 
     public void markReviewComplete() {
         if (this.status != ReturnStatus.WAITING_FOR_RECEIPT) {
-            throw new InvalidOrderRejectConditionException("접수 대기 상태에서만 검토 완료로 변경할 수 있습니다.");
+            throw new InvalidRejectConditionException("접수 대기 상태에서만 검토 완료로 변경할 수 있습니다.");
         }
         this.status = ReturnStatus.REVIEW_COMPLETED;
     }
 
     public void cancelReviewComplete() {
         if (this.status != ReturnStatus.REVIEW_COMPLETED) {
-            throw new InvalidOrderRejectConditionException("검토 완료 상태에서만 접수 대기로 변경할 수 있습니다.");
+            throw new InvalidRejectConditionException("검토 완료 상태에서만 접수 대기로 변경할 수 있습니다.");
         }
         this.status = ReturnStatus.WAITING_FOR_RECEIPT;
     }
