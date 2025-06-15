@@ -28,7 +28,14 @@ public class LoginUserDTO {
     private String signUrl;
     private String profileUrl;
 
+    // 본사 직원일 경우
     private Long departmentId;
     private Long positionId;
     private Long dutyId;
+
+    // 공급처일 경우
+    private Long supplierId;
+
+    // 가맹점주일 경우
+    private Long franchiseId;
 }
