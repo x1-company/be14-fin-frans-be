@@ -16,7 +16,7 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.aggregate.HqUserDetailEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import com.x1.frans.user.command.repository.HqUserDetailCommandRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommandService {
 
     private final PurchaseRequestRepository purchaseRequestRepository;
@@ -33,6 +32,19 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     private final UserCommandRepository userCommandRepository;
     private final HqUserDetailCommandRepository hqUserDetailCommandRepository;
     private final ProductRepository productRepository;
+
+    @Autowired
+    public PurchaseRequestCommandServiceImpl(PurchaseRequestRepository purchaseRequestRepository,
+                                             PurchaseRequestProductRepository purchaseRequestProductRepository,
+                                             UserCommandRepository userCommandRepository,
+                                             HqUserDetailCommandRepository hqUserDetailCommandRepository,
+                                             ProductRepository productRepository) {
+        this.purchaseRequestRepository = purchaseRequestRepository;
+        this.purchaseRequestProductRepository = purchaseRequestProductRepository;
+        this.userCommandRepository = userCommandRepository;
+        this.hqUserDetailCommandRepository = hqUserDetailCommandRepository;
+        this.productRepository = productRepository;
+    }
 
     // 영업팀 허용 부서 id (id: 2, 4, 5, 6 = 영업팀, 영업1팀, 영업2팀, 영업3팀)
     private static final List<Long> ALLOWED_DEPARTMENT_IDS = List.of(2L, 4L, 5L, 6L);
