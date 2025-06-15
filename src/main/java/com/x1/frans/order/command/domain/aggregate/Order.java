@@ -128,4 +128,12 @@ public class Order {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void updateOrderStatus(OrderStatus newStatus) {
+        if (this.status != OrderStatus.WAITING_FOR_RECEIPT) {
+            throw new InvalidRejectConditionException("접수 대기 상태에서만 검토 중으로 바뀔 수 있습니다.");
+        }
+
+        this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

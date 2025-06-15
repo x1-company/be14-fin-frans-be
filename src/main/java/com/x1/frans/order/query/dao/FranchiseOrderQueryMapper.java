@@ -1,8 +1,11 @@
 package com.x1.frans.order.query.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface FranchiseOrderQueryMapper {
-    Long findFranchiseIdByUserId(Long userId);
+    List<Long> findFranchiseIdsByUserId(@Param("userId") Long userId);
 }

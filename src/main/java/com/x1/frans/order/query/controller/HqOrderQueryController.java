@@ -26,9 +26,11 @@ public class HqOrderQueryController {
             description = "본인이 속한 부서가 관리하는 가맹점의 주문 목록을 조회합니다."
     )
     public OrderSearchPageResponseDto searchOrdersPaged(
-            @ModelAttribute OrderSearchConditionDto condition
+            @ModelAttribute OrderSearchConditionDto condition,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return orderQueryService.searchOrders(condition);
+        Long userId = userDetails.getUserId();
+        return orderQueryService.searchOrders(condition, userId);
     }
 
     @GetMapping("/{orderId}")

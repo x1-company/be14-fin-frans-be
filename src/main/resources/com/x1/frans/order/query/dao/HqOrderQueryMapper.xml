@@ -31,8 +31,25 @@
           JOIN product_order po ON o.id = po.order_id
           JOIN product p ON po.product_id = p.id
         <where>
-            <if test="franchiseId != null">
-                o.franchise_id = #{franchiseId}
+            <!-- 권한 필터링 -->
+            <if test="departmentFranchiseIds != null and departmentFranchiseIds.size() > 0">
+                <choose>
+                    <!-- franchiseId가 있을 경우, departmentFranchiseIds 안에 포함된 경우만 허용 -->
+                    <when test="franchiseId != null">
+                        o.franchise_id = #{franchiseId}
+                        AND #{franchiseId} IN
+                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </when>
+                    <!-- franchiseId가 없으면 전체 허용된 목록으로 필터링 -->
+                    <otherwise>
+                        o.franchise_id IN
+                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </otherwise>
+                </choose>
             </if>
 
             <if test="code != null and code != ''">
@@ -64,8 +81,23 @@
           JOIN product_order po ON o.id = po.order_id
           JOIN product p ON po.product_id = p.id
         <where>
-            <if test="franchiseId != null">
-                o.franchise_id = #{franchiseId}
+            <!-- 권한 필터링 -->
+            <if test="departmentFranchiseIds != null and departmentFranchiseIds.size() > 0">
+                <choose>
+                    <when test="franchiseId != null">
+                        o.franchise_id = #{franchiseId}
+                        AND #{franchiseId} IN
+                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        o.franchise_id IN
+                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </otherwise>
+                </choose>
             </if>
 
             <if test="code != null and code != ''">

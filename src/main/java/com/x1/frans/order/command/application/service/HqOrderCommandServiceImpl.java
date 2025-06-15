@@ -8,6 +8,7 @@ import com.x1.frans.order.command.domain.aggregate.Delivery;
 import com.x1.frans.order.command.domain.aggregate.Order;
 import com.x1.frans.order.command.domain.aggregate.StoreOrderDeadline;
 import com.x1.frans.order.command.domain.repository.DeliveryRepository;
+import com.x1.frans.order.command.domain.repository.OrderCommandRepository;
 import com.x1.frans.order.command.domain.repository.StoreOrderDeadlineRepository;
 import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.order.common.OrderAuthorizationService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     private final StoreOrderDeadlineRepository storeOrderDeadlineRepository;
     private final DeliveryRepository deliveryRepository;
     private final OrderAuthorizationService orderAuthorizationService;
+    private final OrderCommandRepository orderCommandRepository;
 
     @Override
     @Transactional
@@ -107,6 +110,13 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
             // 최초 등록 시에만 주문 상태도 배송 중으로 변경
             order.updateStatus(OrderStatus.DELIVERING);
         }
+    }
+
+
+    @Override
+    public void setOrderStatusToDelivering(List<Long> orderIds) {
+
+        orderCommandRepository.updateOrderStatusToDelivering(orderIds);
     }
 
 
