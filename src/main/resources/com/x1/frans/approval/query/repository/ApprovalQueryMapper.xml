@@ -1297,6 +1297,7 @@
                alt.id
              , alt.name
              , alt.description
+             , alt.seq
           FROM approval_line_template alt
           JOIN user u ON u.id = alt.user_id
          WHERE u.id = #{userId}
