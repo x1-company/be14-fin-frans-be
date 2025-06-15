@@ -42,14 +42,14 @@ public class ApprovalCommandController {
 
     @Operation(summary = "결재자/협조자 승인", description = "결재자/협조자가 결재를 승인합니다.")
     @PostMapping("/{approvalId}/approve")
-    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> ApproverApprove(@RequestBody ApprovalDecisionRequestDTO request,
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverApprove(@RequestBody ApprovalDecisionRequestDTO request,
                                                                                       @PathVariable long approvalId,
                                                                                       @AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
 
 
         ApprovalResponseDTO responseDTO = approvalCommandService
-                .ApproverApprove(request, approvalId, userId)
+                .approverApprove(request, approvalId, userId)
                 .orElseThrow(() -> new ApprovalActionFailedException("결재 승인 처리 실패"));
 
         return ResponseEntity
@@ -60,14 +60,14 @@ public class ApprovalCommandController {
 
     @Operation(summary = "결재자/협조자 반려", description = "결재자/협조자가 결재를 반려합니다.")
     @PostMapping("/{approvalId}/reject")
-    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> ApproverReject(@RequestBody ApprovalDecisionRequestDTO request,
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverReject(@RequestBody ApprovalDecisionRequestDTO request,
                                                                                @PathVariable long approvalId,
                                                                                @AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
 
 
         ApprovalResponseDTO responseDTO = approvalCommandService
-                .ApproverReject(request, approvalId, userId)
+                .approverReject(request, approvalId, userId)
                 .orElseThrow(() -> new ApprovalActionFailedException("결재 반려 처리 실패"));
 
         return ResponseEntity

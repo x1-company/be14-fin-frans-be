@@ -184,7 +184,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public Optional<ApprovalResponseDTO> ApproverApprove(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
+    public Optional<ApprovalResponseDTO> approverApprove(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
 
         // 결재 본문 조회
         ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
@@ -224,7 +224,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public Optional<ApprovalResponseDTO> ApproverReject(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
+    public Optional<ApprovalResponseDTO> approverReject(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
 
         // 결재 본문 조회
         ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
