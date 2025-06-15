@@ -11,4 +11,5 @@ public class PurchaseRequestCreateCommand {
     private String description;
     private LocalDate requestedDeliveryDate;
     private List<PurchaseRequestProductCreateCommand> products;
+    private Boolean isRequested; // 값이 없으면 true
 }

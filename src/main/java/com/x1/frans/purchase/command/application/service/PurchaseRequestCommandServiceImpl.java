@@ -54,6 +54,12 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
             throw new InvalidDepartmentException("영업팀 소속만 구매 요청을 할 수 있습니다.");
         }
 
+        // isRequested가 null이면 true로 세팅
+        boolean isRequested = command.getIsRequested() == null ? true : command.getIsRequested();
+
+        // 상태 결정
+        PurchaseRequestStatus status = isRequested ? PurchaseRequestStatus.REQUEST_PENDING : PurchaseRequestStatus.DRAFT;
+
         // 상품 가격 * 수량 합산
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (PurchaseRequestProductCreateCommand p : command.getProducts()) {
@@ -70,7 +76,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                 .requestedDeliveryDate(command.getRequestedDeliveryDate())
                 .totalAmount(totalAmount)
                 .status(PurchaseRequestStatus.REQUEST_PENDING)
-                .isRequested(true)
+                .isRequested(isRequested)
                 .user(user)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
