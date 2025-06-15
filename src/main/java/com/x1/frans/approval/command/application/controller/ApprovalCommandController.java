@@ -3,7 +3,9 @@ package com.x1.frans.approval.command.application.controller;
 import com.x1.frans.approval.command.application.dto.*;
 import com.x1.frans.approval.command.application.service.ApprovalCommandService;
 import com.x1.frans.approval.common.CommonResponse;
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
 import com.x1.frans.exception.ApprovalActionFailedException;
+import com.x1.frans.exception.ApprovalLineTemplateActionFailedException;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,6 +75,24 @@ public class ApprovalCommandController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CommonResponse.success(responseDTO, "반려 처리되었습니다."));
+
+    }
+
+
+    @Operation(summary = "결재선 템플릿 등록", description = "결재선 템플릿 등록합니다.")
+    @PostMapping("/templates")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approvalLineTemplates(@RequestBody ApprovalLineTemplateRequestDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+
+
+        ApprovalResponseDTO responseDTO = approvalCommandService
+                .approvalLineTemplates(request, userId)
+                .orElseThrow(() -> new ApprovalLineTemplateActionFailedException("결재선 템플릿 등록을 실패했습니다."));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿 등록되었습니다"));
 
     }
 }

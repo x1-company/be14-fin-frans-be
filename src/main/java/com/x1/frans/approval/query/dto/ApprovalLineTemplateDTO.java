@@ -1,7 +1,9 @@
 package com.x1.frans.approval.query.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
+@Getter
 public class ApprovalLineTemplateDTO {
 
     @Schema(description = "템플릿 ID")

@@ -39,6 +39,8 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final OrderApprovalCommandRepository orderApprovalCommandRepository;
     private final ReturnApprovalCommandRepository returnApprovalCommandRepository;
     private final PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository;
+    private final ApprovalLineTemplateCommandRepository approvalLineTemplateCommandRepository;
+    private final ApprovalLineTemplateDetailCommandRepository approvalLineTemplateDetailCommandRepository;
 
     @Transactional
     @Override
@@ -252,4 +254,39 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }
 
+    @Override
+    public Optional<ApprovalResponseDTO> approvalLineTemplates(ApprovalLineTemplateRequestDTO request, long userId) {
+
+        UserEntity owner = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+        ApprovalLineTemplateEntity template = new ApprovalLineTemplateEntity();
+        template.setName(request.getName());
+        template.setDescription(request.getDescription());
+        template.setSeq(request.getSeq());
+        template.setUser(owner);
+
+
+        List<ApprovalLineTemplateDetailEntity> details = new ArrayList<>();
+
+        for (ApprovalTemplateLineDTO dto : request.getLines()) {
+            UserEntity approver = userCommandRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("결재선 사용자가 아닙니다."));
+
+            ApprovalLineTemplateDetailEntity detail = new ApprovalLineTemplateDetailEntity();
+            detail.setUser(approver);
+            detail.setSeq(dto.getSeq());
+            detail.setType(dto.getType());
+            detail.setTemplate(template);
+
+            details.add(detail);
+        }
+
+        template.setDetails(details);
+        approvalLineTemplateCommandRepository.save(template);
+
+
+
+        return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
+    }
 }

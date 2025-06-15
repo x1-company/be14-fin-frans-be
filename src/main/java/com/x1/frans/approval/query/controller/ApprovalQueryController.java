@@ -254,11 +254,10 @@ public class ApprovalQueryController {
 
         @Operation(summary = "결재 템플릿 목록 조회", description = "결재 템플릿 목록 조회할 수 있다.")
     @GetMapping("/templates")
-    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalLineTemplates(@PathVariable long approvalId,
-                                                                           @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user) {
 
         long userId = user.getUserId();
-        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalLineTemplates(approvalId,userId);
+        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalLineTemplates(userId);
 
         return ResponseEntity.ok(list);
     }

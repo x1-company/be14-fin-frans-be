@@ -1294,10 +1294,12 @@
 <!--   결재선 템플릿 조회-->
     <select id="getApprovalLineTemplates" resultType="com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO">
         SELECT
-               id
-             , name
-             , description
-          FROM approval_line_template
+               alt.id
+             , alt.name
+             , alt.description
+          FROM approval_line_template alt
+          JOIN user u ON u.id = alt.user_id
+         WHERE u.id = #{userId}
 
     </select>
 

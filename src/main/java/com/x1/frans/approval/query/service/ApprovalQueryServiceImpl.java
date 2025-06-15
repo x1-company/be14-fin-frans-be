@@ -157,7 +157,7 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public List<ApprovalLinesDTO> getApprovalLineTemplates(long approvalId, long userId) {
-        return approvalQueryMapper.getApprovalLineTemplates(approvalId, userId);
+    public List<ApprovalLinesDTO> getApprovalLineTemplates(long userId) {
+        return approvalQueryMapper.getApprovalLineTemplates(userId);
     }
 }

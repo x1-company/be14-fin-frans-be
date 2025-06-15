@@ -97,5 +97,5 @@ public interface ApprovalQueryMapper  {
     List<ApprovalLineDTO> findApprovalDetailLine(@Param("approvalId") Long approvalId); // ← 이게 더 나음
 
 
-    List<ApprovalLinesDTO> getApprovalLineTemplates(long approvalId, long userId);
+    List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
 }
