@@ -66,8 +66,14 @@ public enum ErrorCode {
     // 통계 관련 에러
     STATISTICS_UNAUTHORIZED_ACCESS("STATISTICS_UNAUTHORIZED_ACCESS", HttpStatus.FORBIDDEN),
 
+    // 결재 관련 에러
+    APPROVAL_NOT_FOUND("APPROVAL_NOT_FOUND", HttpStatus.NOT_FOUND),
+    APPROVAL_LINE_NOT_FOUND("APPROVAL_LINE_NOT_FOUND", HttpStatus.NOT_FOUND),
+    APPROVAL_ACTION_FAILED("APPROVAL_ACTION_FAILED", HttpStatus.BAD_REQUEST);
+
     // 출고 관련 에러
     OUTBOUND_NOT_FOUND("OUTBOUND_NOT_FOUND", HttpStatus.NOT_FOUND);
+
 
     private final String code;
     private final HttpStatus httpStatus;

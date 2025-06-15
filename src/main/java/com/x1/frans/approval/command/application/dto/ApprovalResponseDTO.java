@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class ApprovalCreateResponseDTO {
+public class ApprovalResponseDTO {
 
     private Long id;
     private String code;

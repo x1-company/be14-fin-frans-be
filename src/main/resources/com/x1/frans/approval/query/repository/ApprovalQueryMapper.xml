@@ -17,10 +17,6 @@
 
     </resultMap>
 
-    <!-- 결재 수신 관련 목록 조회 -->
-    <select id="getApprovalListReceivedAll" resultMap="getApprovalListMap">
-    </select>
-
     <!-- 결재 상신 관련 -->
     <select id="getApprovalListSubmittedAll" resultMap="getApprovalListMap">
         SELECT
@@ -243,7 +239,7 @@
     </select>
 
     <!-- 결재 수신 관련 -->
-    <select id="getApprovalListReceived" resultMap="getApprovalListMap">
+    <select id="getApprovalListReceivedAll" resultMap="getApprovalListMap">
         SELECT
                a.id
              , a.code
