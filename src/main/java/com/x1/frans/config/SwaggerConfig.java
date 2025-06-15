@@ -43,7 +43,7 @@ public class SwaggerConfig {
     public GroupedOpenApi supplierApi() {
         return  GroupedOpenApi.builder()
                 .group("공급처")
-                .pathsToMatch("/api/supplier/**")
+                .pathsToMatch("/api/hq/suppliers/**")
                 .build();
     }
 
@@ -69,6 +69,14 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("창고")
                 .pathsToMatch("/api/hq/warehouses/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi approvalApi() {
+        return GroupedOpenApi.builder()
+                .group("결재")
+                .pathsToMatch("/api/hq/approvals/**")
                 .build();
     }
 }

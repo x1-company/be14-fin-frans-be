@@ -3,27 +3,44 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.x1.frans.returns.query.repository.ReturnQueryMapper">
-    <resultMap id="shippedOrderResultMap" type="com.x1.frans.returns.query.dto.ShippedOrderDTO">
-        <id property="id" column="id"/>
-        <result property="code" column="code"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="deliveredAt" column="delivered_at"/>
-        <result property="totalAmount" column="total_amount"/>
-        <result property="status" column="status"/>
-    </resultMap>
-    <select id="findDeliveredOrdersWithinLastWeek" resultMap="shippedOrderResultMap">
+    <select id="findDeliveredOrdersWithinLastWeek" resultType="com.x1.frans.returns.query.dto.ShippedOrderDTO">
         SELECT
-            o.`id`,
-            o.`code`,
-            o.`created_at`,
-            d.`delivered_at`,
-            o.`total_amount`,
-            o.`status`
+               o.`id`
+             , o.`code`
+             , d.`delivered_at`
+             , o.`total_amount`
+             , o.`status`
         FROM `orders` o
         JOIN `delivery` d ON o.`delivery_id` = d.`id`
         WHERE o.`franchise_id` = #{franchiseId}
           AND o.`user_id` = #{userId}
           AND o.`status` = 'DELIVERED'
           AND d.delivered_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    </select>
+
+    <select id="findProductListByOrderId" resultType="com.x1.frans.returns.query.dto.ProductOrderDTO">
+        SELECT
+              po.`id` AS id
+            , po.`product_id`
+            , po.`order_id`
+            , po.`quantity`
+            , o.`code` AS orderCode
+            , p.`code` AS productCode
+            , p.`name` AS productName
+            , p.`sale_price`
+            , p.`unit`
+            , p.`spec`
+            , pg.`name` AS productGroupName
+            , pt.`name` AS productTypeName
+            , pa.`name` AS productAttributeName
+        FROM `product_order` po
+        JOIN `orders` o ON po.`order_id` = o.`id`
+        JOIN `product` p ON po.`product_id` = p.`id`
+        LEFT JOIN `product_group` pg ON p.`product_group_id` = pg.`id`
+        LEFT JOIN `product_type` pt ON p.`product_type_id` = pt.`id`
+        LEFT JOIN `product_attribute` pa ON p.`product_attribute_id` = pa.`id`
+        WHERE o.`franchise_id` = #{franchiseId}
+          AND o.`user_id` = #{userId}
+          AND po.`order_id` = #{orderId}
     </select>
 </mapper>

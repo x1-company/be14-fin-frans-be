@@ -16,6 +16,7 @@
         <result property="approvalLineStatus" column="approval_line_status"/>
 
     </resultMap>
+
     <!-- 결재 상신 관련 -->
     <select id="getApprovalListSubmittedAll" resultMap="getApprovalListMap">
         SELECT
@@ -238,7 +239,7 @@
     </select>
 
     <!-- 결재 수신 관련 -->
-    <select id="getApprovalListReceived" resultMap="getApprovalListMap">
+    <select id="getApprovalListReceivedAll" resultMap="getApprovalListMap">
         SELECT
                a.id
              , a.code
@@ -1003,6 +1004,264 @@
            AND l.approval_type = '수신'
          ORDER BY a.created_at DESC
     </select>
+
+    <!--  결재 상세 조회  -->
+    <select id="findCategoryByApprovalId" resultType="String" parameterType="long">
+        SELECT
+            CASE
+                WHEN EXISTS (SELECT 1
+                               FROM order_approval oa
+                              WHERE oa.approval_id = #{approvalId})
+                    THEN 'ORDER'
+                WHEN EXISTS (SELECT 1
+                               FROM return_approval ra
+                              WHERE ra.approval_id = #{approvalId})
+                    THEN 'RETURN'
+                WHEN EXISTS (SELECT 1
+                               FROM purchase_order_approval poa
+                              WHERE poa.approval_id = #{approvalId})
+                    THEN 'PURCHASE_ORDER'
+                ELSE 'UNKNOWN'
+                END AS category
+    </select>
+
+    <!-- resultMap: 주문-->
+    <resultMap id="OrderContentMap" type="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnContentDTO">
+        <result property="createdAt" column="created_at"/>
+        <result property="drafterName" column="drafter_name"/>
+        <result property="userName" column="user_name"/>
+        <result property="userType" column="user_type"/>
+        <result property="approvalId" column="id"/>
+
+<!--        첨부파일-->
+        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO" column="id"
+                    select="findApprovalFilesByApprovalId" />
+
+<!--        주문 결재이력-->
+        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO" column="id"
+                    select="findOrderHistoryByApprovalId" />
+    </resultMap>
+
+    <!--    주문 이력-->
+    <select id="findOrderHistoryByApprovalId"
+            resultType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO">
+        SELECT
+               o.id AS historyId
+             , p.name AS productName
+             , p.spec
+             , p.purchase_unit AS purchaseUnit
+             , po.quantity
+             , p.sale_price AS salePrice
+          FROM order_approval oa
+          JOIN orders o
+            ON oa.orders_id = o.id
+          JOIN product_order po
+            ON po.order_id = o.id
+          JOIN product p
+            ON p.id = po.product_id
+         WHERE oa.approval_id = #{id}
+    </select>
+
+
+<!--    주문 -->
+    <select id="findOrderContent" resultMap="OrderContentMap">
+        SELECT
+               a.id
+             , a.code
+             , a.title
+             , a.remarks
+             , a.status
+             , a.created_at
+             , u.name AS drafter_name
+             , l.user_name
+             , l.approval_type AS user_type
+        FROM approval a
+                 LEFT JOIN user u ON a.user_id = u.id
+                 LEFT JOIN (
+                            SELECT
+                                al.approval_id,
+                                al.approval_type,
+                                u.name AS user_name
+                            FROM approval_line al
+                            JOIN user u ON al.user_id = u.id
+                            WHERE al.user_id = #{userId}
+                              AND al.approval_id = #{approvalId}
+                            ) l   ON a.id = l.approval_id
+        WHERE a.id = #{approvalId}
+    </select>
+
+    <!-- resultMap: 반품-->
+    <resultMap id="ReturnContentMap" type="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnContentDTO">
+        <result property="createdAt" column="created_at"/>
+        <result property="drafterName" column="drafter_name"/>
+        <result property="userName" column="user_name"/>
+        <result property="userType" column="user_type"/>
+        <result property="approvalId" column="id"/>
+
+        <!--        첨부파일-->
+        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO" column="id"
+                    select="findApprovalFilesByApprovalId" />
+
+        <!--        반품 결재이력-->
+        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO" column="id"
+                    select="findReturnHistoryByApprovalId" />
+    </resultMap>
+
+    <!--    반품 이력-->
+    <select id="findReturnHistoryByApprovalId"
+            resultType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO">
+        SELECT
+               r.id AS historyId
+             , p.name AS productName
+             , p.spec
+             , p.purchase_unit AS purchaseUnit
+             , rd.quantity
+             , p.sale_price AS salePrice
+          FROM return_approval ra
+          JOIN `return` r
+            ON ra.return_id = r.id
+          JOIN return_detail rd
+            ON rd.return_id = r.id
+          JOIN product p
+            ON p.id = rd.product_id
+         WHERE ra.approval_id = #{id}
+    </select>
+
+
+    <!--   반품 -->
+    <select id="findReturnContent" resultMap="ReturnContentMap">
+        SELECT
+               a.id
+             , a.code
+             , a.title
+             , a.remarks
+             , a.status
+             , a.created_at
+             , u.name AS drafter_name
+             , l.user_name
+             , l.approval_type AS user_type
+          FROM approval a
+          LEFT JOIN user u ON a.user_id = u.id
+          LEFT JOIN (
+                      SELECT
+                             al.approval_id
+                           , al.approval_type
+                           , u.name AS user_name
+                        FROM approval_line al
+                        JOIN user u
+                          ON al.user_id = u.id
+                       WHERE al.user_id = #{userId}
+                         AND al.approval_id = #{approvalId}
+                    ) l ON a.id = l.approval_id
+         WHERE a.id = #{approvalId}
+    </select>
+
+
+
+    <!-- 발주 resultMap -->
+    <resultMap id="PurchaseOrderContentMap" type="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderContentDTO">
+        <result property="createdAt" column="created_at"/>
+        <result property="drafterName" column="drafter_name"/>
+        <result property="userId" column="user_id"/>
+        <result property="userType" column="approval_type"/>
+        <result property="approvalId" column="id"/>
+
+<!--        첨부파일-->
+        <collection property="files" ofType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO" column="id"
+                    select="findApprovalFilesByApprovalId" />
+<!--        발주 결재이력-->
+        <collection property="history" ofType="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO" column="id"
+                    select="findPurchaseOrderHistoryByApprovalId" />
+    </resultMap>
+
+
+    <!--  발주 -->
+    <select id="findPurchaseOrderContent" resultMap="PurchaseOrderContentMap">
+        SELECT
+               a.id
+             , a.code
+             , a.title
+             , a.remarks
+             , a.status
+             , a.created_at
+             , u.name AS drafter_name
+             , l.user_name
+             , l.approval_type AS user_type
+          FROM approval a
+          LEFT JOIN user u
+            ON a.user_id = u.id
+          LEFT JOIN (
+                        SELECT
+                               al.approval_id
+                             , al.approval_type
+                             , u.name AS user_name
+                          FROM approval_line al
+                          JOIN user u
+                            ON al.user_id = u.id
+                         WHERE al.user_id = #{userId}
+                           AND al.approval_id = #{approvalId}
+                    ) l     ON a.id = l.approval_id
+         WHERE a.id = #{approvalId}
+    </select>
+
+    <!-- 첨부파일 -->
+    <select id="findApprovalFilesByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO">
+        SELECT
+                id AS fileId
+             , name AS fileName
+             , url
+          FROM approval_file
+         WHERE approval_id = #{id}
+    </select>
+
+    <!-- 발주 이력 -->
+    <select id="findPurchaseOrderHistoryByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO">
+        SELECT
+               po.id AS historyId
+             , p.name AS productName
+             , p.spec
+             , p.purchase_unit AS purchaseUnit
+             , pop.quantity
+             , p.purchase_price AS purchasePrice
+          FROM purchase_order_approval poa
+          JOIN purchase_order po
+            ON po.id = poa.purchase_order_id
+          JOIN purchase_order_product pop
+            ON pop.purchase_order_id = po.id
+          JOIN product p
+            ON pop.product_id = p.id
+        WHERE poa.approval_id = #{id}
+    </select>
+
+
+    <select id="findApprovalDetailLines" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO">
+        SELECT
+               al.id AS id
+             , u.name AS userName
+             , al.approval_type AS type
+             , dept.name AS departmentName
+             , pos.name AS positionName
+             , al.seq
+             , al.status
+             , al.processed_at AS processedAt
+             , al.is_checked AS isChecked
+             , al.checked_at AS checkedAt
+             , al.opinion
+          FROM approval_line al
+          LEFT JOIN user u
+            ON al.user_id = u.id
+          LEFT JOIN hq_user_detail hud
+            ON hud.user_id = u.id
+          LEFT JOIN department dept
+            ON dept.id = hud.department_id
+          LEFT JOIN position pos
+            ON pos.id = hud.position_id
+          LEFT JOIN approval a
+            ON a.id = al.approval_id
+         WHERE a.id = #{approvalId}
+         ORDER BY al.seq
+    </select>
+
 
 <!--  결재 코드 조회  -->
     <select id="findLatestApprovalCode" resultType="string">
