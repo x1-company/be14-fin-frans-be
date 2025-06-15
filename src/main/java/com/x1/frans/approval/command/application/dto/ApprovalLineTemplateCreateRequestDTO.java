@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class ApprovalLineTemplateRequestDTO {
+public class ApprovalLineTemplateCreateRequestDTO {
 
     @Schema(description = "결재선 템플릿명")
     @NotNull(message = "템플릿명은 필수입니다.")
