@@ -1234,7 +1234,26 @@
     </select>
 
 
-    <select id="findApprovalDetailLines" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO">
+
+    <!-- 결재선 resultMap -->
+    <resultMap id="ApprovalDetailLinesMap" type="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO">
+        <result property="drafterName" column="name"/>
+<!--        결재선 정보-->
+        <collection property="line" ofType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLineDTO" column="{approvalId=id}"
+                    select="findApprovalDetailLine" fetchType="lazy" />
+    </resultMap>
+
+    <!--    결재선 전체 조회-->
+    <select id="getApprovalDetailLines" resultMap="ApprovalDetailLinesMap">
+        SELECT
+               a.id
+             , u.name
+          FROM approval a
+          JOIN user u ON a.user_id = u.id
+         WHERE a.id = #{approvalId}
+    </select>
+<!--    결재선 상세 조회-->
+    <select id="findApprovalDetailLine" parameterType="map" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLineDTO">
         SELECT
                al.id AS id
              , u.name AS userName
@@ -1258,9 +1277,11 @@
             ON pos.id = hud.position_id
           LEFT JOIN approval a
             ON a.id = al.approval_id
-         WHERE a.id = #{approvalId}
+         WHERE al.approval_id = #{approvalId}
          ORDER BY al.seq
     </select>
+
+
 
 
 <!--  결재 코드 조회  -->

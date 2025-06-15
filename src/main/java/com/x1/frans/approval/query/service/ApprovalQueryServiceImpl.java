@@ -148,11 +148,12 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public List<ApprovalLinesDTO> getApprovalDetailLines(long approvalId) {
-        return approvalQueryMapper.findApprovalDetailLines(approvalId);
+    public ApprovalLinesDTO getApprovalDetailLines(long approvalId) {
+        return approvalQueryMapper.getApprovalDetailLines(approvalId).get(0);
     }
 
     public String findLatestApprovalCode(String codePrefix) {
         return approvalQueryMapper.findLatestApprovalCode(codePrefix);
     }
+
 }

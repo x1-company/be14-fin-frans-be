@@ -232,7 +232,7 @@ public class ApprovalQueryController {
     }
 
 
-    @Operation(summary = "결재 상세 조회 - 결재 본문", description = "상신/수신된 결재 상세본문 조회한다.")
+    @Operation(summary = "결재 상세 조회 - 결재 본문", description = "결재 상세본문 조회한다.")
     @GetMapping("/detail/{approvalId}/content")
     public ResponseEntity<List<ApprovalContentDTO>> getApprovalDetailContent(@AuthenticationPrincipal CustomUserDetails user,
                                                                              @PathVariable long approvalId) {
@@ -243,14 +243,16 @@ public class ApprovalQueryController {
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "결재 상세 조회 - 결재선", description = "상신/수신된 결재 상세 결재선 조회한다.")
+    @Operation(summary = "결재 상세 조회 - 결재선 및 결재 템플릿 상세조회", description = "결재 상세 결재선 조회한다.")
     @GetMapping("/detail/{approvalId}/lines")
-    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalDetailLines(@PathVariable long approvalId) {
+    public ResponseEntity<ApprovalLinesDTO> getApprovalDetailLines(@PathVariable long approvalId) {
 
-        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalDetailLines(approvalId);
+        ApprovalLinesDTO list = approvalQueryService.getApprovalDetailLines(approvalId);
 
         return ResponseEntity.ok(list);
     }
+
+
 
 
 
