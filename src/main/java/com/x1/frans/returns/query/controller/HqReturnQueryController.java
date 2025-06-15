@@ -1,6 +1,6 @@
 package com.x1.frans.returns.query.controller;
 
-import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
+import com.x1.frans.returns.query.dto.HqReturnDetailDTO;
 import com.x1.frans.returns.query.dto.ReturnSearchConditionDTO;
 import com.x1.frans.returns.query.dto.ReturnSearchPageDTO;
 import com.x1.frans.returns.query.service.ReturnQueryService;
@@ -24,7 +24,7 @@ public class HqReturnQueryController {
 
     @GetMapping
     @Operation(summary = "반품 목록 조회",
-                description = "본인이 속한 부서 및 본인이 관리하는 가맹점의 반품 목록을 전체 조회할 수 있다")
+                description = "본인이 속한 부서 및 본인이 관리하는 가맹점의 반품 목록을 전체 조회")
     public ResponseEntity<ReturnSearchPageDTO> findAllReturns(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute ReturnSearchConditionDTO condition) {
@@ -34,5 +34,21 @@ public class HqReturnQueryController {
         ReturnSearchPageDTO list = returnQueryService.findAllReturns(userId, condition);
 
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/{returnId}")
+    @Operation(
+            summary = "반품 상세 조회",
+            description = "열람 권한이 있는 가맹점에 한해서 반품 상세 정보를 조회할 수 있다."
+    )
+    public ResponseEntity<HqReturnDetailDTO> findReturnDetailById(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long returnId) {
+
+        Long userId = userDetails.getUserId();
+
+        HqReturnDetailDTO detail = returnQueryService.findHqReturnDetailById(userId, returnId);
+
+        return ResponseEntity.ok(detail);
     }
 }

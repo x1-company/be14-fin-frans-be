@@ -1,5 +1,7 @@
 package com.x1.frans.returns.query.service;
 
+import com.x1.frans.exception.UnauthorizedAccessException;
+import com.x1.frans.returns.command.domain.aggregate.ReturnFileEntity;
 import com.x1.frans.returns.query.dto.*;
 import com.x1.frans.returns.query.repository.ReturnQueryMapper;
 import com.x1.frans.user.query.service.UserQueryService;
@@ -60,5 +62,49 @@ public class ReturnQueryServiceImpl implements ReturnQueryService {
                 .hasNext(condition.getPage() < totalPages)
                 .hasPrevious(condition.getPage() > 1)
                 .build();
+    }
+
+    @Override
+    public HqReturnDetailDTO findHqReturnDetailById(Long userId, Long returnId) {
+
+        // 기본 반품 정보 조회
+        HqReturnDetailDTO returnDetail = returnQueryMapper.findHqReturnDetailById(userId, returnId);
+
+        // 해당 가맹점에 접근 권한이 없거나 가맹점이 존재하지 않을때 예외처리
+        if (returnDetail == null) {
+            throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없거나 존재하지 않습니다.");
+        }
+
+        // 반품 상품 통합 정보 조회 (반품 상세 + 자재 정보)
+        List<ReturnProductDTO> returnProducts = returnQueryMapper.findReturnProductsById(returnId);
+        returnDetail.setReturnProducts(returnProducts);
+
+        // 첨부파일 정보 조회
+        List<ReturnFileEntity> files = returnQueryMapper.findReturnFilesById(returnId);
+        returnDetail.setFiles(files);
+
+        return returnDetail;
+    }
+
+    @Override
+    public ReturnDetailDTO findReturnDetailById(Long userId, Long returnId) {
+
+        // 기본 반품 정보 조회
+        ReturnDetailDTO returnDetail = returnQueryMapper.findReturnDetailById(userId, returnId);
+
+        // 해당 가맹점에 접근 권한이 없거나 가맹점이 존재하지 않을때 예외처리
+        if (returnDetail == null) {
+            throw new UnauthorizedAccessException("해당 가맹점에 접근 권한이 없거나 존재하지 않습니다.");
+        }
+
+        // 반품 상품 통합 정보 조회 (반품 상세 + 자재 정보)
+        List<ReturnProductDTO> returnProducts = returnQueryMapper.findReturnProductsById(returnId);
+        returnDetail.setReturnProducts(returnProducts);
+
+        // 첨부파일 정보 조회
+        List<ReturnFileEntity> files = returnQueryMapper.findReturnFilesById(returnId);
+        returnDetail.setFiles(files);
+
+        return returnDetail;
     }
 }

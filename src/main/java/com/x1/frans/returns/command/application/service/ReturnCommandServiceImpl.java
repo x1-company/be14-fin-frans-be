@@ -152,7 +152,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
             // 반품 상세 엔티티 생성
             ReturnDetailEntity returnDetail = new ReturnDetailEntity();
             returnDetail.setReturnEntity(returnEntity);
-            returnDetail.setProducId(detail.getProductId());
+            returnDetail.setProductId(detail.getProductId());
             returnDetail.setQuantity(detail.getQuantity());
             returnDetail.setOrderId(detail.getOrderId());
             returnDetail.setStatus(ProductReturnStatus.WAITING);

@@ -1,5 +1,6 @@
 package com.x1.frans.returns.query.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.List;
 
+@Schema(description = "반품 검색 필터링 조건")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -1,7 +1,6 @@
 package com.x1.frans.returns.query.repository;
 
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
+import com.x1.frans.returns.command.domain.aggregate.ReturnFileEntity;
 import com.x1.frans.returns.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -26,4 +25,14 @@ public interface ReturnQueryMapper {
 
     // 가맹점주가 소유하는 가맹점 목록 조회
     List<Long>  findFranchiseIdsByUserId(Long userId);
+
+    HqReturnDetailDTO findHqReturnDetailById(@Param("userId") Long userId,
+                                           @Param("returnId") Long returnId);
+
+    ReturnDetailDTO findReturnDetailById(@Param("userId") Long userId,
+                                         @Param("returnId") Long returnId);
+
+    List<ReturnFileEntity> findReturnFilesById(@Param("returnId") Long returnId);
+
+    List<ReturnProductDTO> findReturnProductsById(@Param("returnId") Long returnId);
 }

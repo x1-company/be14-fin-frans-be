@@ -161,4 +161,137 @@
         FROM franchise
         WHERE owner_id = #{userId}
     </select>
+
+    <!-- 본사 직원 반품 정보 상세 조회 -->
+    <select id="findHqReturnDetailById" resultType="com.x1.frans.returns.query.dto.HqReturnDetailDTO">
+        SELECT
+        -- 가맹점 정보
+               f.name            AS franchiseName
+             , f.code            AS franchiseCode
+             , f.business_number AS businessNumber
+             , u.name            AS ceoName
+             , f.signed_at       AS franchiseSignedAt
+             , f.address         AS franchiseAddress
+             , f.address_detail  AS franchiseAddressDetail
+             , f.zipcode         AS zipCode
+             , f.phone           AS franchisePhone
+
+        -- 반품 정보
+             , r.code            AS returnCode
+             , r.created_at
+             , r.status
+             , r.total_amount
+             , r.description
+             , CASE WHEN r.status = 'REJECTED' THEN r.rejected_reason ELSE NULL END AS rejectedReason
+
+        -- 배송 정보
+             , d.delivery_company AS deliveryCompany
+             , d.name            AS driverName
+             , d.phone           AS driverPhone
+             , d.tracking_number AS trackingNumber
+             , DATE(d.delivered_at) AS deliveredAt
+
+        -- 결재 정보
+             , a_sub.code        AS approvalCode
+             , u3.name           AS approvalRequester
+             , DATE(a_sub.created_at) AS approvalRequestedAt
+             , a_sub.status      AS approvalStatus
+             , DATE(a_sub.processed_at) AS approvalCompletedAt
+
+        FROM `return` r
+            JOIN franchise f ON r.franchise_id = f.id
+            JOIN user u ON f.owner_id = u.id
+            LEFT JOIN delivery d ON r.delivery_id = d.id
+            LEFT JOIN (
+            SELECT a.*, ra.return_id, ROW_NUMBER() OVER (PARTITION BY ra.return_id ORDER BY a.created_at DESC) AS rn
+            FROM return_approval ra
+            JOIN approval a ON a.id = ra.approval_id AND a.degree = ra.approval_degree
+            ) a_sub ON a_sub.return_id = r.id AND a_sub.rn = 1
+
+            LEFT JOIN user u3 ON a_sub.user_id = u3.id
+
+        WHERE r.id = #{returnId}
+          AND EXISTS (
+              SELECT 1
+              FROM hq_user_detail h
+              WHERE h.department_id = f.department_id
+              AND h.user_id = #{userId}
+              )
+    </select>
+
+    <!-- 가맹점주 반품 정보 상세 조회 -->
+    <select id="findReturnDetailById" resultType="com.x1.frans.returns.query.dto.ReturnDetailDTO">
+        SELECT
+        -- 가맹점 정보
+            f.name            AS franchiseName
+             , f.code            AS franchiseCode
+             , f.business_number AS businessNumber
+             , u.name            AS ceoName
+             , f.signed_at       AS franchiseSignedAt
+             , f.address         AS franchiseAddress
+             , f.address_detail  AS franchiseAddressDetail
+             , f.zipcode         AS zipCode
+             , f.phone           AS franchisePhone
+
+        -- 반품 정보
+             , r.code            AS returnCode
+             , r.created_at
+             , r.status
+             , r.total_amount
+             , r.description
+             , CASE WHEN r.status = 'REJECTED' THEN r.rejected_reason ELSE NULL END AS rejectedReason
+
+        -- 배송 정보
+             , d.delivery_company AS deliveryCompany
+             , d.name            AS driverName
+             , d.phone           AS driverPhone
+             , d.tracking_number AS trackingNumber
+             , DATE(d.delivered_at) AS deliveredAt
+
+        FROM `return` r
+        JOIN franchise f ON r.franchise_id = f.id
+        JOIN user u ON f.owner_id = u.id
+        LEFT JOIN delivery d ON r.delivery_id = d.id
+
+        WHERE r.id = #{returnId}
+        AND f.`owner_id` = #{userId}
+
+    </select>
+
+    <!-- 반품 상품 통합 정보 조회 -->
+    <select id="findReturnProductsById" resultType="com.x1.frans.returns.query.dto.ReturnProductDTO">
+        SELECT
+             -- 반품 상세 정보
+               rd.id               AS returnDetailId
+             , rd.status           AS returnStatus
+             , rd.return_type      AS returnType
+             , rd.quantity         AS returnQuantity
+             , rd.order_id         AS orderId
+
+             -- 자재 정보
+             , p.id                AS productId
+             , p.code              AS productCode
+             , p.name              AS productName
+             , p.spec
+             , p.purchase_unit     AS purchaseUnit
+             , p.unit
+             , p.product_group_id  AS productGroupId
+             , p.product_type_id   AS productTypeId
+             , p.product_attribute_id AS productAttributeId
+             , p.sale_price        AS salePrice
+
+        FROM return_detail rd
+        JOIN product p ON rd.product_id = p.id
+        WHERE rd.return_id = #{returnId}
+    </select>
+
+    <!-- 반품 첨부파일 조회 -->
+    <select id="findReturnFilesById" resultType="com.x1.frans.returns.command.domain.aggregate.ReturnFileEntity">
+        SELECT
+            rf.id
+             , rf.name
+             , rf.url
+        FROM return_file rf
+        WHERE rf.return_id = #{returnId}
+    </select>
 </mapper>

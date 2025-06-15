@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReturnDetailDTO {
+public class HqReturnDetailDTO {
 
     // 가맹점 정보
     @Schema(description = "가맹점 명")
@@ -89,4 +89,20 @@ public class ReturnDetailDTO {
 
     @Schema(description = "배송 완료일")
     private LocalDate deliveredAt;
+
+    // 결재 정보
+    @Schema(description = "결재 코드")
+    private String approvalCode;
+
+    @Schema(description = "결재 요청자")
+    private String approvalRequester;
+
+    @Schema(description = "결재 요청일")
+    private LocalDate approvalRequestedAt;
+
+    @Schema(description = "결재 상태")
+    private String approvalStatus;
+
+    @Schema(description = "결재 완료 일시")
+    private LocalDate approvalCompletedAt;
 }
