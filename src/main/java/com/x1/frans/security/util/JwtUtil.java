@@ -49,7 +49,11 @@ public class JwtUtil {
                 claims.put("dutyId", userDetails.getDutyId());
             }
             case FRANCHISE -> claims.put("franchiseId", userDetails.getFranchiseId());
-            case SUPPLIER -> claims.put("supplierId", userDetails.getSupplierId());
+
+            case SUPPLIER -> {
+                claims.put("supplierId", userDetails.getSupplierId());
+                claims.put("supplierCode", userDetails.getSupplierCode());
+            }
         }
 
         List<String> roles = userDetails.getAuthorities().stream()

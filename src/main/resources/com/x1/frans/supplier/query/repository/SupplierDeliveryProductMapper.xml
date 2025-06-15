@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.supplier.query.mapper.SupplierDeliveryProductMapper">
+
+    <resultMap id="SupplierDeliveryProductMap"
+               type="com.x1.frans.supplier.query.dto.SupplierDeliveryProductDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="salePrice" column="purchase_price"/>
+        <result property="saleUnit" column="purchase_unit"/>
+        <result property="unit" column="unit"/>
+        <result property="spec" column="spec"/>
+    </resultMap>
+
+    <select id="findAllBySupplierId" resultMap="SupplierDeliveryProductMap">
+        SELECT
+               p.id,
+               p.name,
+               p.purchase_price AS salePrice,
+               p.purchase_unit AS saleUnit,
+               p.unit,
+               p.spec
+          FROM product p
+         WHERE p.supplier_id = #{supplierId}
+           AND p.is_active = 1
+    </select>
+
+</mapper>

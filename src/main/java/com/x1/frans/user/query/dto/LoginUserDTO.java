@@ -35,6 +35,7 @@ public class LoginUserDTO {
 
     // 공급처일 경우
     private Long supplierId;
+    private String supplierCode;
 
     // 가맹점주일 경우
     private Long franchiseId;
