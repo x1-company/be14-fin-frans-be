@@ -52,10 +52,10 @@ public class FranchiseEntity {
     @Column(name = "department_id")
     private Long departmentId;
 
-    @Column(name = "manager_id")
+    @Column(name = "manager_id", nullable = false)
     private Long managerId;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private UserEntity owner;
 }

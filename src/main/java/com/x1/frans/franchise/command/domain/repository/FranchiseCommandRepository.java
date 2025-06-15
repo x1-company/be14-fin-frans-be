@@ -8,8 +8,8 @@ import java.util.Optional;
 
 
 @Repository
-public interface FranchiseCommandRepository extends JpaRepository<FranchiseEntity, Integer> {
+public interface FranchiseCommandRepository extends JpaRepository<FranchiseEntity, Long> {
 
-    Optional<FranchiseEntity> findById(Integer id);
+    Optional<FranchiseEntity> findById(Long id);
 
 }
