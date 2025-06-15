@@ -1282,8 +1282,6 @@
     </select>
 
 
-
-
 <!--  결재 코드 조회  -->
     <select id="findLatestApprovalCode" resultType="string">
         SELECT code
@@ -1291,6 +1289,16 @@
         WHERE code LIKE CONCAT(#{codePrefix}, '%')
         ORDER BY code DESC
             LIMIT 1
+    </select>
+
+<!--   결재선 템플릿 조회-->
+    <select id="getApprovalLineTemplates" resultType="com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO">
+        SELECT
+               id
+             , name
+             , description
+          FROM approval_line_template
+
     </select>
 
 </mapper>
