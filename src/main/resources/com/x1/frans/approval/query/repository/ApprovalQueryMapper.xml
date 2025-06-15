@@ -1285,10 +1285,10 @@
 <!--  결재 코드 조회  -->
     <select id="findLatestApprovalCode" resultType="string">
         SELECT code
-        FROM approval
-        WHERE code LIKE CONCAT(#{codePrefix}, '%')
-        ORDER BY code DESC
-            LIMIT 1
+          FROM approval
+         WHERE code LIKE CONCAT(#{codePrefix}, '%')
+         ORDER BY code DESC
+          LIMIT 1
     </select>
 
 <!--   결재선 템플릿 조회-->
@@ -1302,6 +1302,24 @@
           JOIN user u ON u.id = alt.user_id
          WHERE u.id = #{userId}
 
+    </select>
+<!--    결재선 템플릿 상세 조회-->
+    <select id="getApprovalLineDetailTemplates" resultType="com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO">
+        SELECT
+               alt.id AS templateId
+             , u.name AS userName
+             , altd.type
+             , dept.name AS departmentName
+             , pos.name AS positionName
+             , altd.seq
+        FROM approval_line_template_detail altd
+        JOIN approval_line_template alt ON alt.id = altd.approval_line_template_id
+        JOIN user u ON u.id = altd.user_id
+        JOIN hq_user_detail hsd ON hsd.user_id = u.id
+        JOIN department dept ON dept.id = hsd.department_id
+        JOIN position pos ON pos.id = hsd.position_id
+        WHERE alt.user_id = #{userId} AND alt.id = #{templateId}
+        ORDER BY altd.seq
     </select>
 
 </mapper>
