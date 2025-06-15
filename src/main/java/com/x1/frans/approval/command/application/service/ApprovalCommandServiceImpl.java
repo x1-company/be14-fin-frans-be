@@ -291,14 +291,14 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     @Override
     public Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateCreateRequestDTO request, long userId, Long templateId) {
         if (templateId == null) {
-            throw new IllegalArgumentException("템플릿 ID가 필요합니다.");
+            throw new IllegalArgumentException("템플릿 ID가 없습니다.");
         }
 
         ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
                 .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
 
         // 본인 소유 템플릿인지 확인
-        if (!template.getUser().getId().equals(userId)) {
+        if (template.getUser() == null || !template.getUser().getId().equals(userId)) {
             throw new UnauthorizedTemplateAccessException("수정 권한이 없습니다.");
         }
 
@@ -330,8 +330,25 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 .collect(Collectors.toList());
         approvalLineTemplateDetailCommandRepository.saveAll(newDetails);
 
-        // 7. 응답 객체 반환
         return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
     }
 
+    @Transactional
+    @Override
+    public Optional<ApprovalResponseDTO> deleteApprovalLineTemplates(long userId, Long templateId) {
+        if (templateId == null) {
+            throw new IllegalArgumentException("템플릿 ID가 없습니다.");
+        }
+
+        ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
+
+        // 본인 소유 템플릿인지 확인
+        if (template.getUser() == null || !template.getUser().getId().equals(userId)) {
+            throw new UnauthorizedTemplateAccessException("수정 권한이 없습니다.");
+        }
+        approvalLineTemplateCommandRepository.delete(template);
+
+        return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
+    }
 }

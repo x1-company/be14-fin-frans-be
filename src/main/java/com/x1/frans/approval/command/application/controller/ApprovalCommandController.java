@@ -91,7 +91,7 @@ public class ApprovalCommandController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CommonResponse.success(responseDTO, "결재선 템플릿 등록되었습니다."));
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿이 등록되었습니다."));
 
     }
     @Operation(summary = "결재선 템플릿 수정", description = "결재선 템플릿 수정합니다.")
@@ -108,7 +108,23 @@ public class ApprovalCommandController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CommonResponse.success(responseDTO, "결재선 템플릿 수정되었습니다."));
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿이 수정되었습니다."));
+
+    }
+    @Operation(summary = "결재선 템플릿 삭제", description = "결재선 템플릿 삭제합니다.")
+    @DeleteMapping("/templates/{templateId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> deleteApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user,
+                                                                                           @PathVariable Long templateId) {
+        long userId = user.getUserId();
+
+
+        ApprovalResponseDTO responseDTO = approvalCommandService
+                .deleteApprovalLineTemplates(userId, templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateActionFailedException("결재선 템플릿 삭제를 실패했습니다."));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿이 삭제되었습니다."));
 
     }
 }
