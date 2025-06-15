@@ -152,7 +152,12 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.findApprovalDetailLines(approvalId);
     }
 
+    @Override
     public String findLatestApprovalCode(String codePrefix) {
         return approvalQueryMapper.findLatestApprovalCode(codePrefix);
     }
 }
+
+
+
+

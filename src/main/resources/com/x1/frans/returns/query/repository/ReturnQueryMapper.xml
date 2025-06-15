@@ -43,4 +43,122 @@
           AND o.`user_id` = #{userId}
           AND po.`order_id` = #{orderId}
     </select>
+
+    <resultMap id="ReturnListMap" type="com.x1.frans.returns.query.dto.ReturnListDTO">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="productSummary" column="product_summary"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="franchiseName" column="franchise_name"/>
+    </resultMap>
+
+    <select id="searchReturns" resultMap="ReturnListMap"
+            parameterType="com.x1.frans.returns.query.dto.ReturnSearchConditionDTO">
+    SELECT
+          r.id
+        , r.code
+        , CONCAT(p.name, ' 외 ', COUNT(*) - 1, '건') AS product_summary
+        , r.status
+        , r.created_at
+        , r.total_amount
+        , f.name AS franchise_name
+        FROM `return` r
+        JOIN franchise f ON r.franchise_id = f.id
+        JOIN return_detail rd ON r.id = rd.return_id
+        JOIN product p ON rd.product_id = p.id
+        <where>
+            <!-- 권한 필터링 -->
+            <if test="FranchiseIds != null and FranchiseIds.size() > 0">
+                <choose>
+                    <!-- franchiseId가 있을 경우, FranchiseIds 안에 포함된 경우만 허용 -->
+                    <when test="franchiseId != null">
+                        r.franchise_id = #{franchiseId}
+                        AND #{franchiseId} IN
+                        <foreach item="id" collection="FranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </when>
+                    <!-- franchiseId가 없으면 전체 허용된 목록으로 필터링 -->
+                    <otherwise>
+                        r.franchise_id IN
+                        <foreach item="id" collection="FranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+
+            <if test="code != null and code != ''">
+                AND r.code LIKE CONCAT('%', #{code}, '%')
+            </if>
+
+            <if test="product != null and product != ''">
+                AND p.name LIKE CONCAT('%', #{product}, '%')
+            </if>
+
+            <if test="status != null and status != ''">
+                AND r.status LIKE CONCAT('%', #{status}, '%')
+            </if>
+
+            <if test="startDate != null and endDate != null">
+                AND DATE(r.created_at) BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+        GROUP BY r.id
+        ORDER BY r.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countReturns" resultType="int"
+            parameterType="com.x1.frans.returns.query.dto.ReturnSearchConditionDTO">
+        SELECT COUNT(DISTINCT r.id)
+        FROM `return` r
+        JOIN return_detail rd ON r.id = rd.return_id
+        JOIN product p ON rd.product_id = p.id
+        <where>
+            <!-- 권한 필터링 -->
+            <if test="FranchiseIds != null and FranchiseIds.size() > 0">
+                <choose>
+                    <when test="franchiseId != null">
+                        r.franchise_id = #{franchiseId}
+                        AND #{franchiseId} IN
+                        <foreach item="id" collection="FranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        r.franchise_id IN
+                        <foreach item="id" collection="FranchiseIds" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+
+            <if test="code != null and code != ''">
+                AND r.code LIKE CONCAT('%', #{code}, '%')
+            </if>
+
+            <if test="product != null and product != ''">
+                AND p.name LIKE CONCAT('%', #{product}, '%')
+            </if>
+
+            <if test="status != null and status != ''">
+                AND r.status LIKE CONCAT('%', #{status}, '%')
+            </if>
+
+            <if test="startDate != null and endDate != null">
+                AND DATE(r.created_at) BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- 가맹점주 소유의 가맹점들 조회 -->
+    <select id="findFranchiseIdsByUserId" parameterType="long" resultType="long">
+        SELECT id
+        FROM franchise
+        WHERE owner_id = #{userId}
+    </select>
 </mapper>
