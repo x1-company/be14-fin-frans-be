@@ -52,7 +52,7 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 1. 주문 생성 (상태: WAITING_FOR_RECEIPT)
+        // 주문 생성 (주문 상태 : WAITING_FOR_RECEIPT)
         Order order = Order.builder()
                 .code("ORD-" + System.currentTimeMillis())
                 .status(OrderStatus.WAITING_FOR_RECEIPT)
@@ -66,7 +66,7 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
 
         orderCommandRepository.save(order);
 
-        // 2. 자재 처리
+        // 자재 처리
         List<ProductOrder> productOrders = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
         int totalQuantity = 0;
@@ -104,14 +104,10 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
 
         productOrderRepository.saveAll(productOrders);
 
-        // 3. 총 수량, 금액 반영
+        // 총 수량, 총 금액 등록
         order.updateTotal(totalQuantity, totalAmount);
 
     }
-
-//    private String generateOrderCode() {
-//        return "ORD-" + System.currentTimeMillis();
-//    }
 
     @Override
     @Transactional
