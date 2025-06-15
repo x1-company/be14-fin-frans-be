@@ -4,4 +4,5 @@ import com.x1.frans.approval.command.domain.aggregate.PurchaseOrderApprovalEntit
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PurchaseOrderApprovalCommandRepository extends JpaRepository<PurchaseOrderApprovalEntity, Long> {
+
 }
