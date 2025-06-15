@@ -7,7 +7,6 @@
         SELECT
                o.`id`
              , o.`code`
-             , o.`created_at`
              , d.`delivered_at`
              , o.`total_amount`
              , o.`status`

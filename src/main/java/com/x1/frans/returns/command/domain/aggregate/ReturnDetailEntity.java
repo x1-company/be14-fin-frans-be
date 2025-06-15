@@ -1,15 +1,13 @@
 package com.x1.frans.returns.command.domain.aggregate;
 
-import com.x1.frans.order.command.domain.aggregate.Order;
-import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.returns.enums.ProductReturnStatus;
-import com.x1.frans.returns.enums.ReturnStatus;
+import com.x1.frans.returns.enums.ReturnReasonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.redis.connection.ReturnType;
+
 
 @Entity
 @NoArgsConstructor
@@ -29,7 +27,7 @@ public class ReturnDetailEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "return_type", nullable = false)
-    private ReturnType returnType;
+    private ReturnReasonType returnType;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;

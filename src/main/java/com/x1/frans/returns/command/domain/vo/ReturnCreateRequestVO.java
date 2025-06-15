@@ -22,7 +22,7 @@ public class ReturnCreateRequestVO {
     @Schema(description = "반품 상세 정보")
     private List<ReturnDetailRequestVO> details;
 
-    @Schema(description = "반품 첨부 파일 url")
-    private List<String> fileUrls;
+    @Schema(description = "반품 첨부 파일 정보")
+    private List<ReturnFileRequestVO> files;
 
 }

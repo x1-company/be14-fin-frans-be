@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@Table(name = "return")
+@Table(name = "`return`")
 public class ReturnEntity {
 
     @Id
@@ -27,8 +27,8 @@ public class ReturnEntity {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "total_amonut", nullable = false)
-    private BigDecimal totalAmonut;
+    @Column(name = "total_amount", nullable = false)
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

@@ -25,7 +25,7 @@ public class ReturnQueryController {
     private final ReturnQueryService returnQueryService;
 
     @Autowired
-    public ReturnQueryController(ReturnQueryService returnQueryService, FranchiseQueryService franchiseQueryService) {
+    public ReturnQueryController(ReturnQueryService returnQueryService) {
         this.returnQueryService = returnQueryService;
     }
 

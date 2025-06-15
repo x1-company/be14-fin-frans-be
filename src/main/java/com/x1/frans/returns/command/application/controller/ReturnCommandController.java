@@ -23,7 +23,7 @@ public class ReturnCommandController {
     }
 
     @Operation(summary = "반품 정보 등록", description ="주문서 안의 자재 목록 중 선택하여 반품할 자재 및 반품 사유와 첨부파일을 등록할 수 있다.")
-    @PostMapping("{franchiseID}/return/regist")
+    @PostMapping("{franchiseId}/return/regist")
     public ResponseEntity registReturn(@PathVariable("franchiseId") Long franchiseId,
                                        @RequestBody ReturnCreateRequestVO vo,
                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {

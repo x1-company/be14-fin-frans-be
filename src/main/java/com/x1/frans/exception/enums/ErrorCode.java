@@ -59,7 +59,8 @@ public enum ErrorCode {
 
     // AWS 관련 에러
     FILE_UPLOAD_FAILED("FILE_UPLOAD_FAILED", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_FILE_EXTENSION("INVALID_FILE_EXTENSTION", HttpStatus.BAD_REQUEST);
+    INVALID_FILE_EXTENSION("INVALID_FILE_EXTENSTION", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_UPLOAD_TYPE("INVALID_FILE_UPLOAD_TYPE", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final HttpStatus httpStatus;

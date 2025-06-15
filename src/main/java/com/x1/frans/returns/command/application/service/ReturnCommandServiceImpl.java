@@ -13,6 +13,7 @@ import com.x1.frans.returns.command.domain.repository.ReturnDetailCommandReposit
 import com.x1.frans.returns.command.domain.repository.ReturnFileCommandRepository;
 import com.x1.frans.returns.command.domain.vo.ReturnCreateRequestVO;
 import com.x1.frans.returns.command.domain.vo.ReturnDetailRequestVO;
+import com.x1.frans.returns.command.domain.vo.ReturnFileRequestVO;
 import com.x1.frans.returns.enums.ProductReturnStatus;
 import com.x1.frans.returns.enums.ReturnStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
@@ -77,7 +78,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
                 ReturnEntity.builder()
                         .description(vo.getDescription())
                         .franchiseId(franchise.getId())
-                        .totalAmonut(totalAmount)
+                        .totalAmount(totalAmount)
                         .userId(user.getId())
                         .code(returnCode)
                         .status(ReturnStatus.WAITING_FOR_RECEIPT)
@@ -90,8 +91,8 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         returnDetailRepository.saveAll(returnDetails);
 
         // 반품 첨부파일 정보 생성
-        if (vo.getFileUrls() != null && !vo.getFileUrls().isEmpty()) {
-            List<ReturnFileEntity> returnFiles = createReturnFiles(vo.getFileUrls(), returnEntity);
+        if (vo.getFiles() != null && !vo.getFiles().isEmpty()) {
+            List<ReturnFileEntity> returnFiles = createReturnFiles(vo.getFiles(), returnEntity);
             returnFileRepository.saveAll(returnFiles);
         }
     }
@@ -116,7 +117,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         }
 
         // 반품 첨부파일 누락 확인
-        if (vo.getFileUrls() == null || vo.getFileUrls().isEmpty()) {
+        if (vo.getFiles() == null || vo.getFiles().isEmpty()) {
             throw new InvalidReturnArgumentException("반품 사진은 필수 입력값입니다");
         }
 
@@ -133,7 +134,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         String franchisePrefix = franchise.getCode();
         int franchiseReturnCount = returnRepository.countByReturnCodePrefix(franchisePrefix);
 
-      ; // 일련번호 생성 (0001부터 시작)
+        // 일련번호 생성 (0001부터 시작)
         String sequenceNumber = String.format("%04d", franchiseReturnCount + 1);
 
         // 최종 반품 코드 생성: [가맹점코드][날짜][일련번호]
@@ -163,39 +164,23 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         return returnDetails;
     }
 
-    private List<ReturnFileEntity> createReturnFiles(List<String> fileUrls, ReturnEntity returnEntity) {
+    private List<ReturnFileEntity> createReturnFiles(List<ReturnFileRequestVO> files,
+                                                     ReturnEntity returnEntity) {
+
         List<ReturnFileEntity> returnFiles = new ArrayList<>();
 
-        for (String fileUrl : fileUrls) {
+        for (ReturnFileRequestVO file : files) {
+
+            // 반품 첨부파일 엔티티 생성
             ReturnFileEntity returnFile = new ReturnFileEntity();
             returnFile.setReturnId(returnEntity);
-            returnFile.setUrl(fileUrl);
-
-            // URL에서 파일명 추출 (간단한 방식)
-            String fileName = extractFileNameFromUrl(fileUrl);
-            returnFile.setName(fileName);
+            returnFile.setName(file.getName());
+            returnFile.setUrl(file.getUrl());
 
             returnFiles.add(returnFile);
         }
 
         return returnFiles;
-    }
-
-    private String extractFileNameFromUrl(String fileUrl) {
-
-        // URL에서 마지막 '/' 이후의 문자열을 파일명으로 사용
-        int lastSlashIndex = fileUrl.lastIndexOf('/');
-        String fileName = fileUrl.substring(lastSlashIndex + 1);
-
-        // 쿼리 파라미터가 있다면 제거
-        int queryIndex = fileName.indexOf('?');
-
-        if (queryIndex != -1) {
-                fileName = fileName.substring(0, queryIndex);
-        }
-
-        return fileName;
-
     }
 
 }
