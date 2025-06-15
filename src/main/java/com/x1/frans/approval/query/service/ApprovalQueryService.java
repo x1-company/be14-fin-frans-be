@@ -49,4 +49,5 @@ public interface ApprovalQueryService {
 
     List<ApprovalListDTO> getApprovalListNotifications(long userId);
 
+    String findLatestApprovalCode(String codePrefix);
 }

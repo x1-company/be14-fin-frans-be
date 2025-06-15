@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 
 @Entity
@@ -104,11 +105,27 @@ public class Order {
 
     private boolean isValidTransition(OrderStatus current, OrderStatus target) {
         return switch (current) {
-            case APPROVED -> Set.of(OrderStatus.READY_FOR_DELIVERY, OrderStatus.DELIVERING).contains(target);
-            case READY_FOR_DELIVERY -> Set.of(OrderStatus.APPROVED, OrderStatus.DELIVERING).contains(target);
-            case DELIVERING -> Set.of(OrderStatus.DELIVERED, OrderStatus.READY_FOR_DELIVERY).contains(target);
-            case DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            case APPROVED, DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            case DELIVERING -> Set.of(OrderStatus.DELIVERED).contains(target);
             default -> false;
         };
     }
+
+    public void assignDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public void cancelByFranchise(LocalTime currentTime, LocalTime deadlineTime) {
+        if (this.status != OrderStatus.WAITING_FOR_RECEIPT) {
+            throw new InvalidRejectConditionException("접수 대기 상태에서만 취소할 수 있습니다.");
+        }
+
+        if (currentTime.isAfter(deadlineTime)) {
+            throw new InvalidRejectConditionException("주문 마감 시간 이후에는 취소할 수 없습니다.");
+        }
+
+        this.status = OrderStatus.RECEIPT_CANCELED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
