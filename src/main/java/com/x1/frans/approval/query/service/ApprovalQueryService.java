@@ -54,4 +54,6 @@ public interface ApprovalQueryService {
     List<ApprovalContentDTO> getApprovalDetailContent(Long userId,long approvalId);
 
     List<ApprovalLinesDTO> getApprovalDetailLines(long approvalId);
+  
+    String findLatestApprovalCode(String codePrefix);
 }

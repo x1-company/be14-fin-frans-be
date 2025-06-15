@@ -5,10 +5,10 @@
 
 <mapper namespace="com.x1.frans.order.query.dao.FranchiseOrderQueryMapper">
 
-    <select id="findFranchiseIdByUserId" resultType="long">
+    <select id="findFranchiseIdsByUserId" parameterType="long" resultType="long">
         SELECT id
-        FROM franchise
-        WHERE owner_id = #{userId}
+          FROM franchise
+         WHERE owner_id = #{userId}
     </select>
 
 </mapper>

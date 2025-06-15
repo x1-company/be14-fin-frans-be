@@ -4,5 +4,5 @@ import com.x1.frans.franchise.command.domain.vo.UpdateFranchiseRequestVO;
 
 public interface FranchiseCommandService {
 
-    void updateFranchiseInfo(int franchiseId, UpdateFranchiseRequestVO vo, long userId);
+    void updateFranchiseInfo(Long franchiseId, UpdateFranchiseRequestVO vo, Long userId);
 }

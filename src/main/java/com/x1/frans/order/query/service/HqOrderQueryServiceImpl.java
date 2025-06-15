@@ -8,6 +8,7 @@ import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
 import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
+import com.x1.frans.user.query.service.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +23,17 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
 
     private final HqOrderQueryMapper orderQueryMapper;
     private final OrderAuthorizationService orderAuthorizationService;
+    private final UserQueryService userQueryService;
 
     @Override
-    public OrderSearchPageResponseDto searchOrders(OrderSearchConditionDto condition) {
+    @Transactional
+    public OrderSearchPageResponseDto searchOrders(OrderSearchConditionDto condition, Long userId) {
+
+        // franchiseId가 null이면 HQ 유저, null 아니면 프랜차이즈 유저
+        if (condition.getDepartmentFranchiseIds() == null || condition.getDepartmentFranchiseIds().isEmpty()) {
+            List<Long> allowedFranchiseIds = userQueryService.getAccessibleFranchiseIdsForUser(userId);
+            condition.setDepartmentFranchiseIds(allowedFranchiseIds);
+        }
 
         // 페이지 오프셋 계산
         int offset = (condition.getPage() - 1) * condition.getSize();
@@ -45,6 +54,7 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
                 .hasPrevious(condition.getPage() > 1)
                 .build();
     }
+
 
     @Override
     @Transactional

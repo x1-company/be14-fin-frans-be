@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -15,8 +15,7 @@ public class ShippedOrderDTO {
 
     private Long id;
     private String code;
-    private LocalDateTime createdAt;
-    private LocalDateTime deliveredAt;
+    private LocalDate deliveredAt;
     private BigDecimal totalAmount;
     private OrderStatus status;
 }

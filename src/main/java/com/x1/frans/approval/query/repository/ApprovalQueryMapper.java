@@ -87,4 +87,6 @@ public interface ApprovalQueryMapper  {
 
 
     List<ApprovalLinesDTO> findApprovalDetailLines(long approvalId);
+
+    String findLatestApprovalCode(String codePrefix);
 }
