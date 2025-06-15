@@ -65,4 +65,10 @@ public class PurchaseRequestEntity {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public void setIsRequested(Boolean isRequested) {
+        this.isRequested = isRequested;
+    }
+    public void setStatus(PurchaseRequestStatus status) {
+        this.status = status;
+    }
 }

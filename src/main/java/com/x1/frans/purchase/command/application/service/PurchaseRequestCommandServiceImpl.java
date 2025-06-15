@@ -1,9 +1,6 @@
 package com.x1.frans.purchase.command.application.service;
 
-import com.x1.frans.exception.InvalidDepartmentException;
-import com.x1.frans.exception.ProductNotFoundException;
-import com.x1.frans.exception.PurchaseRequestNotFoundException;
-import com.x1.frans.exception.UserNotFoundException;
+import com.x1.frans.exception.*;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
 import com.x1.frans.purchase.command.application.service.dto.PurchaseRequestCreateCommand;
 import com.x1.frans.purchase.command.application.service.dto.PurchaseRequestProductCreateCommand;
@@ -75,7 +72,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                 .description(command.getDescription())
                 .requestedDeliveryDate(command.getRequestedDeliveryDate())
                 .totalAmount(totalAmount)
-                .status(PurchaseRequestStatus.REQUEST_PENDING)
+                .status(status)
                 .isRequested(isRequested)
                 .user(user)
                 .createdAt(LocalDateTime.now())
@@ -107,8 +104,21 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         PurchaseRequestEntity entity = purchaseRequestRepository.findById(purchaseRequestId)
                 .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 정보 없음"));
 
+        // isRequested(임시저장) 값 처리 (null이면 true)
+        boolean isRequested = command.getIsRequested() == null ? true : command.getIsRequested();
+
+        // 이미 저장된 상태에서 임시저장으로 변경하려는 경우 예외 처리
+        if (Boolean.TRUE.equals(entity.getIsRequested()) && !isRequested) {
+            throw new CannotChangeToDraftExceptioin("저장(요청) 상태에서는 다시 임시저장 상태로 변경할 수 없습니다.");
+        }
+
+        // 상태 결정
+        PurchaseRequestStatus status = isRequested ? PurchaseRequestStatus.REQUEST_PENDING : PurchaseRequestStatus.DRAFT;
+
         // 수정 정보 반영
         entity.updateMainInfo(command.getTitle(), command.getDescription(), command.getRequestedDeliveryDate());
+        entity.setIsRequested(isRequested);
+        entity.setStatus(status);
         entity.setUpdatedAt(LocalDateTime.now());
 
         // 기존 자재 목록 가져오기
@@ -180,6 +190,12 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                 .orElseThrow(() -> new InvalidDepartmentException("부서 정보를 찾을 수 없습니다."));
         if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
             throw new InvalidDepartmentException("영업팀 소속만 삭제할 수 있습니다.");
+        }
+
+        // 임시저장 또는 요청대기만 삭제 가능
+        if (!(entity.getStatus() == PurchaseRequestStatus.DRAFT ||
+                entity.getStatus() == PurchaseRequestStatus.REQUEST_PENDING)) {
+            throw new InvalidPurchaseRequestStatusException("임시저장 또는 요청대기 상태만 삭제할 수 있습니다.");
         }
 
         // 자재 삭제
