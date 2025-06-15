@@ -1,13 +1,17 @@
 package com.x1.frans.approval.command.application.service;
 
-import com.x1.frans.approval.command.application.dto.ApprovalCreateResponseDTO;
+import com.x1.frans.approval.command.application.dto.ApprovalDecisionRequestDTO;
+import com.x1.frans.approval.command.application.dto.ApprovalResponseDTO;
 import com.x1.frans.approval.command.application.dto.ApprovalDocumentDTO;
 import com.x1.frans.approval.command.domain.repository.*;
 import com.x1.frans.approval.command.domain.aggregate.*;
 import com.x1.frans.approval.command.application.dto.ApprovalCreateRequestDTO;
+import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.approval.common.ApprovalStatus;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
+import com.x1.frans.exception.ApprovalLineNotFoundException;
+import com.x1.frans.exception.ApprovalNotFoundException;
 import com.x1.frans.exception.UserNotFoundException;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
@@ -20,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -39,7 +44,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public ApprovalCreateResponseDTO createApproval(ApprovalCreateRequestDTO request, long userId) {
+    public ApprovalResponseDTO createApproval(ApprovalCreateRequestDTO request, long userId) {
 
         // 사용자 조회
         UserEntity user = userCommandRepository.findById(userId)
@@ -147,7 +152,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 }).toList();
 
         approvalFileCommandRepository.saveAll(fileEntities);
-        return new ApprovalCreateResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
+        return new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
 }
 
     private String generateApprovalCode() {
@@ -173,5 +178,41 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         }
 
         return String.format("%s%04d", codePrefix, nextSeq);
+    }
+
+
+    @Override
+    public Optional<ApprovalResponseDTO> ApproverApprove(ApprovalDecisionRequestDTO request, long approvalId, long userId) {
+
+        // 결재 본문 조회
+        ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("결재를 찾을 수 없습니다."));
+
+        // 현재 사용자의 결재선 찾기
+        ApprovalLineEntity currentLine = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
+                .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
+
+        // 결재 or 협조인 경우 → 상태를 승인으로 변경
+        if ("결재".equals(request.getApprovalType()) || "협조".equals(request.getApprovalType())) {
+            currentLine.setStatus(ApprovalLineStatus.APPROVED);
+            currentLine.setOpinion(request.getOpinion());
+            currentLine.setProcessedAt(LocalDateTime.now());
+
+            approvalLineCommandRepository.save(currentLine);
+        }
+
+        // 다음 결재선 대상 찾기
+        int nextSeq = currentLine.getSeq() + 1;
+        Optional<ApprovalLineEntity> nextLineOpt = approvalLineCommandRepository.findByApprovalIdAndSeq(approval.getId(), nextSeq);
+
+        // 다음 결재선이 있으면 상태를 EXPECTED → WAITING 으로 변경
+        nextLineOpt.ifPresent(nextLine -> {
+            if (nextLine.getStatus() == ApprovalLineStatus.EXPECTED) {
+                nextLine.setStatus(ApprovalLineStatus.WAITING);
+                approvalLineCommandRepository.save(nextLine);
+            }
+        });
+
+        return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }
 }

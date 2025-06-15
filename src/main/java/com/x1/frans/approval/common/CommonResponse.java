@@ -1,4 +1,4 @@
-package com.x1.frans.approval.command.application.dto;
+package com.x1.frans.approval.common;
 
 
 import lombok.AllArgsConstructor;
