@@ -93,9 +93,18 @@ public class SecurityConfig {
 
                         // TODO: 개발용 설정. 배포 시 변경 필요
                         authorize
-                                .requestMatchers("/**").permitAll()
+                                //.requestMatchers("/**").permitAll()
 //                              .requestMatchers("/auth/reissue").permitAll()
 //                              .requestMatchers("/**").hasRole("ADMIN"))
+
+                                // Swagger 관련 리소스 전부 허용
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/api-docs/**"
+                                ).permitAll()
 
                                 // auth 관련 기능
                                 .requestMatchers("/api/auth/**").permitAll()

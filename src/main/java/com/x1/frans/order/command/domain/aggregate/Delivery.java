@@ -1,5 +1,6 @@
 package com.x1.frans.order.command.domain.aggregate;
 
+import com.x1.frans.user.enums.DeliveryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +21,9 @@ public class Delivery {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false)
-    private String status; // 예: 접수 대기, 배송 중, 배송 완료 등
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private DeliveryStatus status;
 
     @Column(name = "delivery_company")
     private String deliveryCompany;
@@ -53,4 +55,12 @@ public class Delivery {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateDeliveryInfo(String deliveryCompany, String trackingNumber, String name, String phone) {
+        this.deliveryCompany = deliveryCompany;
+        this.trackingNumber = trackingNumber;
+        this.name = name;
+        this.phone = phone;
+    }
+
 }

@@ -25,10 +25,10 @@ public class HqFranchiseCommandController {
 
     @Operation(summary = "가맹점 정보 수정", description = "가맹점 정보를 수정합니다.")
     @PutMapping("{franchiseId}/update")
-    public ResponseEntity<Void> UpdateFranchiseInfo(@PathVariable("franchiseId") int franchiseId,
+    public ResponseEntity<Void> UpdateFranchiseInfo(@PathVariable("franchiseId") Long franchiseId,
                                                     @RequestBody UpdateFranchiseRequestVO vo,
                                                     @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        long userId = customUserDetails.getUserId();
+        Long userId = customUserDetails.getUserId();
 
         franchiseCommandService.updateFranchiseInfo(franchiseId, vo, userId);
         

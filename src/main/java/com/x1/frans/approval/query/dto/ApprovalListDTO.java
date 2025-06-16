@@ -6,11 +6,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Schema(description = "결재 리스트 조회 DTO")
-@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class ApprovalListDTO {
 
     @Schema(description = "결재 id")

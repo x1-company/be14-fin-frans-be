@@ -1,21 +1,27 @@
 package com.x1.frans.order.command.domain.aggregate;
 
-import com.x1.frans.exception.InvalidOrderRejectConditionException;
+import com.x1.frans.exception.InvalidRejectConditionException;
 import com.x1.frans.exception.OrderRejectReasonRequiredException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
+import com.x1.frans.order.command.application.util.OrderDeadlineUtils;
 import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Builder
 @Table(name = "orders")
 public class Order {
 
@@ -37,7 +43,10 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
+
+    @Column(name = "total_quantity", nullable = false)
+    private Integer totalQuantity;
 
     @Column(name = "rejected_reason")
     private String rejectedReason;
@@ -59,7 +68,7 @@ public class Order {
 
     public void reject(String reason) {
         if (status != OrderStatus.REVIEWING && status != OrderStatus.REVIEW_COMPLETED) {
-            throw new InvalidOrderRejectConditionException("해당 주문 상태에서는 반려할 수 없습니다.");
+            throw new InvalidRejectConditionException("해당 주문 상태에서는 반려할 수 없습니다.");
         }
 
         if (reason == null || reason.trim().isEmpty()) {
@@ -74,7 +83,7 @@ public class Order {
 
     public void markReviewComplete() {
         if (this.status != OrderStatus.REVIEWING) {
-            throw new InvalidOrderRejectConditionException("검토중 상태에서만 검토 완료로 변경할 수 있습니다.");
+            throw new InvalidRejectConditionException("검토중 상태에서만 검토 완료로 변경할 수 있습니다.");
         }
         this.status = OrderStatus.REVIEW_COMPLETED;
         this.updatedAt = LocalDateTime.now();
@@ -82,9 +91,62 @@ public class Order {
 
     public void cancelReviewComplete() {
         if (this.status != OrderStatus.REVIEW_COMPLETED) {
-            throw new InvalidOrderRejectConditionException("검토 완료 상태에서만 검토중으로 변경할 수 있습니다.");
+            throw new InvalidRejectConditionException("검토 완료 상태에서만 검토중으로 변경할 수 있습니다.");
         }
         this.status = OrderStatus.REVIEWING;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateStatus(OrderStatus newStatus) {
+        if (!isValidTransition(this.status, newStatus)) {
+            throw new InvalidRejectConditionException("현재 상태에서는 해당 상태로 변경할 수 없습니다.");
+        }
+
+        if (newStatus == OrderStatus.DELIVERING && this.delivery == null) {
+            throw new InvalidRejectConditionException("배송 중 상태로 변경하려면 배송 정보가 등록되어 있어야 합니다.");
+        }
+
+        this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    private boolean isValidTransition(OrderStatus current, OrderStatus target) {
+        return switch (current) {
+            case APPROVED, DELIVERED -> Set.of(OrderStatus.DELIVERING).contains(target);
+            case DELIVERING -> Set.of(OrderStatus.DELIVERED).contains(target);
+            default -> false;
+        };
+    }
+
+    public void assignDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public void cancelByFranchise(LocalTime deadlineTime) {
+        if (this.status != OrderStatus.WAITING_FOR_RECEIPT) {
+            throw new InvalidRejectConditionException("접수 대기 상태에서만 취소할 수 있습니다.");
+        }
+
+        if (!OrderDeadlineUtils.canCancelOrder(this.createdAt, deadlineTime, LocalDateTime.now())) {
+            throw new InvalidRejectConditionException("주문 마감 시간 이후에는 취소할 수 없습니다.");
+        }
+
+        this.status = OrderStatus.RECEIPT_CANCELED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateOrderStatus(OrderStatus newStatus) {
+        if (this.status != OrderStatus.WAITING_FOR_RECEIPT) {
+            throw new InvalidRejectConditionException("접수 대기 상태에서만 검토 중으로 바뀔 수 있습니다.");
+        }
+
+        this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateTotal(int totalQuantity, BigDecimal totalAmount) {
+        this.totalQuantity = totalQuantity;
+        this.totalAmount = totalAmount;
         this.updatedAt = LocalDateTime.now();
     }
 }

@@ -31,7 +31,7 @@ public class FranchiseCommandServiceImpl implements FranchiseCommandService {
      */
     @Override
     @Transactional
-    public void updateFranchiseInfo(int franchiseId, UpdateFranchiseRequestVO vo, long userId) {
+    public void updateFranchiseInfo(Long franchiseId, UpdateFranchiseRequestVO vo, Long userId) {
         FranchiseEntity franchise = franchiseCommandRepository.findById(franchiseId)
                 .orElseThrow(() -> new FranchiseNotFoundException("가맹점을 찾을 수 없습니다"));
 

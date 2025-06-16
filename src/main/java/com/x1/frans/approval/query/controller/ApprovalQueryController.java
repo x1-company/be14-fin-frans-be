@@ -1,5 +1,7 @@
 package com.x1.frans.approval.query.controller;
 
+import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
 import com.x1.frans.security.CustomUserDetails;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -227,6 +230,50 @@ public class ApprovalQueryController {
 
         return ResponseEntity.ok(list);
     }
+
+
+    @Operation(summary = "결재 상세 조회 - 결재 본문", description = "결재 상세본문 조회한다.")
+    @GetMapping("/detail/{approvalId}/content")
+    public ResponseEntity<List<ApprovalContentDTO>> getApprovalDetailContent(@AuthenticationPrincipal CustomUserDetails user,
+                                                                             @PathVariable long approvalId) {
+
+        long userId = user.getUserId();
+        List<ApprovalContentDTO> list = approvalQueryService.getApprovalDetailContent(userId,approvalId);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @Operation(summary = "결재 상세 조회 - 결재선", description = "결재 상세 결재선 조회한다.")
+    @GetMapping("/detail/{approvalId}/lines")
+    public ResponseEntity<ApprovalLinesDTO> getApprovalDetailLines(@PathVariable long approvalId) {
+
+        ApprovalLinesDTO list = approvalQueryService.getApprovalDetailLines(approvalId);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @Operation(summary = "결재 템플릿 목록 조회", description = "결재 템플릿 목록 조회할 수 있다.")
+    @GetMapping("/templates")
+    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user) {
+
+        long userId = user.getUserId();
+        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalLineTemplates(userId);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @Operation(summary = "결재 템플릿 상세 조회", description = "결재 템플릿 상세 조회할 수 있다.")
+    @GetMapping("/templates/{templateId}")
+    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalLineDetailTemplates(@AuthenticationPrincipal CustomUserDetails user,
+                                                                           @PathVariable long templateId) {
+
+        long userId = user.getUserId();
+        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalLineDetailTemplates(userId, templateId);
+
+        return ResponseEntity.ok(list);
+    }
+
+
 
 
 
