@@ -381,4 +381,160 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
     }
+
+    @Transactional
+    @Override
+    public ApprovalResponseDTO modifyApproval(ApprovalCreateRequestDTO request, long userId, long approvalId) {
+
+        // 결재 문서 조회
+        ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("결재 문서를 찾을 수 없습니다."));
+
+        // 기안자 조회
+        if (!approval.getUser().getId().equals(userId)) {
+            throw new UnauthorizedAccessException("결재 문서를 수정할 권한이 없습니다.");
+        }
+
+
+
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new IllegalArgumentException("제목은 필수 입력값입니다.");
+        }
+        if (request.getApprovalLines().isEmpty()) {
+            throw new IllegalArgumentException("결재선은 최소 1명 이상이어야 합니다.");
+        }
+        if (approval.getDegree() == null) {
+            throw new IllegalStateException("approval degree 값이 누락되었습니다.");
+        }
+        if (request.getApprovalDocuments() == null || request.getApprovalDocuments().getDocumentIds().isEmpty()) {
+            throw new IllegalArgumentException("문서 정보가 비어 있습니다.");
+        }
+
+
+        approvalFileCommandRepository.deleteByApprovalId(approvalId);
+        approvalLineCommandRepository.deleteByApprovalId(approvalId);
+        returnApprovalCommandRepository.deleteByApprovalId(approvalId);
+
+
+        approval.setTitle(request.getTitle());
+        approval.setRemarks(request.getRemarks());
+
+        if (request.getIsRequest()) {
+            approval.setIsRequested(true); // 결재 진행중
+            approval.setStatus(ApprovalStatus.IN_PROGRESS);
+
+            // degree 증가 처리
+            if (approval.getDegree() == null) {
+                approval.setDegree(1); // 최초 등록
+            } else {
+                approval.setDegree(approval.getDegree() + 1); // 재기안
+            }
+
+        } else {
+            approval.setIsRequested(false); // 임시저장
+            approval.setStatus(ApprovalStatus.DRAFT);
+
+            // 임시저장일 경우 degree를 0으로 설정 -기안 전 상태
+            if (approval.getDegree() == null) {
+                approval.setDegree(0);
+            }
+        }
+        orderApprovalCommandRepository.deleteByApprovalId(approvalId);
+        purchaseOrderApprovalCommandRepository.deleteByApprovalId(approvalId);
+
+
+
+
+        // 결재 문서
+        ApprovalDocumentDTO doc = request.getApprovalDocuments();
+
+        switch (doc.getCategoryType()) {
+            case ORDER -> {
+                List<OrderApprovalEntity> orderDocs = doc.getDocumentIds().stream()
+                        .map(docId -> new OrderApprovalEntity(approval, docId))
+                        .toList();
+                orderApprovalCommandRepository.saveAll(orderDocs);
+            }
+
+            case RETURN -> {
+                List<ReturnApprovalEntity> returnDocs = doc.getDocumentIds().stream()
+                        .map(docId -> new ReturnApprovalEntity(approval, docId))
+                        .toList();
+                returnApprovalCommandRepository.saveAll(returnDocs);
+            }
+
+            case PURCHASE_ORDER -> {
+                List<PurchaseOrderApprovalEntity> purchaseOrderDocs = doc.getDocumentIds().stream()
+                        .map(docId -> new PurchaseOrderApprovalEntity(approval, docId))
+                        .toList();
+                purchaseOrderApprovalCommandRepository.saveAll(purchaseOrderDocs);
+            }
+
+            default -> throw new IllegalArgumentException("알 수 없는 문서 유형입니다.");
+        }
+
+        // 결재선 처리
+        List<ApprovalLineEntity> approvalLines = request.getApprovalLines().stream()
+                .map(line -> {
+                    UserEntity approver = userCommandRepository.findById(line.getUserId())
+                            .orElseThrow(() -> new UserNotFoundException("결재자 정보를 찾을 수 없습니다."));
+
+                    ApprovalLineEntity approvalLine = new ApprovalLineEntity();
+                    approvalLine.setApproval(approval);
+                    approvalLine.setUser(approver);
+                    approvalLine.setSeq(line.getSeq());
+                    approvalLine.setApprovalType(ApprovalLineType.valueOf(line.getType()));
+                    if (approval.getDegree() != null) {
+                        approvalLine.setApprovalDegree(approval.getDegree().longValue());
+                    }
+                    return approvalLine;
+                }).toList();
+
+
+        // 순서가 필요한 라인만 필터링 (결재자, 협조자)
+        List<ApprovalLineEntity> orderedLines = approvalLines.stream()
+                .filter(line -> line.getApprovalType().isOrdered())
+                .sorted(Comparator.comparingInt(ApprovalLineEntity::getSeq))
+                .collect(toList());
+
+        // 순서 필요 없는 나머지 (참조자, 수신자)
+        List<ApprovalLineEntity> referenceLines = approvalLines.stream()
+                .filter(line -> !line.getApprovalType().isOrdered())
+                .collect(toList());
+
+        // 상태 설정 enum 메서드에 위임
+        for (int i = 0; i < orderedLines.size(); i++) {
+            ApprovalLineEntity line = orderedLines.get(i);
+            line.setStatus(line.getApprovalType().getInitialStatus(i));
+        }
+
+
+        // 결재선 저장
+        List<ApprovalLineEntity> allLines = new ArrayList<>();
+        allLines.addAll(orderedLines);
+        allLines.addAll(referenceLines);
+
+        // 참조자/수신자는 상태 없이 저장
+        referenceLines.forEach(line -> line.setStatus(null));
+
+        approvalLineCommandRepository.saveAll(allLines);
+
+
+        // 첨부파일
+        List<ApprovalFileEntity> fileEntities = request.getFiles()== null ? List.of() :
+                request.getFiles().stream()
+                        .map(file -> {
+                            ApprovalFileEntity approvalFile = new ApprovalFileEntity();
+                            approvalFile.setApproval(approval);
+                            approvalFile.setName(file.getName());
+                            approvalFile.setUrl(file.getUrl());
+                            return approvalFile;
+                        }).toList();
+
+        approvalFileCommandRepository.saveAll(fileEntities);
+
+
+        return new ApprovalResponseDTO(approval.getId(), approval.getTitle());
+
+    }
 }

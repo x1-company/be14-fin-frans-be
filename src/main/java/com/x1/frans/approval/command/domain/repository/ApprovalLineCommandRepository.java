@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,11 @@ public interface ApprovalLineCommandRepository extends JpaRepository<ApprovalLin
     Optional<ApprovalLineEntity> findByApprovalIdAndUserId(Long id, long userId);
 
     Optional<ApprovalLineEntity> findByApprovalIdAndSeq(Long id, int nextSeq);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ApprovalLineEntity al WHERE al.approval.id = :approvalId")
+    void deleteByApprovalId(@Param("approvalId") Long approvalId);
 
     @Modifying(clearAutomatically = true)
     @Transactional
