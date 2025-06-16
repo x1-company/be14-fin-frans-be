@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface PurchaseRequestRepository extends JpaRepository<PurchaseRequestEntity, Long> {
     Optional<PurchaseRequestEntity> findTopByOrderByIdDesc();
     Page<PurchaseRequestEntity> findAllByStatus(PurchaseRequestStatus status, Pageable pageable);
+    Optional<PurchaseRequestEntity> findByIdAndStatus(Long id, PurchaseRequestStatus status);
 }

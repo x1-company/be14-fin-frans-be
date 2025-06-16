@@ -9,6 +9,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "purchase_request")
@@ -54,20 +56,27 @@ public class PurchaseRequestEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "purchaseRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<PurchaseRequestProductEntity> purchaseRequestProducts = new ArrayList<>();
+
     public void updateMainInfo(String title, String description, LocalDate requestedDeliveryDate) {
         this.title = title;
         this.description = description;
         this.requestedDeliveryDate = requestedDeliveryDate;
     }
+
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
+
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
     public void setIsRequested(Boolean isRequested) {
         this.isRequested = isRequested;
     }
+
     public void setStatus(PurchaseRequestStatus status) {
         this.status = status;
     }

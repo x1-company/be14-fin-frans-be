@@ -21,9 +21,7 @@ public class PurchaseRequestCommandController {
 
     @PostMapping
     @Operation(
-            summary = "구매요청 등록",
-            description = "구매 요청을 작성한다."
-    )
+            summary = "구매요청 등록", description = "구매 요청을 작성한다.")
     public ResponseEntity<Long> create(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody PurchaseRequestCreateCommand command

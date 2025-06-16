@@ -1,8 +1,10 @@
 package com.x1.frans.purchase.query.service;
 
+import com.x1.frans.exception.PurchaseRequestNotFoundException;
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
 import com.x1.frans.purchase.command.domain.repository.PurchaseRequestRepository;
 import com.x1.frans.purchase.enums.PurchaseRequestStatus;
+import com.x1.frans.purchase.query.dto.PurchaseRequestDetailDto;
 import com.x1.frans.purchase.query.dto.PurchaseRequestSimpleDto;
 import com.x1.frans.purchase.query.repository.PurchaseRequestQueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +38,12 @@ public class PurchaseRequestQueryService {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build());
+    }
+
+    public PurchaseRequestDetailDto getDraftDetail(Long id) {
+        PurchaseRequestEntity entity = purchaseRequestRepository
+                .findByIdAndStatus(id, PurchaseRequestStatus.DRAFT)
+                .orElseThrow(() -> new PurchaseRequestNotFoundException("임시저장 구매요청을 찾을 수 없습니다."));
+        return PurchaseRequestDetailDto.from(entity);
     }
 }
