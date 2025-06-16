@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.approval.query.repository.ApprovalCategoryQueryMapper">
+
+    <update id="updateOrderStatusByApprovalId">
+        UPDATE `orders`
+        SET status = #{status}
+        WHERE id IN (
+            SELECT orders_id FROM order_approval
+            WHERE approval_id = #{approvalId}
+        )
+    </update>
+
+    <update id="updateReturnStatusByApprovalId">
+        UPDATE `return`
+        SET status = #{status}
+        WHERE id IN (
+            SELECT return_id FROM return_approval
+            WHERE approval_id = #{approvalId}
+        )
+    </update>
+
+    <update id="updatePurchaseOrderStatusByApprovalId">
+        UPDATE `purchase_order`
+        SET status = #{status}
+        WHERE id IN (
+            SELECT purchase_order_id FROM purchase_order_approval
+            WHERE approval_id = #{approvalId}
+        )
+    </update>
+</mapper>

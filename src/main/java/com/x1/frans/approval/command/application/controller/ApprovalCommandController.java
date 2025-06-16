@@ -4,6 +4,7 @@ import com.x1.frans.approval.command.application.dto.*;
 import com.x1.frans.approval.command.application.service.ApprovalCommandService;
 import com.x1.frans.approval.common.CommonResponse;
 import com.x1.frans.exception.ApprovalActionFailedException;
+import com.x1.frans.exception.ApprovalLineTemplateActionFailedException;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,6 +41,7 @@ public class ApprovalCommandController {
 
     }
 
+
     @Operation(summary = "결재자/협조자 승인", description = "결재자/협조자가 결재를 승인합니다.")
     @PostMapping("/{approvalId}/approve")
     public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverApprove(@RequestBody ApprovalApproveRequestDTO request,
@@ -75,4 +77,103 @@ public class ApprovalCommandController {
                 .body(CommonResponse.success(responseDTO, "반려 처리되었습니다."));
 
     }
+
+
+    @Operation(summary = "결재선 템플릿 등록", description = "결재선 템플릿 등록합니다.")
+    @PostMapping("/templates")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approvalLineTemplates(@RequestBody ApprovalLineTemplateCreateRequestDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+
+
+        ApprovalResponseDTO responseDTO = approvalCommandService
+                .approvalLineTemplates(request, userId)
+                .orElseThrow(() -> new ApprovalLineTemplateActionFailedException("결재선 템플릿 등록을 실패했습니다."));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿이 등록되었습니다."));
+
+    }
+    @Operation(summary = "결재선 템플릿 수정", description = "결재선 템플릿 수정합니다.")
+    @PutMapping("/templates/{templateId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approvalLineTemplatesModify(@RequestBody ApprovalLineTemplateCreateRequestDTO request,
+                                                                                     @AuthenticationPrincipal CustomUserDetails user,
+                                                                                           @PathVariable Long templateId) {
+        long userId = user.getUserId();
+
+
+        ApprovalResponseDTO responseDTO = approvalCommandService
+                .approvalLineTemplatesModify(request, userId, templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateActionFailedException("결재선 템플릿 수정을 실패했습니다."));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿이 수정되었습니다."));
+
+    }
+    @Operation(summary = "결재선 템플릿 삭제", description = "결재선 템플릿 삭제합니다.")
+    @DeleteMapping("/templates/{templateId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> deleteApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user,
+                                                                                           @PathVariable Long templateId) {
+        long userId = user.getUserId();
+
+
+        ApprovalResponseDTO responseDTO = approvalCommandService
+                .deleteApprovalLineTemplates(userId, templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateActionFailedException("결재선 템플릿 삭제를 실패했습니다."));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재선 템플릿이 삭제되었습니다."));
+
+    }
+    @Operation(summary = "결재 수정(재기안 포함)", description = "결재를 수정합니다.")
+    @PutMapping("/{approvalId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> modifyApproval(@RequestBody ApprovalCreateRequestDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user,
+                                                                              @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.modifyApproval(request,userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재 수정이 완료되었습니다."));
+
+    }
+
+    @Operation(summary = " 결재진행 중이던 문서를 임시저장 상태로 변경", description = "결재 중이던 문서를 임시저장상태로 변경합니다.")
+    @PatchMapping("/{approvalId}/draft")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> updateRequestedStatus(@RequestBody ApprovalStatusUpdateDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user,
+                                                                              @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.updateRequestState(request,userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "임시저장 상태로 변경되었습니다."));
+
+    }
+
+    @Operation(summary = "임시저장된 문서를 결재등록 요청", description = "임시저장된 문서를 결재등록이 된 상태로 변경합니다.")
+    @PatchMapping("/{approvalId}/request")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> requestApproval(@AuthenticationPrincipal CustomUserDetails user,
+                                                                                     @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.requestApproval(userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재가 등록되었습니다."));
+
+    }
+
+
 }

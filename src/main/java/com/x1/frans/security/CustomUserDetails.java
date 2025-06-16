@@ -38,6 +38,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getId();
     }
 
+    public String getName() {
+        return user.getName();
+    }
+
     public String getProfileUrl() {
         return user.getProfileUrl();
     }

@@ -1234,7 +1234,26 @@
     </select>
 
 
-    <select id="findApprovalDetailLines" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO">
+
+    <!-- 결재선 resultMap -->
+    <resultMap id="ApprovalDetailLinesMap" type="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO">
+        <result property="drafterName" column="name"/>
+<!--        결재선 정보-->
+        <collection property="line" ofType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLineDTO" column="{approvalId=id}"
+                    select="findApprovalDetailLine" fetchType="lazy" />
+    </resultMap>
+
+    <!--    결재선 전체 조회-->
+    <select id="getApprovalDetailLines" resultMap="ApprovalDetailLinesMap">
+        SELECT
+               a.id
+             , u.name
+          FROM approval a
+          JOIN user u ON a.user_id = u.id
+         WHERE a.id = #{approvalId}
+    </select>
+<!--    결재선 상세 조회-->
+    <select id="findApprovalDetailLine" parameterType="map" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLineDTO">
         SELECT
                al.id AS id
              , u.name AS userName
@@ -1258,7 +1277,7 @@
             ON pos.id = hud.position_id
           LEFT JOIN approval a
             ON a.id = al.approval_id
-         WHERE a.id = #{approvalId}
+         WHERE al.approval_id = #{approvalId}
          ORDER BY al.seq
     </select>
 
@@ -1266,10 +1285,41 @@
 <!--  결재 코드 조회  -->
     <select id="findLatestApprovalCode" resultType="string">
         SELECT code
-        FROM approval
-        WHERE code LIKE CONCAT(#{codePrefix}, '%')
-        ORDER BY code DESC
-            LIMIT 1
+          FROM approval
+         WHERE code LIKE CONCAT(#{codePrefix}, '%')
+         ORDER BY code DESC
+          LIMIT 1
+    </select>
+
+<!--   결재선 템플릿 조회-->
+    <select id="getApprovalLineTemplates" resultType="com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO">
+        SELECT
+               alt.id
+             , alt.name
+             , alt.description
+             , alt.seq
+          FROM approval_line_template alt
+          JOIN user u ON u.id = alt.user_id
+         WHERE u.id = #{userId}
+
+    </select>
+<!--    결재선 템플릿 상세 조회-->
+    <select id="getApprovalLineDetailTemplates" resultType="com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO">
+        SELECT
+               alt.id AS templateId
+             , u.name AS userName
+             , altd.type
+             , dept.name AS departmentName
+             , pos.name AS positionName
+             , altd.seq
+        FROM approval_line_template_detail altd
+        JOIN approval_line_template alt ON alt.id = altd.approval_line_template_id
+        JOIN user u ON u.id = altd.user_id
+        JOIN hq_user_detail hsd ON hsd.user_id = u.id
+        JOIN department dept ON dept.id = hsd.department_id
+        JOIN position pos ON pos.id = hsd.position_id
+        WHERE alt.user_id = #{userId} AND alt.id = #{templateId}
+        ORDER BY altd.seq
     </select>
 
 </mapper>

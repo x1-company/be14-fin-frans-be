@@ -5,6 +5,7 @@ import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
 import com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO;
 import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO;
+import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLineDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -86,7 +87,17 @@ public interface ApprovalQueryMapper  {
     List<ApprovalFileDTO> findApprovalFilesByApprovalId(@Param("id") Long approvalId);
 
 
-    List<ApprovalLinesDTO> findApprovalDetailLines(long approvalId);
 
     String findLatestApprovalCode(String codePrefix);
+
+    // 결재선 조회
+    List<ApprovalLinesDTO> getApprovalDetailLines(long approvalId);
+
+    // 결재선 정보 상세
+    List<ApprovalLineDTO> findApprovalDetailLine(@Param("approvalId") Long approvalId);
+
+
+    List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
+
+    List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
 }
