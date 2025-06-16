@@ -83,11 +83,17 @@ public class UserCommandController {
     }
 
     @PatchMapping("/sign")
+    @Operation(
+            summary = "서명 url 변경",
+            description = "서명 url 변경"
+    )
     public ResponseEntity<Void> updateSignUrl(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                               @RequestBody UpdateSignUrlRequestVO updateSignUrlRequestVO,
                                               HttpServletRequest request, HttpServletResponse response) {
 
-        userCommandService.updateSignUrl(customUserDetails.getUserId(), updateSignUrlRequestVO.getSignUrl());
+        userCommandService.updateSignUrl(customUserDetails.getUserId(),
+                updateSignUrlRequestVO.getSignUrl(),
+                customUserDetails.getSignUrl());
 
         String refreshToken = authCommandService.extractRefreshTokenFromCookie(request);
 

@@ -13,5 +13,5 @@ public interface UserCommandService {
 
     void accountLock(String userCode);
 
-    void updateSignUrl(Long userId, String signUrl);
+    void updateSignUrl(Long userId, String newSignUrl, String oldSignUrl);
 }

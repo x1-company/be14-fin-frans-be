@@ -90,6 +90,8 @@ public class AmazonS3Service {
                 return "approval";
             case "return":
                 return "return";
+            case "sign":
+                return "sign";
             default:
                 throw new InvalidFilUploadTypeException("지원하지 않는 업로드 타입입니다.");
         }
