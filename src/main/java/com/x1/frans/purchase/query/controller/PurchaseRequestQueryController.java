@@ -49,4 +49,13 @@ public class PurchaseRequestQueryController {
     ) {
         return purchaseRequestQueryService.getRequestsByCode(code, pageable);
     }
+
+    @GetMapping("/search")
+    @Operation(summary = "구매 요청 목록을 구매 요청 명으로 조회", description = "구매요청 목록을 구매 요청 명으로 조회한다.")
+    public Page<PurchaseRequestSimpleDto> searchByTitle(
+            @RequestParam("title") String title,
+            Pageable pageable
+    ) {
+        return purchaseRequestQueryService.searchByTitle(title, pageable);
+    }
 }

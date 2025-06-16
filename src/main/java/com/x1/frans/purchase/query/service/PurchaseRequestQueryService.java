@@ -24,6 +24,7 @@ public class PurchaseRequestQueryService {
         this.purchaseRequestRepository = purchaseRequestRepository;
     }
 
+    // 구매 요청 임시 저장 목록 조회
     public Page<PurchaseRequestSimpleDto> getDraftPurchaseRequests(Pageable pageable) {
         // status는 "임시저장" (enum 또는 상수 사용 가능)
         Page<PurchaseRequestEntity> entities = purchaseRequestRepository.findAllByStatus(PurchaseRequestStatus.DRAFT, pageable);
@@ -40,6 +41,7 @@ public class PurchaseRequestQueryService {
                 .build());
     }
 
+    // 구매 요청 임시 저장 목록 상세 조회
     public PurchaseRequestDetailDto getDraftDetail(Long id) {
         PurchaseRequestEntity entity = purchaseRequestRepository
                 .findByIdAndStatus(id, PurchaseRequestStatus.DRAFT)
@@ -47,13 +49,21 @@ public class PurchaseRequestQueryService {
         return PurchaseRequestDetailDto.from(entity);
     }
 
+    // 구매 요청 목록을 구매 상태로 조회
     public Page<PurchaseRequestSimpleDto> getRequestsByStatus(PurchaseRequestStatus status, Pageable pageable) {
         return purchaseRequestQueryRepository.findAllByStatus(status, pageable)
                 .map(PurchaseRequestSimpleDto::from);
     }
 
+    // 구매 요청 목록을 구매 요청 코드로 조회
     public Page<PurchaseRequestSimpleDto> getRequestsByCode(String code, Pageable pageable) {
         return purchaseRequestRepository.findByCodeContaining(code, pageable)
+                .map(PurchaseRequestSimpleDto::from);
+    }
+
+    // 구매 요청 목록을 구매 요청 명으로 조회
+    public Page<PurchaseRequestSimpleDto> searchByTitle(String title, Pageable pageable) {
+        return purchaseRequestQueryRepository.findByTitleContaining(title, pageable)
                 .map(PurchaseRequestSimpleDto::from);
     }
 }
