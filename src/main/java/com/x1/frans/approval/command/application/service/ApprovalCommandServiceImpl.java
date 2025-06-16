@@ -563,4 +563,5 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         return new ApprovalResponseDTO(approval.getId(), approval.getTitle());
 
     }
+
 }

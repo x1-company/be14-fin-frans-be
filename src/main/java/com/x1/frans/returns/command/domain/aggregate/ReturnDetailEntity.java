@@ -33,7 +33,7 @@ public class ReturnDetailEntity {
     private Integer quantity;
 
     @Column(name = "product_id", nullable = false)
-    private Long producId;
+    private Long productId;
 
     @Column(name = "order_id", nullable = false)
     private Long orderId;
