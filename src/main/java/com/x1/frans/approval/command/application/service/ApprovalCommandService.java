@@ -21,5 +21,5 @@ public interface ApprovalCommandService {
 
     ApprovalResponseDTO updateRequestState(ApprovalStatusUpdateDTO request, long userId, long approvalId);
 
-
+    ApprovalResponseDTO requestApproval(long userId, long approvalId);
 }
