@@ -58,4 +58,10 @@ public class PurchaseRequestQueryController {
     ) {
         return purchaseRequestQueryService.searchByTitle(title, pageable);
     }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "구매 요청 상세 조회", description = "구매 요청 목록 상세 조회한다.")
+    public PurchaseRequestDetailDto getDetail(@PathVariable Long id) {
+        return purchaseRequestQueryService.getDetail(id);
+    }
 }

@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface PurchaseRequestQueryRepository extends JpaRepository<PurchaseRequestEntity, Long> {
 
     Page<PurchaseRequestEntity> findByStatus(String status, Pageable pageable);
@@ -13,4 +15,6 @@ public interface PurchaseRequestQueryRepository extends JpaRepository<PurchaseRe
     Page<PurchaseRequestEntity> findAllByStatus(PurchaseRequestStatus status, Pageable pageable);
 
     Page<PurchaseRequestEntity> findByTitleContaining(String title, Pageable pageable);
+
+    Optional<PurchaseRequestEntity> findById(Long id);
 }

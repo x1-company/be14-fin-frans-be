@@ -66,4 +66,11 @@ public class PurchaseRequestQueryService {
         return purchaseRequestQueryRepository.findByTitleContaining(title, pageable)
                 .map(PurchaseRequestSimpleDto::from);
     }
+
+    // 구매 요청 목록 상세 조회
+    public PurchaseRequestDetailDto getDetail(Long id) {
+        PurchaseRequestEntity entity = purchaseRequestQueryRepository.findById(id)
+                .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청을 찾을 수 없습니다."));
+        return PurchaseRequestDetailDto.from(entity);
+    }
 }
