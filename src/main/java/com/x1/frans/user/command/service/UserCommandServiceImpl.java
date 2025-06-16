@@ -346,4 +346,17 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         userCommandRepository.accountLock(userCode);
     }
+
+    /**
+     * 회원 서명 url 업데이트
+     *
+     * @param userId 회원 ID
+     * @param signUrl S3 url
+     */
+    @Transactional
+    @Override
+    public void updateSignUrl(Long userId, String signUrl) {
+
+        userCommandRepository.updateSignUrl(userId, signUrl);
+    }
 }
