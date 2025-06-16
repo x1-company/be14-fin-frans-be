@@ -58,6 +58,5 @@ public class ApprovalEntity {
         this.degree = 1;
         this.createdAt = LocalDateTime.now();
         this.isDeleted = false;
-        this.isRequested = false;
     }
 }

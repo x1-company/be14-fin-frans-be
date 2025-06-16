@@ -396,7 +396,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         }
 
 
-        // 3. 수정 내용 반영
+
         if (request.getTitle() == null || request.getTitle().isBlank()) {
             throw new IllegalArgumentException("제목은 필수 입력값입니다.");
         }
@@ -409,17 +409,40 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         if (request.getApprovalDocuments() == null || request.getApprovalDocuments().getDocumentIds().isEmpty()) {
             throw new IllegalArgumentException("문서 정보가 비어 있습니다.");
         }
+
+
+        approvalFileCommandRepository.deleteByApprovalId(approvalId);
+        approvalLineCommandRepository.deleteByApprovalId(approvalId);
+        returnApprovalCommandRepository.deleteByApprovalId(approvalId);
+
+
         approval.setTitle(request.getTitle());
         approval.setRemarks(request.getRemarks());
-        approval.setIsRequested(request.getIsRequest());
-        approval.setStatus(request.getIsRequest() ? ApprovalStatus.IN_PROGRESS : ApprovalStatus.DRAFT);
 
+        if (request.getIsRequest()) {
+            approval.setIsRequested(true); // 결재 진행중
+            approval.setStatus(ApprovalStatus.IN_PROGRESS);
 
+            // degree 증가 처리
+            if (approval.getDegree() == null) {
+                approval.setDegree(1); // 최초 등록
+            } else {
+                approval.setDegree(approval.getDegree() + 1); // 재기안
+            }
+
+        } else {
+            approval.setIsRequested(false); // 임시저장
+            approval.setStatus(ApprovalStatus.DRAFT);
+
+            // 임시저장일 경우 degree를 0으로 설정 -기안 전 상태
+            if (approval.getDegree() == null) {
+                approval.setDegree(0);
+            }
+        }
         orderApprovalCommandRepository.deleteByApprovalId(approvalId);
-        returnApprovalCommandRepository.deleteByApprovalId(approvalId);
         purchaseOrderApprovalCommandRepository.deleteByApprovalId(approvalId);
-        approvalLineCommandRepository.deleteByApprovalId(approvalId);
-        approvalFileCommandRepository.deleteByApprovalId(approvalId);
+
+
 
 
         // 결재 문서
