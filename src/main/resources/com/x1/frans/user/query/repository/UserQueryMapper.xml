@@ -48,6 +48,8 @@
         <result property="positionName" column="positionName"/>
         <result property="dutyId" column="dutyId"/>
         <result property="dutyName" column="dutyName"/>
+        <result property="supplierId" column="supplierId"/>
+        <result property="franchiseId" column="franchiseId"/>
     </resultMap>
     <select id="findByCode" resultMap="findByCodeResultMap">
         SELECT
@@ -64,15 +66,25 @@
              , a.`is_temp_password`
              , a.`sign_url`
              , a.`profile_url`
+
+             -- HQ
              , c.`id` AS `departmentId`
              , d.`id` AS `dutyId`
              , e.`id` AS `positionId`
+
+             -- FRANCHISE
+             , f.`id` AS `franchiseId`
+
+             -- SUPPLIER
+             , g.`id` AS `supplierId`
           FROM `user` a
           LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
           LEFT JOIN `department` c ON b.`department_id` = c.`id`
-          LEFT JOIN `duty` d on b.`duty_id` = d.id
-          LEFT JOIN `position` e on b.`position_id` = e.id
-         WHERE `code` = #{userCode}
+          LEFT JOIN `duty` d ON b.`duty_id` = d.id
+          LEFT JOIN `position` e ON b.`position_id` = e.id
+          LEFT JOIN `franchise` f ON a.`id` = f.`owner_id`
+          LEFT JOIN `supplier` g ON a.`id` = g.`supplier_id`
+         WHERE a.`code` = #{userCode}
     </select>
 
     <select id="findHqUser" resultType="com.x1.frans.user.query.dto.SearchHqUserDTO">
