@@ -46,4 +46,14 @@ public class PurchaseRequestQueryService {
                 .orElseThrow(() -> new PurchaseRequestNotFoundException("임시저장 구매요청을 찾을 수 없습니다."));
         return PurchaseRequestDetailDto.from(entity);
     }
+
+    public Page<PurchaseRequestSimpleDto> getRequestsByStatus(PurchaseRequestStatus status, Pageable pageable) {
+        return purchaseRequestQueryRepository.findAllByStatus(status, pageable)
+                .map(PurchaseRequestSimpleDto::from);
+    }
+
+    public Page<PurchaseRequestSimpleDto> getRequestsByCode(String code, Pageable pageable) {
+        return purchaseRequestRepository.findByCodeContaining(code, pageable)
+                .map(PurchaseRequestSimpleDto::from);
+    }
 }

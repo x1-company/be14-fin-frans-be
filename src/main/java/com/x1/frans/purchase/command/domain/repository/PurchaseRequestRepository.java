@@ -9,7 +9,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface PurchaseRequestRepository extends JpaRepository<PurchaseRequestEntity, Long> {
+
     Optional<PurchaseRequestEntity> findTopByOrderByIdDesc();
+
     Page<PurchaseRequestEntity> findAllByStatus(PurchaseRequestStatus status, Pageable pageable);
+
     Optional<PurchaseRequestEntity> findByIdAndStatus(Long id, PurchaseRequestStatus status);
+
+    Page<PurchaseRequestEntity> findByCodeContaining(String code, Pageable pageable);
 }
