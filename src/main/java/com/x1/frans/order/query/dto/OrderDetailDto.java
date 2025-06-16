@@ -39,6 +39,7 @@ public class OrderDetailDto {
     private String driverName;
     private String driverPhone;
     private String trackingNumber;
+    private LocalDate deliveredAt;
 
     // 출고 정보
     private String outboundCode;
