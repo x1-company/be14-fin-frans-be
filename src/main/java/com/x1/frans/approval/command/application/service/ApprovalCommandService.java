@@ -1,9 +1,6 @@
 package com.x1.frans.approval.command.application.service;
 
-import com.x1.frans.approval.command.application.dto.ApprovalApproveRequestDTO;
-import com.x1.frans.approval.command.application.dto.ApprovalRejectRequestDTO;
-import com.x1.frans.approval.command.application.dto.ApprovalResponseDTO;
-import com.x1.frans.approval.command.application.dto.ApprovalCreateRequestDTO;
+import com.x1.frans.approval.command.application.dto.*;
 
 import java.util.Optional;
 
@@ -13,4 +10,10 @@ public interface ApprovalCommandService {
     Optional<ApprovalResponseDTO> approverApprove(ApprovalApproveRequestDTO request, long approvalId, long userId);
 
     Optional<ApprovalResponseDTO> approverReject(ApprovalRejectRequestDTO request, long approvalId, long userId);
+
+    Optional<ApprovalResponseDTO> approvalLineTemplates(ApprovalLineTemplateCreateRequestDTO request, long userId);
+
+    Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateCreateRequestDTO request, long userId, Long templateId);
+
+    Optional<ApprovalResponseDTO> deleteApprovalLineTemplates(long userId, Long templateId);
 }

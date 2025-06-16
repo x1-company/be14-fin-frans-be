@@ -9,10 +9,7 @@ import com.x1.frans.approval.common.ApprovalStatus;
 import com.x1.frans.approval.query.repository.ApprovalCategoryQueryMapper;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
-import com.x1.frans.exception.ApprovalActionFailedException;
-import com.x1.frans.exception.ApprovalLineNotFoundException;
-import com.x1.frans.exception.ApprovalNotFoundException;
-import com.x1.frans.exception.UserNotFoundException;
+import com.x1.frans.exception.*;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import jakarta.transaction.Transactional;
@@ -25,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,6 +39,8 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final OrderApprovalCommandRepository orderApprovalCommandRepository;
     private final ReturnApprovalCommandRepository returnApprovalCommandRepository;
     private final PurchaseOrderApprovalCommandRepository purchaseOrderApprovalCommandRepository;
+    private final ApprovalLineTemplateCommandRepository approvalLineTemplateCommandRepository;
+    private final ApprovalLineTemplateDetailCommandRepository approvalLineTemplateDetailCommandRepository;
     private final ApprovalQueryMapper approvalQueryMapper;
     private final ApprovalCategoryQueryMapper approvalCategoryQueryMapper;
 
@@ -282,4 +282,103 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }
 
+    @Transactional
+    @Override
+    public Optional<ApprovalResponseDTO> approvalLineTemplates(ApprovalLineTemplateCreateRequestDTO request, long userId) {
+
+        UserEntity owner = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+        ApprovalLineTemplateEntity template = new ApprovalLineTemplateEntity();
+        template.setName(request.getName());
+        template.setDescription(request.getDescription());
+        template.setSeq(request.getSeq());
+        template.setUser(owner);
+
+
+        List<ApprovalLineTemplateDetailEntity> details = new ArrayList<>();
+
+        for (ApprovalTemplateLineDTO dto : request.getLines()) {
+            UserEntity approver = userCommandRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("결재선 사용자가 아닙니다."));
+
+            ApprovalLineTemplateDetailEntity detail = new ApprovalLineTemplateDetailEntity();
+            detail.setUser(approver);
+            detail.setSeq(dto.getSeq());
+            detail.setType(dto.getType());
+            detail.setTemplate(template);
+
+            details.add(detail);
+        }
+
+        template.setDetails(details);
+        approvalLineTemplateCommandRepository.save(template);
+
+        return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
+    }
+
+    @Transactional
+    @Override
+    public Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateCreateRequestDTO request, long userId, Long templateId) {
+        if (templateId == null) {
+            throw new IllegalArgumentException("템플릿 ID가 없습니다.");
+        }
+
+        ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
+
+        // 본인 소유 템플릿인지 확인
+        if (template.getUser() == null || !template.getUser().getId().equals(userId)) {
+            throw new UnauthorizedTemplateAccessException("수정 권한이 없습니다.");
+        }
+
+
+
+        //  템플릿 정보 업데이트
+        template.setName(request.getName());
+        template.setDescription(request.getDescription());
+        template.setSeq(request.getSeq());
+        approvalLineTemplateCommandRepository.save(template);
+
+        // 기존 상세 결재선 삭제
+        approvalLineTemplateDetailCommandRepository.deleteByTemplateId(templateId);
+
+        // 새 상세 결재선 등록
+        List<ApprovalLineTemplateDetailEntity> newDetails = request.getLines().stream()
+                .map(line -> {
+
+                    ApprovalLineTemplateDetailEntity detail = new ApprovalLineTemplateDetailEntity();
+
+                    UserEntity approver = userCommandRepository.findById(line.getUserId())
+                            .orElseThrow(() -> new RuntimeException("결재선 사용자를 찾을 수 없습니다."));
+                    detail.setUser(approver);
+                    detail.setTemplate(template);
+                    detail.setType(line.getType());
+                    detail.setSeq(line.getSeq());
+                    return detail;
+                })
+                .collect(Collectors.toList());
+        approvalLineTemplateDetailCommandRepository.saveAll(newDetails);
+
+        return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
+    }
+
+    @Transactional
+    @Override
+    public Optional<ApprovalResponseDTO> deleteApprovalLineTemplates(long userId, Long templateId) {
+        if (templateId == null) {
+            throw new IllegalArgumentException("템플릿 ID가 없습니다.");
+        }
+
+        ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
+
+        // 본인 소유 템플릿인지 확인
+        if (template.getUser() == null || !template.getUser().getId().equals(userId)) {
+            throw new UnauthorizedTemplateAccessException("수정 권한이 없습니다.");
+        }
+        approvalLineTemplateCommandRepository.delete(template);
+
+        return Optional.of(new ApprovalResponseDTO(template.getId(), template.getName()));
+    }
 }

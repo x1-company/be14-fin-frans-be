@@ -139,20 +139,31 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         String category = approvalQueryMapper.findCategoryByApprovalId(approvalId);
 
         return switch (category) {
-            case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId,userId);
-            case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId,userId);
-            case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId,userId);
+            case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId, userId);
+            case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId, userId);
+            case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId, userId);
             default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
         };
 
     }
 
     @Override
-    public List<ApprovalLinesDTO> getApprovalDetailLines(long approvalId) {
-        return approvalQueryMapper.findApprovalDetailLines(approvalId);
+    public ApprovalLinesDTO getApprovalDetailLines(long approvalId) {
+        return approvalQueryMapper.getApprovalDetailLines(approvalId).get(0);
     }
 
     public String findLatestApprovalCode(String codePrefix) {
         return approvalQueryMapper.findLatestApprovalCode(codePrefix);
     }
+
+    @Override
+    public List<ApprovalLinesDTO> getApprovalLineTemplates(long userId) {
+        return approvalQueryMapper.getApprovalLineTemplates(userId);
+    }
+
+    @Override
+    public List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId) {
+        return approvalQueryMapper.getApprovalLineDetailTemplates(userId, templateId);
+    }
+
 }
