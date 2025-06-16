@@ -10,8 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class OrderDetailDto {
-
+public class FranchiseOrderDetailDto {
     // 가맹점 정보
     private String franchiseName;
     private String franchiseCode;
@@ -40,16 +39,4 @@ public class OrderDetailDto {
     private String driverPhone;
     private String trackingNumber;
     private LocalDate deliveredAt;
-
-    // 출고 정보
-    private String outboundCode;
-    private LocalDate outboundDate;
-    private String outboundManager;
-
-    // 결재 정보
-    private String approvalCode;
-    private String approvalRequester;
-    private LocalDate approvalRequestedAt;
-    private String approvalStatus;
-    private LocalDate approvalCompletedAt;
 }

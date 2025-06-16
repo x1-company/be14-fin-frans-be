@@ -1,9 +1,13 @@
 package com.x1.frans.order.query.service;
 
+import com.x1.frans.exception.OrderNotFoundException;
 import com.x1.frans.order.query.dao.FranchiseOrderQueryMapper;
+import com.x1.frans.order.query.dto.FranchiseOrderDetailDto;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
 import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
+import com.x1.frans.order.query.service.support.OrderDetailCalculator;
+import com.x1.frans.product.query.dto.ProductDetailDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +19,7 @@ import java.util.List;
 public class FranchiseOrderQueryServiceImpl implements FranchiseOrderQueryService {
 
     private final FranchiseOrderQueryMapper franchiseOrderQueryMapper;
+    private final OrderDetailCalculator orderDetailCalculator;
 
     @Override
     @Transactional
@@ -37,6 +42,19 @@ public class FranchiseOrderQueryServiceImpl implements FranchiseOrderQueryServic
                 .hasNext(condition.getPage() < totalPages)
                 .hasPrevious(condition.getPage() > 1)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FranchiseOrderDetailDto getFranchiseOrderDetail(Long orderId, Long userId) {
+        FranchiseOrderDetailDto detail = franchiseOrderQueryMapper.findFranchiseOrderDetailById(orderId, userId);
+        if (detail == null) {
+            throw new OrderNotFoundException("해당 주문을 찾을 수 없거나 접근 권한이 없습니다.");
+        }
+
+        List<ProductDetailDTO> products = franchiseOrderQueryMapper.findProductsByOrderId(orderId);
+        orderDetailCalculator.frfillDetails(detail, products);
+        return detail;
     }
 
 }

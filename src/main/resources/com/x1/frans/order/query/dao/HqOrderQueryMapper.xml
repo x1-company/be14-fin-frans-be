@@ -118,7 +118,7 @@
     </select>
 
     <!-- 본사용 주문 상세 조회 (가맹점 + 주문 + 배송 + 출고 + 결재) -->
-    <select id="findOrderDetailById" resultType="com.x1.frans.order.query.dto.OrderDetailDto">
+    <select id="findOrderDetailById" resultType="com.x1.frans.order.query.dto.HqOrderDetailDto">
         SELECT
         -- 가맹점 정보
                f.name                   AS franchiseName

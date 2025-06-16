@@ -3,7 +3,7 @@ package com.x1.frans.order.query.service;
 import com.x1.frans.exception.OrderNotFoundException;
 import com.x1.frans.order.common.OrderAuthorizationService;
 import com.x1.frans.order.query.dao.HqOrderQueryMapper;
-import com.x1.frans.order.query.dto.OrderDetailDto;
+import com.x1.frans.order.query.dto.HqOrderDetailDto;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
 import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
@@ -39,27 +39,16 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
 
     @Override
     @Transactional
-    public OrderDetailDto getOrderDetail(Long orderId, Long userId) {
-        validateOrderAccess(orderId, userId);
-        OrderDetailDto detail = fetchOrderDetail(orderId);
-        List<ProductDetailDTO> products = fetchProductDetails(orderId);
-        orderDetailCalculator.fillDetails(detail, products);
-        return detail;
-    }
-
-    private void validateOrderAccess(Long orderId, Long userId) {
+    public HqOrderDetailDto getOrderDetail(Long orderId, Long userId) {
         orderAuthorizationService.getAuthorizedOrder(orderId, userId);
-    }
 
-    private OrderDetailDto fetchOrderDetail(Long orderId) {
-        OrderDetailDto detail = orderQueryMapper.findOrderDetailById(orderId);
+        HqOrderDetailDto detail = orderQueryMapper.findOrderDetailById(orderId);
         if (detail == null) {
             throw new OrderNotFoundException("주문 상세 정보를 찾을 수 없습니다.");
         }
-        return detail;
-    }
 
-    private List<ProductDetailDTO> fetchProductDetails(Long orderId) {
-        return orderQueryMapper.findProductsByOrderId(orderId);
+        List<ProductDetailDTO> products = orderQueryMapper.findProductsByOrderId(orderId);
+        orderDetailCalculator.fillDetails(detail, products);
+        return detail;
     }
 }

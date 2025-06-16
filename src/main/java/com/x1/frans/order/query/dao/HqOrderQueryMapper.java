@@ -1,6 +1,6 @@
 package com.x1.frans.order.query.dao;
 
-import com.x1.frans.order.query.dto.OrderDetailDto;
+import com.x1.frans.order.query.dto.HqOrderDetailDto;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
@@ -17,7 +17,7 @@ public interface HqOrderQueryMapper {
     // 전체 개수 조회 (페이징 계산용)
     int countOrders(OrderSearchConditionDto condition);
 
-    OrderDetailDto findOrderDetailById(@Param("orderId") Long orderId);
+    HqOrderDetailDto findOrderDetailById(@Param("orderId") Long orderId);
 
     List<ProductDetailDTO> findProductsByOrderId(@Param("orderId") Long orderId);
 
