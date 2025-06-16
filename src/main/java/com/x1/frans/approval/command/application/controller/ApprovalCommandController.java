@@ -127,4 +127,21 @@ public class ApprovalCommandController {
                 .body(CommonResponse.success(responseDTO, "결재선 템플릿이 삭제되었습니다."));
 
     }
+    @Operation(summary = "결재 수정", description = "결재를 수정합니다.")
+    @PutMapping("/{approvalId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> modifyApproval(@RequestBody ApprovalCreateRequestDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user,
+                                                                              @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.modifyApproval(request,userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재 수정이 완료되었습니다."));
+
+    }
+
+
 }

@@ -16,4 +16,6 @@ public interface ApprovalCommandService {
     Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateCreateRequestDTO request, long userId, Long templateId);
 
     Optional<ApprovalResponseDTO> deleteApprovalLineTemplates(long userId, Long templateId);
+
+    ApprovalResponseDTO modifyApproval(ApprovalCreateRequestDTO request, long userId, long approvalId);
 }
