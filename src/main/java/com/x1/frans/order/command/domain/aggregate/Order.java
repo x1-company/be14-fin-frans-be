@@ -7,9 +7,11 @@ import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Builder
 @Table(name = "orders")
 public class Order {
 
@@ -39,7 +42,10 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
+
+    @Column(name = "total_quantity", nullable = false)
+    private Integer totalQuantity;
 
     @Column(name = "rejected_reason")
     private String rejectedReason;
@@ -134,6 +140,12 @@ public class Order {
         }
 
         this.status = newStatus;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateTotal(int totalQuantity, BigDecimal totalAmount) {
+        this.totalQuantity = totalQuantity;
+        this.totalAmount = totalAmount;
         this.updatedAt = LocalDateTime.now();
     }
 }

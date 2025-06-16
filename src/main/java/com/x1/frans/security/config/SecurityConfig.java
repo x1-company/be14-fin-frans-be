@@ -97,6 +97,15 @@ public class SecurityConfig {
 //                              .requestMatchers("/auth/reissue").permitAll()
 //                              .requestMatchers("/**").hasRole("ADMIN"))
 
+                                // Swagger 관련 리소스 전부 허용
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/api-docs/**"
+                                ).permitAll()
+
                                 // auth 관련 기능
                                 .requestMatchers("/api/auth/**").permitAll()
 
