@@ -4,7 +4,7 @@ import com.x1.frans.user.enums.DeliveryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "delivery")
@@ -31,14 +31,8 @@ public class Delivery {
     @Column(name = "tracking_number")
     private String trackingNumber;
 
-    @Column(name = "shipped_at")
-    private LocalDateTime shippedAt;
-
     @Column(name = "delivered_at")
-    private LocalDateTime deliveredAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDate deliveredAt;
 
     @Column(name = "name")
     private String name;
@@ -46,21 +40,16 @@ public class Delivery {
     @Column(name = "phone")
     private String phone;
 
-    @PrePersist
-    public void prePersist() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
     public void updateDeliveryInfo(String deliveryCompany, String trackingNumber, String name, String phone) {
         this.deliveryCompany = deliveryCompany;
         this.trackingNumber = trackingNumber;
         this.name = name;
         this.phone = phone;
+    }
+
+    public void completeDelivery(LocalDate deliveredAt) {
+        this.deliveredAt = deliveredAt;
+        this.status = DeliveryStatus.DELIVERED; // 배송 완료 상태로 변경
     }
 
 }
