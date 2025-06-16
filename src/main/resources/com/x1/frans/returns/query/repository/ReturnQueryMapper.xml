@@ -18,7 +18,7 @@
           AND d.delivered_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
     </select>
 
-    <select id="findProductListByOrderId" resultType="com.x1.frans.returns.query.dto.ProductOrderDTO">
+    <select id="findProductListByOrdrId" resultType="com.x1.frans.returns.query.dto.ProductOrderDTO">
         SELECT
               po.`id` AS id
             , po.`product_id`
@@ -56,18 +56,28 @@
 
     <select id="searchReturns" resultMap="ReturnListMap"
             parameterType="com.x1.frans.returns.query.dto.ReturnSearchConditionDTO">
-    SELECT
-          r.id
-        , r.code
-        , CONCAT(p.name, ' 외 ', COUNT(*) - 1, '건') AS product_summary
-        , r.status
-        , r.created_at
-        , r.total_amount
-        , f.name AS franchise_name
+        SELECT
+                r.id
+                , r.code
+                , CONCAT(
+                        (SELECT p2.name
+                         FROM return_detail rd2
+                         JOIN product p2 ON rd2.product_id = p2.id
+                         WHERE rd2.return_id = r.id
+                         ORDER BY rd2.id
+                         LIMIT 1),
+                        ' 외 ',
+                        (SELECT COUNT(*) - 1
+                         FROM return_detail rd3
+                         WHERE rd3.return_id = r.id)
+                        , '건'
+                    ) AS product_summary
+                , r.status
+                , r.created_at
+                , r.total_amount
+                , f.name AS franchise_name
         FROM `return` r
         JOIN franchise f ON r.franchise_id = f.id
-        JOIN return_detail rd ON r.id = rd.return_id
-        JOIN product p ON rd.product_id = p.id
         <where>
             <!-- 권한 필터링 -->
             <if test="FranchiseIds != null and FranchiseIds.size() > 0">
@@ -95,10 +105,16 @@
             </if>
 
             <if test="product != null and product != ''">
+                AND EXISTS (
+                SELECT 1
+                FROM return_detail rd
+                JOIN product p ON rd.product_id = p.id
+                WHERE rd.return_id = r.id
                 AND p.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
 
-            <if test="status != null and status != ''">
+            <if test="status != null">
                 AND r.status LIKE CONCAT('%', #{status}, '%')
             </if>
 
@@ -106,7 +122,6 @@
                 AND DATE(r.created_at) BETWEEN #{startDate} AND #{endDate}
             </if>
         </where>
-        GROUP BY r.id
         ORDER BY r.created_at DESC
         LIMIT #{size} OFFSET #{offset}
     </select>
@@ -115,8 +130,6 @@
             parameterType="com.x1.frans.returns.query.dto.ReturnSearchConditionDTO">
         SELECT COUNT(DISTINCT r.id)
         FROM `return` r
-        JOIN return_detail rd ON r.id = rd.return_id
-        JOIN product p ON rd.product_id = p.id
         <where>
             <!-- 권한 필터링 -->
             <if test="FranchiseIds != null and FranchiseIds.size() > 0">
@@ -142,10 +155,16 @@
             </if>
 
             <if test="product != null and product != ''">
+                AND EXISTS (
+                SELECT 1
+                FROM return_detail rd
+                JOIN product p ON rd.product_id = p.id
+                WHERE rd.return_id = r.id
                 AND p.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
 
-            <if test="status != null and status != ''">
+            <if test="status != null">
                 AND r.status LIKE CONCAT('%', #{status}, '%')
             </if>
 

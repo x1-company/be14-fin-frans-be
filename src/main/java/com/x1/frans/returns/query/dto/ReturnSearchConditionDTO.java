@@ -1,5 +1,6 @@
 package com.x1.frans.returns.query.dto;
 
+import com.x1.frans.returns.enums.ReturnStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class ReturnSearchConditionDTO {
     private String code;
     private String name;
     private String product;
-    private String status;
+    private ReturnStatus status;
     private LocalDate startDate;   // yyyy-MM-dd
     private LocalDate endDate;
     private int page;
