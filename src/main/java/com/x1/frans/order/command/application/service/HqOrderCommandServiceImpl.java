@@ -80,7 +80,8 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     public void registerOrUpdateDelivery(Long orderId, Long userId, DeliveryInfoRequestDto dto) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
 
-        if (!(order.getStatus().equals(OrderStatus.APPROVED) || order.getStatus().equals(OrderStatus.DELIVERING))) {
+        OrderStatus currentStatus = order.getStatus();
+        if (!(currentStatus.equals(OrderStatus.APPROVED) || currentStatus.equals(OrderStatus.DELIVERING))) {
             throw new InvalidRejectConditionException("배송 정보는 '결재 완료' 또는 '배송 중' 상태에서만 등록/수정할 수 있습니다.");
         }
 
@@ -88,7 +89,11 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
         boolean isNew = false;
 
         if (delivery == null) {
-            // 최초 등록 (배송 상태 - '배송 중')
+            // 최초 등록
+            if (dto.getDeliveredAt() != null) {
+                throw new InvalidRejectConditionException("배송 정보 등록 시점에는 배송 완료일을 입력할 수 없습니다.");
+            }
+
             delivery = Delivery.builder()
                     .code("DLV-" + System.currentTimeMillis())
                     .status(DeliveryStatus.DELIVERING)
@@ -99,25 +104,27 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
                     .build();
             isNew = true;
         } else {
-            // 수정 (배송 상태 - 유지)
+            // 기존 배송 정보 수정
             delivery.updateDeliveryInfo(dto.getDeliveryCompany(), dto.getTrackingNumber(), dto.getName(), dto.getPhone());
+
+            // 배송 완료일이 포함된 경우 → 완료 처리
+            if (dto.getDeliveredAt() != null) {
+                delivery.completeDelivery(dto.getDeliveredAt());
+                order.updateStatus(OrderStatus.DELIVERED);
+            }
         }
 
         deliveryRepository.save(delivery);
-        order.assignDelivery(delivery);
 
         if (isNew) {
-            // 최초 등록 시에만 주문 상태도 배송 중으로 변경
-            order.updateStatus(OrderStatus.DELIVERING);
+            order.assignDelivery(delivery);
+            order.updateStatus(OrderStatus.DELIVERING); // 최초 등록 시에만 배송 중으로 전환
         }
     }
 
 
     @Override
     public void setOrderStatusToDelivering(List<Long> orderIds) {
-
         orderCommandRepository.updateOrderStatusToDelivering(orderIds);
     }
-
-
 }

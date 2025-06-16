@@ -3,6 +3,8 @@ package com.x1.frans.order.command.application.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 public class DeliveryInfoRequestDto {
 
@@ -17,4 +19,6 @@ public class DeliveryInfoRequestDto {
 
     @NotBlank(message = "배송 기사 연락처는 필수입니다.")
     private String phone;
+
+    private LocalDate deliveredAt;
 }

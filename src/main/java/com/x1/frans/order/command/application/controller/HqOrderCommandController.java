@@ -96,7 +96,7 @@ public class HqOrderCommandController {
     )
     public ResponseEntity<Void> updateOrderStatusAndDelivery(
             @PathVariable Long orderId,
-            @RequestBody OrderStatusUpdateRequestDto dto,
+            @RequestBody @Valid OrderStatusUpdateRequestDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         hqOrderCommandService.updateOrderStatusAndDelivery(orderId, dto, userDetails.getUserId());
@@ -107,7 +107,7 @@ public class HqOrderCommandController {
     @PatchMapping("/{orderId}/delivery")
     @Operation(
             summary = "배송 정보 등록 또는 수정",
-            description = "결재 완료 상태의 주문에 배송 정보를 입력하고 상태를 배송 중으로 변경합니다. (주문 상태도 같이 변경)"
+            description = "결재 완료 또는 배송 중 상태의 주문에 배송 정보를 입력합니다. 최초 등록 시 주문 상태가 배송 중으로 변경됩니다."
     )
     public ResponseEntity<Void> registerOrUpdateDelivery(
             @PathVariable Long orderId,
