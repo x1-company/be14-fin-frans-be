@@ -19,4 +19,7 @@ public interface ApprovalCommandService {
 
     ApprovalResponseDTO modifyApproval(ApprovalCreateRequestDTO request, long userId, long approvalId);
 
+    ApprovalResponseDTO updateRequestState(ApprovalStatusUpdateDTO request, long userId, long approvalId);
+
+    ApprovalResponseDTO requestApproval(long userId, long approvalId);
 }

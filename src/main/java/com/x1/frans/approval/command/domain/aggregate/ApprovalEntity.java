@@ -55,7 +55,6 @@ public class ApprovalEntity {
 
     @PrePersist
     protected void onCreate() {
-        this.degree = 1;
         this.createdAt = LocalDateTime.now();
         this.isDeleted = false;
     }

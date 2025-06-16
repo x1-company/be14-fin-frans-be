@@ -55,6 +55,10 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         // 결재 코드 생성
         String newCode = generateApprovalCode();
 
+        int degree = 1;
+         degree = approvalCommandRepository.findMaxDegreeByCode(newCode) + 1;
+
+
         // 결재 엔티티 생성
         ApprovalEntity approval = new ApprovalEntity();
         approval.setTitle(request.getTitle());
@@ -63,6 +67,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         approval.setIsRequested(request.getIsRequest());
         approval.setUser(user); // 연관관계 설정
         approval.setCode(newCode);
+        approval.setDegree(degree);
 
         // 저장
         approvalCommandRepository.save(approval);
@@ -166,6 +171,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         return generateSequentialCode(codePrefix, latestCode);
     }
+
 
     private String generateSequentialCode(String codePrefix, String latestCode) {
         int nextSeq = 1;
@@ -414,6 +420,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         approvalFileCommandRepository.deleteByApprovalId(approvalId);
         approvalLineCommandRepository.deleteByApprovalId(approvalId);
         returnApprovalCommandRepository.deleteByApprovalId(approvalId);
+        orderApprovalCommandRepository.deleteByApprovalId(approvalId);
 
 
         approval.setTitle(request.getTitle());
@@ -439,7 +446,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 approval.setDegree(0);
             }
         }
-        orderApprovalCommandRepository.deleteByApprovalId(approvalId);
         purchaseOrderApprovalCommandRepository.deleteByApprovalId(approvalId);
 
 
@@ -536,5 +542,54 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         return new ApprovalResponseDTO(approval.getId(), approval.getTitle());
 
+    }
+
+    @Transactional
+    @Override
+    public ApprovalResponseDTO updateRequestState(ApprovalStatusUpdateDTO request, long userId, long approvalId) {
+
+        ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("결재문서가 존재하지 않습니다."));
+
+
+        if (!approval.getUser().getId().equals(userId)) {
+            throw new UnauthorizedAccessException("결재 수정 권한 없습니다.");
+        }
+
+        approval.setIsRequested(request.getIsRequested());
+
+        // 요청이 해제 (isRequested == false) → 상태를 DRAFT로 변경
+        if (Boolean.FALSE.equals(request.getIsRequested())) {
+            approval.setStatus(ApprovalStatus.DRAFT);
+        }
+
+        approvalCommandRepository.save(approval);
+
+
+        return new ApprovalResponseDTO(approval.getId(), approval.getTitle());
+
+    }
+
+    @Transactional
+    @Override
+    public ApprovalResponseDTO requestApproval(long userId, long approvalId) {
+
+        ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("결재문서가 존재하지 않습니다."));
+
+        if (!approval.getUser().getId().equals(userId)) {
+            throw new UnauthorizedAccessException("결재 수정 권한이 없습니다.");
+        }
+
+        if (approval.getIsRequested()) {
+            throw new IllegalStateException("이미 결재 요청된 문서입니다.");
+        }
+
+        approval.setIsRequested(true);
+        approval.setStatus(ApprovalStatus.IN_PROGRESS);
+
+        approvalCommandRepository.save(approval);
+
+        return new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
     }
 }

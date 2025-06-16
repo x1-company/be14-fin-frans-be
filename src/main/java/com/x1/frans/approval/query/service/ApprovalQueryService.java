@@ -60,4 +60,5 @@ public interface ApprovalQueryService {
     List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
 
     List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
+
 }
