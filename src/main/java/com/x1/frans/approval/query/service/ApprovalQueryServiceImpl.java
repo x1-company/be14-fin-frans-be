@@ -164,6 +164,7 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalDetailLines(approvalId).get(0);
     }
 
+    @Override
     public String findLatestApprovalCode(String codePrefix) {
         return approvalQueryMapper.findLatestApprovalCode(codePrefix);
     }
@@ -179,3 +180,7 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
 }
+
+
+
+
