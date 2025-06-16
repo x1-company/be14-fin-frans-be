@@ -3,6 +3,7 @@ package com.x1.frans.order.command.domain.aggregate;
 import com.x1.frans.exception.InvalidRejectConditionException;
 import com.x1.frans.exception.OrderRejectReasonRequiredException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
+import com.x1.frans.order.command.application.util.OrderDeadlineUtils;
 import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
@@ -121,12 +122,12 @@ public class Order {
         this.delivery = delivery;
     }
 
-    public void cancelByFranchise(LocalTime currentTime, LocalTime deadlineTime) {
+    public void cancelByFranchise(LocalTime deadlineTime) {
         if (this.status != OrderStatus.WAITING_FOR_RECEIPT) {
             throw new InvalidRejectConditionException("접수 대기 상태에서만 취소할 수 있습니다.");
         }
 
-        if (currentTime.isAfter(deadlineTime)) {
+        if (!OrderDeadlineUtils.canCancelOrder(this.createdAt, deadlineTime, LocalDateTime.now())) {
             throw new InvalidRejectConditionException("주문 마감 시간 이후에는 취소할 수 없습니다.");
         }
 
