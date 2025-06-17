@@ -1,23 +1,24 @@
 package com.x1.frans.user.command.controller;
 
+import com.x1.frans.auth.command.application.service.AuthCommandService;
 import com.x1.frans.exception.AccessDeniedException;
 import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.user.command.service.UserCommandService;
 import com.x1.frans.user.command.vo.FranchiseUserRequestVO;
 import com.x1.frans.user.command.vo.HqUserRequestVO;
+import com.x1.frans.user.command.vo.UpdateSignUrlRequestVO;
 import com.x1.frans.user.command.vo.SupplierUserRequestVO;
 import com.x1.frans.user.enums.DepartmentType;
 import com.x1.frans.user.enums.PositionType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -27,10 +28,13 @@ import java.util.Objects;
 public class UserCommandController {
 
     private final UserCommandService userCommandService;
+    private final AuthCommandService authCommandService;
 
     @Autowired
-    public UserCommandController(UserCommandService userCommandService) {
+    public UserCommandController(UserCommandService userCommandService,
+                                 AuthCommandService authCommandService) {
         this.userCommandService = userCommandService;
+        this.authCommandService = authCommandService;
     }
 
     @PostMapping("/hq")
@@ -76,6 +80,28 @@ public class UserCommandController {
         userCommandService.createSupplierUser(supplierUserRequestVO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PatchMapping("/sign")
+    @Operation(
+            summary = "서명 url 변경",
+            description = "서명 url 변경"
+    )
+    public ResponseEntity<Void> updateSignUrl(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                              @RequestBody UpdateSignUrlRequestVO updateSignUrlRequestVO,
+                                              HttpServletRequest request, HttpServletResponse response) {
+
+        userCommandService.updateSignUrl(customUserDetails.getUserId(),
+                updateSignUrlRequestVO.getSignUrl(),
+                customUserDetails.getSignUrl());
+
+        String refreshToken = authCommandService.extractRefreshTokenFromCookie(request);
+
+        String newAccessToken = authCommandService.reissueAccessToken(refreshToken);
+
+        response.setHeader("Authorization", "Bearer " + newAccessToken);
+
+        return ResponseEntity.ok().build();
     }
 
     private void validateDPTIsHRM(Long departmentId, Long positionId) {
