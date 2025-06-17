@@ -4,6 +4,7 @@ import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.security.exception.AccountDeletedException;
 import com.x1.frans.security.exception.AccountLockedException;
+import com.x1.frans.user.enums.DepartmentType;
 import com.x1.frans.user.query.dto.*;
 import com.x1.frans.user.query.repository.UserQueryMapper;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,9 @@ public class UserQueryServiceImpl implements UserQueryService {
     @Override
     public List<SearchHqUserDTO> findHqUser(String name, Long departmentId) {
 
-        return userQueryMapper.findHqUser(name, departmentId);
+        List<Long> departmentIds = DepartmentType.getSelfAndAllSubDepartmentIds(departmentId);
+
+        return userQueryMapper.findHqUser(name, departmentIds);
     }
 
     @Override
