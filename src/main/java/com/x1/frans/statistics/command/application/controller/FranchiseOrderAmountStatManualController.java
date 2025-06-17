@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @RequestMapping("/api/admin/statistics/franchise/order-amount")
-@Tag(name = "📊 통계", description = "임의로 통계 데이터를 등록, 수정, 삭제하는 API")
+@Tag(name = "📊 월별 가맹점 주문 금액 통계", description = "임의로 통계 데이터를 등록, 수정, 삭제하는 API")
 public class FranchiseOrderAmountStatManualController {
 
     private final FranchiseOrderAmountStatManualService franchiseOrderAmountStatManualService;
@@ -54,6 +54,7 @@ public class FranchiseOrderAmountStatManualController {
             @Valid @RequestBody FranchiseOrderAmountStatDeleteDTO franchiseOrderAmountStatDeleteDTO) {
 
         franchiseOrderAmountStatManualService.deleteStat(franchiseOrderAmountStatDeleteDTO);
+
     }
 
 }

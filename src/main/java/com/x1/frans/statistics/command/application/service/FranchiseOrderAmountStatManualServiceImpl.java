@@ -7,7 +7,6 @@ import com.x1.frans.statistics.command.application.dto.FranchiseOrderAmountStatD
 import com.x1.frans.statistics.command.application.dto.FranchiseOrderAmountStatModifyDTO;
 import com.x1.frans.statistics.command.domain.aggregate.FranchiseOrderAmountStat;
 import com.x1.frans.statistics.command.domain.repository.FranchiseOrderAmountStatRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,7 @@ public class FranchiseOrderAmountStatManualServiceImpl implements FranchiseOrder
                 .build();
 
         franchiseOrderAmountStatRepository.save(stat);
+
     }
 
     public void modifyStat(FranchiseOrderAmountStatModifyDTO dto) {
@@ -50,6 +50,7 @@ public class FranchiseOrderAmountStatManualServiceImpl implements FranchiseOrder
         stat.setUpdatedAt(LocalDateTime.now());
 
         franchiseOrderAmountStatRepository.save(stat);
+
     }
 
 
@@ -64,13 +65,14 @@ public class FranchiseOrderAmountStatManualServiceImpl implements FranchiseOrder
                 = franchiseOrderAmountStatRepository.findById(franchiseOrderAmountStatDeleteDTO.getId())
                 .orElseThrow(()
                         -> new NotFoundStatisticsException("통계 데이터가 없습니다. id="
-                                                        + franchiseOrderAmountStatDeleteDTO.getId()));
+                                                             + franchiseOrderAmountStatDeleteDTO.getId()));
 
         stat.setIsDeleted(true);
         stat.setDeletedReason(franchiseOrderAmountStatDeleteDTO.getDeletedReason());
         stat.setDeletedAt(LocalDateTime.now());
 
         franchiseOrderAmountStatRepository.save(stat);
+
     }
 
 }
