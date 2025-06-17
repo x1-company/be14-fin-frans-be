@@ -41,6 +41,7 @@ public class ApprovalCommandController {
 
     }
 
+
     @Operation(summary = "결재자/협조자 승인", description = "결재자/협조자가 결재를 승인합니다.")
     @PostMapping("/{approvalId}/approve")
     public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approverApprove(@RequestBody ApprovalApproveRequestDTO request,
@@ -127,4 +128,52 @@ public class ApprovalCommandController {
                 .body(CommonResponse.success(responseDTO, "결재선 템플릿이 삭제되었습니다."));
 
     }
+    @Operation(summary = "결재 수정(재기안 포함)", description = "결재를 수정합니다.")
+    @PutMapping("/{approvalId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> modifyApproval(@RequestBody ApprovalCreateRequestDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user,
+                                                                              @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.modifyApproval(request,userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재 수정이 완료되었습니다."));
+
+    }
+
+    @Operation(summary = " 결재진행 중이던 문서를 임시저장 상태로 변경", description = "결재 중이던 문서를 임시저장상태로 변경합니다.")
+    @PatchMapping("/{approvalId}/draft")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> updateRequestedStatus(@RequestBody ApprovalStatusUpdateDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user,
+                                                                              @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.updateRequestState(request,userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "임시저장 상태로 변경되었습니다."));
+
+    }
+
+    @Operation(summary = "임시저장된 문서를 결재등록 요청", description = "임시저장된 문서를 결재등록이 된 상태로 변경합니다.")
+    @PatchMapping("/{approvalId}/request")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> requestApproval(@AuthenticationPrincipal CustomUserDetails user,
+                                                                                     @PathVariable long approvalId) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.requestApproval(userId, approvalId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "결재가 등록되었습니다."));
+
+    }
+
+
 }

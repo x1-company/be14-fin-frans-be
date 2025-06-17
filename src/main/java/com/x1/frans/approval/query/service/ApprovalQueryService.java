@@ -60,8 +60,8 @@ public interface ApprovalQueryService {
     List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
 
     List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
-<<<<<<< Updated upstream
-=======
+
+
 
     List<ApprovalListDTO> getApprovalListReceivedApprovalAll(long userId);
 
@@ -72,5 +72,5 @@ public interface ApprovalQueryService {
     List<ApprovalListDTO> getApprovalListCooperateUpcoming(long userId);
 
     List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId);
->>>>>>> Stashed changes
+
 }

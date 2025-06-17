@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,12 +92,6 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
                     .build();
 
             productOrders.add(productOrder);
-
-            System.out.println(">> 자재명: " + product.getName());
-            System.out.println(">> 단가: " + product.getSalePrice());
-            System.out.println(">> 수량: " + quantity);
-            System.out.println(">> 소계: " + unitPrice.multiply(BigDecimal.valueOf(quantity)));
-            System.out.println(">> 누적금액: " + totalAmount.add(unitPrice.multiply(BigDecimal.valueOf(quantity))));
         }
 
 
@@ -121,7 +114,7 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
         StoreOrderDeadline deadline = deadlineRepository.findById(1L)
                 .orElseThrow(() -> new OrderDeadlineTimeNotFoundException("주문 마감 시간이 설정되어 있지 않습니다."));
 
-        order.cancelByFranchise(LocalTime.now(), deadline.getOrderDeadlineAt());
+        order.cancelByFranchise(deadline.getOrderDeadlineAt());
 
         orderCommandRepository.save(order);
     }

@@ -21,35 +21,34 @@
         SELECT
                o.id AS order_id
              , o.code AS order_code
-             , CONCAT(p.name, ' 외 ', COUNT(*) - 1, '건') AS product_summary
+             , CASE
+               WHEN COUNT(DISTINCT po.product_id) > 1
+               THEN CONCAT(MIN(p.name), ' 외 ', COUNT(DISTINCT po.product_id) - 1, '건')
+               ELSE MIN(p.name)
+               END AS product_summary
              , o.status
              , o.created_at
              , o.total_amount
              , f.name AS franchise_name
           FROM orders o
           JOIN franchise f ON o.franchise_id = f.id
+          LEFT JOIN hq_user_detail h ON f.department_id = h.department_id
           JOIN product_order po ON o.id = po.order_id
           JOIN product p ON po.product_id = p.id
         <where>
-            <!-- 권한 필터링 -->
-            <if test="departmentFranchiseIds != null and departmentFranchiseIds.size() > 0">
-                <choose>
-                    <!-- franchiseId가 있을 경우, departmentFranchiseIds 안에 포함된 경우만 허용 -->
-                    <when test="franchiseId != null">
-                        o.franchise_id = #{franchiseId}
-                        AND #{franchiseId} IN
-                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
-                            #{id}
-                        </foreach>
-                    </when>
-                    <!-- franchiseId가 없으면 전체 허용된 목록으로 필터링 -->
-                    <otherwise>
-                        o.franchise_id IN
-                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
-                            #{id}
-                        </foreach>
-                    </otherwise>
-                </choose>
+            <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
+            o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
+
+            <if test="status != null and status.trim() != ''">
+                AND o.status = #{status}
+            </if>
+
+            <if test="userId != null">
+                AND h.user_id = #{userId}
+            </if>
+
+            <if test="franchiseId != null">
+                AND o.franchise_id = #{franchiseId}
             </if>
 
             <if test="code != null and code != ''">
@@ -57,20 +56,21 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND p.name LIKE CONCAT('%', #{product}, '%')
-            </if>
-
-            <if test="status != null and status != ''">
-                AND o.status LIKE CONCAT('%', #{status}, '%')
+                AND EXISTS (
+                SELECT 1 FROM product_order po2
+                JOIN product p2 ON po2.product_id = p2.id
+                WHERE po2.order_id = o.id
+                AND p2.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
 
             <if test="startDate != null and endDate != null">
                 AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
             </if>
         </where>
-          GROUP BY o.id
-          ORDER BY o.created_at DESC
-          LIMIT #{size} OFFSET #{offset}
+         GROUP BY o.id, o.code, o.status, o.created_at, o.total_amount, f.name
+         ORDER BY o.created_at DESC
+         LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 주문 개수 조회 (페이징 계산용) -->
@@ -78,26 +78,22 @@
             parameterType="com.x1.frans.order.query.dto.OrderSearchConditionDto">
         SELECT COUNT(DISTINCT o.id)
           FROM orders o
-          JOIN product_order po ON o.id = po.order_id
-          JOIN product p ON po.product_id = p.id
+          JOIN franchise f ON o.franchise_id = f.id
+          JOIN hq_user_detail h ON f.department_id = h.department_id
         <where>
-            <!-- 권한 필터링 -->
-            <if test="departmentFranchiseIds != null and departmentFranchiseIds.size() > 0">
-                <choose>
-                    <when test="franchiseId != null">
-                        o.franchise_id = #{franchiseId}
-                        AND #{franchiseId} IN
-                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
-                            #{id}
-                        </foreach>
-                    </when>
-                    <otherwise>
-                        o.franchise_id IN
-                        <foreach item="id" collection="departmentFranchiseIds" open="(" separator="," close=")">
-                            #{id}
-                        </foreach>
-                    </otherwise>
-                </choose>
+            <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
+            o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
+
+            <if test="status != null and status.trim() != ''">
+                AND o.status = #{status}
+            </if>
+
+            <if test="userId != null">
+                AND h.user_id = #{userId}
+            </if>
+
+            <if test="franchiseId != null">
+                AND o.franchise_id = #{franchiseId}
             </if>
 
             <if test="code != null and code != ''">
@@ -105,11 +101,12 @@
             </if>
 
             <if test="product != null and product != ''">
+                AND EXISTS (
+                SELECT 1 FROM product_order po
+                JOIN product p ON po.product_id = p.id
+                WHERE po.order_id = o.id
                 AND p.name LIKE CONCAT('%', #{product}, '%')
-            </if>
-
-            <if test="status != null and status != ''">
-                AND o.status LIKE CONCAT('%', #{status}, '%')
+                )
             </if>
 
             <if test="startDate != null and endDate != null">
@@ -118,42 +115,45 @@
         </where>
     </select>
 
-    <!-- 주문 기본 정보 + 가맹점 + 배송 + 출고 + 결재 -->
-    <select id="findOrderDetailById" resultType="com.x1.frans.order.query.dto.OrderDetailDto">
+    <!-- 본사용 주문 상세 조회 (가맹점 + 주문 + 배송 + 출고 + 결재) -->
+    <select id="findOrderDetailById" resultType="com.x1.frans.order.query.dto.HqOrderDetailDto">
         SELECT
-            -- 가맹점 정보
-               f.name            AS franchiseName
-             , f.code            AS franchiseCode
-             , f.business_number AS businessNumber
-             , u.name            AS ceoName
-             , f.signed_at       AS franchiseSignedAt
-             , f.address         AS franchiseAddress
-             , f.zipcode         AS zipCode
-             , f.phone           AS franchisePhone
+        -- 가맹점 정보
+               f.name                   AS franchiseName
+             , f.code                   AS franchiseCode
+             , f.business_number        AS businessNumber
+             , u.name                   AS ceoName
+             , f.signed_at              AS franchiseSignedAt
+             , f.address                AS franchiseAddress
+             , f.zipcode                AS zipCode
+             , f.phone                  AS franchisePhone
 
-            -- 주문 정보
+        -- 주문 정보
              , o.code
              , DATE (o.created_at) AS orderDate
-             , o.status, o.total_amount
-             , CASE WHEN o.status = 'REJECTED' THEN o.rejected_reason ELSE NULL
-           END AS rejectedReason
+             , o.status
+             , o.total_amount
+             , CASE WHEN o.status = 'REJECTED'
+               THEN o.rejected_reason ELSE NULL
+               END AS rejectedReason
 
         -- 배송 정보
-             , d.delivery_company AS deliveryCompany
-             , d.name AS driverName
-             , d.phone AS driverPhone
-             , d.tracking_number AS trackingNumber
+             , d.delivery_company       AS deliveryCompany
+             , d.name                   AS driverName
+             , d.phone                  AS driverPhone
+             , d.tracking_number        AS trackingNumber
+             , DATE(d.delivered_at)     AS deliveredAt
 
         -- 출고 정보
-             , ob_sub.code AS outboundCode
-             , DATE(ob_sub.shipped_at) AS outboundDate
-             , u2.name AS outboundManager
+             , ob_sub.code              AS outboundCode
+             , DATE(ob_sub.shipped_at)  AS outboundDate
+             , u2.name                  AS outboundManager
 
         -- 결재 정보
-             , a_sub.code AS approvalCode
-             , u3.name AS approvalRequester
-             , DATE(a_sub.created_at) AS approvalRequestedAt
-             , a_sub.status AS approvalStatus
+             , a_sub.code               AS approvalCode
+             , u3.name                  AS approvalRequester
+             , DATE(a_sub.created_at)   AS approvalRequestedAt
+             , a_sub.status             AS approvalStatus
              , DATE(a_sub.processed_at) AS approvalCompletedAt
 
           FROM orders o
@@ -181,24 +181,25 @@
 
     <!-- 자재 리스트 -->
     <select id="findProductsByOrderId" resultType="com.x1.frans.product.query.dto.ProductDetailDTO">
-        SELECT p.id,
-               p.code,
-               p.name,
-               p.spec,
-               p.purchase_unit        AS purchaseUnit,
-               p.unit,
-               p.product_group_id     AS productGroupId,
-               p.product_type_id      AS productTypeId,
-               p.product_attribute_id AS productAttributeId,
-               p.purchase_price       AS purchasePrice,
-               p.sale_price           AS salePrice,
-               s.name                 AS supplierName,
-               po.quantity            AS quantity
+        SELECT
+               p.id
+             , p.code
+             , p.name
+             , p.spec
+             , p.purchase_unit        AS purchaseUnit
+             , p.unit
+             , p.product_group_id     AS productGroupId
+             , p.product_type_id      AS productTypeId
+             , p.product_attribute_id AS productAttributeId
+             , p.purchase_price       AS purchasePrice
+             , p.sale_price           AS salePrice
+             , s.name                 AS supplierName
+             , po.quantity            AS quantity
 
-        FROM product_order po
-                 JOIN product p ON p.id = po.product_id
-                 JOIN supplier s ON s.id = p.supplier_id
-                 JOIN orders o ON o.id = po.order_id
+          FROM product_order po
+          JOIN product p ON p.id = po.product_id
+          JOIN supplier s ON s.id = p.supplier_id
+          JOIN orders o ON o.id = po.order_id
 
         WHERE o.id = #{orderId}
     </select>

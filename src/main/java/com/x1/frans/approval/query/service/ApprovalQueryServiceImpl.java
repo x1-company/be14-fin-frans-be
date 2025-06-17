@@ -1,9 +1,11 @@
 package com.x1.frans.approval.query.service;
 
+import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,12 @@ import java.util.List;
 public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     private final ApprovalQueryMapper approvalQueryMapper;
+    private final ApprovalLineCommandRepository approvalLineCommandRepository;
 
     @Autowired
-    public ApprovalQueryServiceImpl(ApprovalQueryMapper approvalQueryMapper) {
+    public ApprovalQueryServiceImpl(ApprovalQueryMapper approvalQueryMapper, ApprovalLineCommandRepository approvalLineCommandRepository) {
         this.approvalQueryMapper = approvalQueryMapper;
+        this.approvalLineCommandRepository = approvalLineCommandRepository;
     }
 
     @Override
@@ -132,18 +136,26 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalListNotifications(userId);
     }
 
+    @Transactional
     @Override
     public List<ApprovalContentDTO> getApprovalDetailContent(Long userId, long approvalId) {
 
         // ORDER, RETURN, PURCHASE_ORDER
         String category = approvalQueryMapper.findCategoryByApprovalId(approvalId);
 
-        return switch (category) {
+        List<ApprovalContentDTO> contentList =  switch (category) {
             case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId, userId);
             case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId, userId);
             case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId, userId);
             default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
         };
+
+
+        // 읽음 처리
+        approvalLineCommandRepository.markAsChecked(approvalId, userId);
+
+
+        return contentList;
 
     }
 
@@ -152,6 +164,7 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalDetailLines(approvalId).get(0);
     }
 
+    @Override
     public String findLatestApprovalCode(String codePrefix) {
         return approvalQueryMapper.findLatestApprovalCode(codePrefix);
     }
@@ -166,8 +179,6 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalLineDetailTemplates(userId, templateId);
     }
 
-<<<<<<< Updated upstream
-=======
     @Override
     public List<ApprovalListDTO> getApprovalListReceivedApprovalAll(long userId) {
         return approvalQueryMapper.getApprovalListReceivedApprovalAll(userId);
@@ -193,5 +204,9 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     public List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId) {
         return approvalQueryMapper.getApprovalListCooperateMyCompletedAll(userId);
     }
->>>>>>> Stashed changes
+
 }
+
+
+
+
