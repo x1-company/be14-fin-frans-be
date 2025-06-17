@@ -40,6 +40,15 @@ public class ProductDetailDTO {
     @Schema(description = "자재 속성")
     private Long productAttributeId;
 
+    @Schema(description = "자재 분류")
+    private String productGroupName;
+
+    @Schema(description = "자재 구분")
+    private String productTypeName;
+
+    @Schema(description = "자재 속성")
+    private String productAttributeName;
+
     @Schema(description = "구매 단가")
     private BigDecimal purchasePrice;
 
