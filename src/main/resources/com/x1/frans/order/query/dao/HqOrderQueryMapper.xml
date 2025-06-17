@@ -36,11 +36,10 @@
           JOIN product_order po ON o.id = po.order_id
           JOIN product p ON po.product_id = p.id
         <where>
-            <!-- WAITING_FOR_RECEIPT 상태는 항상 제외 -->
-            o.status != 'WAITING_FOR_RECEIPT'
+            <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
+            o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <!-- 추가 상태 필터 있을 경우 -->
-            <if test="status != null and status.trim() != '' and status != 'WAITING_FOR_RECEIPT'">
+            <if test="status != null and status.trim() != ''">
                 AND o.status = #{status}
             </if>
 
@@ -82,11 +81,10 @@
           JOIN franchise f ON o.franchise_id = f.id
           JOIN hq_user_detail h ON f.department_id = h.department_id
         <where>
-            <!-- 접수 대기 상태는 볼 수 없음 -->
-            o.status != 'WAITING_FOR_RECEIPT'
+            <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
+            o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <!-- 추가 상태 필터 있을 경우-->
-            <if test="status != null and status.trim() != '' and status != 'WAITING_FOR_RECEIPT'">
+            <if test="status != null and status.trim() != ''">
                 AND o.status = #{status}
             </if>
 
