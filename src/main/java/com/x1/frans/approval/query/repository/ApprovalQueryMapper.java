@@ -1,6 +1,7 @@
 package com.x1.frans.approval.query.repository;
 
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
+import com.x1.frans.approval.query.dto.ApprovalListLineDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
 import com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO;
@@ -29,17 +30,21 @@ public interface ApprovalQueryMapper  {
     // 결재 수신 관련
     List<ApprovalListDTO> getApprovalListReceivedAll(long userId);
 
+    List<ApprovalListDTO> getApprovalListReceivedApprovalAll(long userId);
+
     List<ApprovalListDTO> getApprovalListReceivedPending(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedUpcoming(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedMyCompletedAll(long userId);
 
-    List<ApprovalListDTO> getApprovalListReceivedClosed(long userId);
+    List<ApprovalListDTO> getApprovalListReceivedClosedAll(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedMyCompletedApproved(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedMyCompletedRejected(long userId);
+
+    List<ApprovalListDTO> getApprovalListReceivedClosedApprovalAll(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedClosedApproverApproved(long userId);
 
@@ -60,6 +65,11 @@ public interface ApprovalQueryMapper  {
     List<ApprovalListDTO> getApprovalListReferences(long userId);
 
     List<ApprovalListDTO> getApprovalListNotifications(long userId);
+
+    List<ApprovalListDTO> getApprovalListReceivedClosedCooperatorAll(long userId);
+
+    List<ApprovalListDTO> getApprovalListCooperateUpcoming(long userId);
+
 
     String findCategoryByApprovalId(@Param("approvalId") long approvalId);
 
@@ -100,4 +110,9 @@ public interface ApprovalQueryMapper  {
     List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
 
     List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
+
+    // 목록조회 - 결재자 조회
+    List<ApprovalListLineDTO> findApprovalListLine(@Param("approvalId") Long approvalId);
+
+    List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId);
 }
