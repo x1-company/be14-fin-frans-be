@@ -11,6 +11,10 @@
         <result property="month" column="month"/>
         <result property="returnQuantity" column="return_quantity"/>
         <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="deletedReason" column="deleted_reason"/>
+        <result property="deletedAt" column="deleted_at"/>
         <result property="productId" column="product_id"/>
         <result property="franchiseId" column="franchise_id"/>
     </resultMap>
@@ -37,6 +41,10 @@
                s.month,
                s.return_quantity,
                s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
                s.product_id,
                s.franchise_id
           FROM franchise_return_product_stat s
@@ -52,6 +60,10 @@
                s.month,
                s.return_quantity,
                s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
                s.product_id,
                s.franchise_id
           FROM franchise_return_product_stat s
@@ -67,6 +79,10 @@
                s.month,
                s.return_quantity,
                s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
                s.product_id,
                s.franchise_id
           FROM franchise_return_product_stat s

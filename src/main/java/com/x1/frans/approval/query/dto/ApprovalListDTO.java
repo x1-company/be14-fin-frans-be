@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "결재 리스트 조회 DTO")
 @Getter
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 public class ApprovalListDTO {
 
     @Schema(description = "결재 id")
-    private Long id;
+    private Long approvalId;
 
     @Schema(description = "결재 코드")
     private String code;
@@ -33,27 +34,12 @@ public class ApprovalListDTO {
     private String drafterName;
 
     @Schema(description = "기안자 부서")
-    private String drafterDeptName;
+    private String deptName;
 
     @Schema(description = "기안자 직급")
-    private String drafterPositionName;
+    private String positionName;
 
-    @Schema(description = "결재자명")
-    private String approverName;
-
-    @Schema(description = "결재자 부서")
-    private String approvalDeptName;
-
-    @Schema(description = "결재자 직급")
-    private String approvalPositionName;
-
-    @Schema(description = "결재선 순서")
-    private Integer seq;
-
-    @Schema(description = "결재 타입(결재, 협조, 참조, 수신)")
-    private String approvalType;
-
-    @Schema(description = "결재자 결재 상태(승인, 반려, 결재대기)")
-    private String approvalLineStatus;
+    @Schema(description = "결재선 정보")
+    private List<ApprovalListLineDTO> lines;
 
 }

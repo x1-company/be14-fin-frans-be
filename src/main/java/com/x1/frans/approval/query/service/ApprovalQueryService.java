@@ -25,7 +25,7 @@ public interface ApprovalQueryService {
 
     List<ApprovalListDTO> getApprovalListReceivedMyCompletedAll(long userId);
 
-    List<ApprovalListDTO> getApprovalListReceivedClosed(long userId);
+    List<ApprovalListDTO> getApprovalListReceivedClosedAll(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedMyCompletedApproved(long userId);
 
@@ -60,5 +60,17 @@ public interface ApprovalQueryService {
     List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
 
     List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
+
+
+
+    List<ApprovalListDTO> getApprovalListReceivedApprovalAll(long userId);
+
+    List<ApprovalListDTO> getApprovalListReceivedClosedApprovalAll(long userId);
+
+    List<ApprovalListDTO> getApprovalListReceivedClosedCooperatorAll(long userId);
+
+    List<ApprovalListDTO> getApprovalListCooperateUpcoming(long userId);
+
+    List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId);
 
 }
