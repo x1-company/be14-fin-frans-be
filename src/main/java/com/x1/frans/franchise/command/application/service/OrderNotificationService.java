@@ -20,4 +20,9 @@ public class OrderNotificationService implements NotificationSender {
     public void notifyOrderStatusChanged(Long orderId, OrderStatus status, Long receiverId) {
         notificationService.createOrderStatusNotification(orderId, status, receiverId);
     }
+
+    @Override
+    public void notifyAbnormalOrderRequest(Long orderId, Long receiverId) {
+        notificationService.createAbnormalOrderRequestNotification(orderId, receiverId);
+    }
 }
