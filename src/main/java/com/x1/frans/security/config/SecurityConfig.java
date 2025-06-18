@@ -15,6 +15,8 @@ import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -84,6 +86,18 @@ public class SecurityConfig {
     }
 
     @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("""
+        ROLE_ADMIN > ROLE_HQ
+        ROLE_ADMIN > ROLE_FRANCHISE
+        ROLE_ADMIN > ROLE_SUPPLIER
+    """);
+        return roleHierarchy;
+    }
+
+
+    @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
@@ -93,9 +107,18 @@ public class SecurityConfig {
 
                         // TODO: 개발용 설정. 배포 시 변경 필요
                         authorize
-                                .requestMatchers("/**").permitAll()
-//                              .requestMatchers("/auth/reissue").permitAll()
-//                              .requestMatchers("/**").hasRole("ADMIN"))
+                                // ADMIN 전용 API 보호
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+
+                                // Swagger 관련 리소스 전부 허용
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/api-docs/**"
+                                ).permitAll()
 
                                 // auth 관련 기능
                                 .requestMatchers("/api/auth/**").permitAll()
@@ -108,6 +131,12 @@ public class SecurityConfig {
 
                                 // 공급사 전용 예시
                                 .requestMatchers("/api/supplier/**").hasRole("SUPPLIER")
+
+                                // AWS 관련 기능
+                                .requestMatchers("/api/upload/**").permitAll()
+
+                                // 알림 구독
+                                .requestMatchers("/api/notification/**").authenticated()
 
         );
 

@@ -17,4 +17,8 @@ public interface UserCommandRepository extends JpaRepository<UserEntity, Long> {
     void accountLock(@Param("userCode") String userCode);
 
     Optional<UserEntity> findByCode(String code);
+
+    @Modifying
+    @Query("UPDATE UserEntity u SET u.signUrl = :signUrl WHERE u.id = :userId")
+    void updateSignUrl(@Param("userId") Long userId, @Param("signUrl") String signUrl);
 }

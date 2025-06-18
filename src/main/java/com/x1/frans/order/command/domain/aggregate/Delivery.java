@@ -1,9 +1,10 @@
 package com.x1.frans.order.command.domain.aggregate;
 
+import com.x1.frans.user.enums.DeliveryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "delivery")
@@ -20,8 +21,9 @@ public class Delivery {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false)
-    private String status; // 예: 접수 대기, 배송 중, 배송 완료 등
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private DeliveryStatus status;
 
     @Column(name = "delivery_company")
     private String deliveryCompany;
@@ -29,14 +31,8 @@ public class Delivery {
     @Column(name = "tracking_number")
     private String trackingNumber;
 
-    @Column(name = "shipped_at")
-    private LocalDateTime shippedAt;
-
     @Column(name = "delivered_at")
-    private LocalDateTime deliveredAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDate deliveredAt;
 
     @Column(name = "name")
     private String name;
@@ -44,13 +40,16 @@ public class Delivery {
     @Column(name = "phone")
     private String phone;
 
-    @PrePersist
-    public void prePersist() {
-        this.updatedAt = LocalDateTime.now();
+    public void updateDeliveryInfo(String deliveryCompany, String trackingNumber, String name, String phone) {
+        this.deliveryCompany = deliveryCompany;
+        this.trackingNumber = trackingNumber;
+        this.name = name;
+        this.phone = phone;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public void completeDelivery(LocalDate deliveredAt) {
+        this.deliveredAt = deliveredAt;
+        this.status = DeliveryStatus.DELIVERED; // 배송 완료 상태로 변경
     }
+
 }

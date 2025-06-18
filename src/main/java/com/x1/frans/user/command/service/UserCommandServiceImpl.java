@@ -1,8 +1,11 @@
 package com.x1.frans.user.command.service;
 
+import com.x1.frans.aws.service.AmazonS3Service;
 import com.x1.frans.email.dto.UserCredentialsDTO;
 import com.x1.frans.email.service.EmailService;
-import com.x1.frans.exception.*;
+import com.x1.frans.exception.DuplicationException;
+import com.x1.frans.exception.InvalidAddressException;
+import com.x1.frans.exception.InvalidUserTypeException;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.domain.repository.FranchiseCommandRepository;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
@@ -21,7 +24,8 @@ import com.x1.frans.user.common.SeoulDistrictCode;
 import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
 import com.x1.frans.user.util.GenerateRandomPassword;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +34,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserCommandRepository userCommandRepository;
@@ -42,27 +48,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final FranchiseQueryService franchiseQueryService;
     private final SupplierCommandRepository supplierCommandRepository;
     private final SupplierQueryService supplierQueryService;
-
-    @Autowired
-    public UserCommandServiceImpl(UserCommandRepository userRepository,
-                                  BCryptPasswordEncoder bCryptPasswordEncoder,
-                                  HqUserDetailCommandRepository hqUserDetailRepository,
-                                  FranchiseCommandRepository franchiseCommandRepository,
-                                  SupplierCommandRepository supplierCommandRepository,
-                                  FranchiseQueryService franchiseQueryService,
-                                  SupplierQueryService supplierQueryService,
-                                  EmailService emailService,
-                                  UserQueryService userQueryService) {
-        this.userCommandRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.hqUserDetailCommandRepository = hqUserDetailRepository;
-        this.emailService = emailService;
-        this.userQueryService = userQueryService;
-        this.franchiseCommandRepository = franchiseCommandRepository;
-        this.franchiseQueryService = franchiseQueryService;
-        this.supplierCommandRepository = supplierCommandRepository;
-        this.supplierQueryService = supplierQueryService;
-    }
+    private final AmazonS3Service amazonS3Service;
 
     /**
      * 본사(HQ) 사용자 계정을 생성
@@ -130,10 +116,10 @@ public class UserCommandServiceImpl implements UserCommandService {
     /**
      * 전화번호, 이메일, 사용자 타입이 유효한지 확인
      *
-     * @param phone 사용자 전화번호
-     * @param email 사용자 이메일
+     * @param phone    사용자 전화번호
+     * @param email    사용자 이메일
      * @param userType 사용자 타입 문자열 (ADMIN, HQ, FRANCHISE, SUPPLIER 중 하나)
-     * @throws DuplicationException 전화번호 또는 이메일 중복 시
+     * @throws DuplicationException     전화번호 또는 이메일 중복 시
      * @throws InvalidUserTypeException 유효하지 않은 사용자 타입일 경우
      */
     private void validateUserCredentials(String phone, String email, String userType) {
@@ -160,7 +146,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      * HqUserDetailEntity를 생성하여 값들을 설정
      *
      * @param savedUser 생성된 사용자
-     * @param vo 본사 사용자 요청 VO
+     * @param vo        본사 사용자 요청 VO
      * @return 설정된 HqUserDetailEntity
      */
     private HqUserDetailEntity buildHqUserDetail(UserEntity savedUser, HqUserRequestVO vo) {
@@ -176,7 +162,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      * FranchiseEntity를 생성하여 값들을 설정
      *
      * @param savedUser 가맹점 대표 사용자
-     * @param vo 가맹점 요청 정보
+     * @param vo        가맹점 요청 정보
      * @return 설정된 FranchiseEntity
      */
     private FranchiseEntity buildFranchise(UserEntity savedUser, FranchiseUserRequestVO vo) {
@@ -200,7 +186,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      * SupplierEntity를 생성하여 값들을 설정
      *
      * @param savedUser 공급처 사용자
-     * @param vo 공급처 요청 정보
+     * @param vo        공급처 요청 정보
      * @return 설정된 SupplierEntity
      */
     private SupplierEntity buildSupplier(UserEntity savedUser, SupplierUserRequestVO vo) {
@@ -222,7 +208,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         return supplier;
     }
 
-    private record UserCodeAndRawPw(String userCode, String rawPassword) {}
+    private record UserCodeAndRawPw(String userCode, String rawPassword) {
+    }
 
     /**
      * 사용자 코드와 랜덤 비밀번호를 생성
@@ -238,7 +225,8 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     /**
      * 비밀번호 암호화 후 user 저장
-     * @param vo 사용자 생성 요청 데이터
+     *
+     * @param vo               사용자 생성 요청 데이터
      * @param userCodeAndRawPw 생성된 사용자 코드와 평문 비밀번호
      * @return UserEntity
      */
@@ -251,7 +239,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     /**
      * 사용자에게 계정 정보(아이디, 초기 비밀번호)를 이메일로 발송
      *
-     * @param vo 사용자 요청 정보
+     * @param vo               사용자 요청 정보
      * @param userCodeAndRawPw 사용자 코드와 평문 비밀번호
      */
     private void sendUserEmail(CreateUserRequestVO vo, UserCodeAndRawPw userCodeAndRawPw) {
@@ -307,7 +295,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     /**
      * 새로운 가맹점 코드 생성
      *
-     * @param address 주소 정보
+     * @param address  주소 정보
      * @param signedAt 계약 일자
      */
     private String createNewFranchiseCode(String address, LocalDate signedAt) {
@@ -359,7 +347,33 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Transactional
     @Override
     public void accountLock(String userCode) {
-        
+
         userCommandRepository.accountLock(userCode);
+    }
+
+    /**
+     * 회원 서명 url 업데이트
+     *
+     * @param userId 회원 ID
+     * @param newSignUrl 새로운 url
+     * @param oldSignUrl 이전 url
+     */
+    @Transactional
+    @Override
+    public void updateSignUrl(Long userId, String newSignUrl, String oldSignUrl) {
+
+        if (oldSignUrl != null) {
+            try {
+                String[] parts = oldSignUrl.split("/");
+                String fileName = parts[parts.length - 1];
+
+                amazonS3Service.deleteFile(fileName, "sign");
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+
+        }
+
+        userCommandRepository.updateSignUrl(userId, newSignUrl);
     }
 }

@@ -1,17 +1,17 @@
 package com.x1.frans.warehouse.command.application.service;
 
-import com.x1.frans.exception.DepartmentNotFound;
 import com.x1.frans.exception.InvalidDepartmentException;
 import com.x1.frans.exception.UserNotFoundException;
-import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
-import com.x1.frans.user.query.service.UserQueryService;
+import com.x1.frans.exception.WarehouseNotFoundException;
 import com.x1.frans.warehouse.command.application.service.dto.WarehouseCreateCommand;
+import com.x1.frans.warehouse.command.application.service.dto.WarehouseUpdateCommand;
 import com.x1.frans.warehouse.command.domain.aggregate.WarehouseEntity;
 import com.x1.frans.warehouse.command.domain.repository.WarehouseRepository;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,23 +22,17 @@ public class WarehouseCommandServiceImpl implements WarehouseCommandService {
 
     private final WarehouseRepository warehouseRepository;
     private final UserCommandRepository userCommandRepository;
-    private final UserQueryService userQueryService;
 
+    @Transactional
     @Override
-    public Long create(WarehouseCreateCommand command) {
-        UserEntity user = userCommandRepository.findById(command.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("담당자 정보 없음"));
-
-        HqUserDepartmentDTO deptInfo = userQueryService.getDepartmentInfo(user.getId());
-        if (deptInfo == null) {
-            throw new DepartmentNotFound("부서 정보를 찾을 수 없습니다.");
-        }
-        Long deptId = deptInfo.getDepartmentId();
-        List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L);
-
-        if (!allowedDeptIds.contains(deptId)) {
+    public Long create(WarehouseCreateCommand command, Long departmentId) {
+        List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L); // 물류팀, 물류1팀, 물류2팀, 물류3팀
+        if (!allowedDeptIds.contains(departmentId)) {
             throw new InvalidDepartmentException("창고 등록은 '물류팀' 소속만 가능합니다.");
         }
+
+        UserEntity user = userCommandRepository.findById(command.getUserId())
+                .orElseThrow(() -> new com.x1.frans.exception.UserNotFoundException("담당자 정보 없음"));
 
         String newCode = generateNextWarehouseCode();
 
@@ -55,6 +49,7 @@ public class WarehouseCommandServiceImpl implements WarehouseCommandService {
         return entity.getId();
     }
 
+
     /** 창고코드 자동 생성 */
     private String generateNextWarehouseCode() {
 
@@ -70,5 +65,22 @@ public class WarehouseCommandServiceImpl implements WarehouseCommandService {
         int lastNum = Integer.parseInt(lastCode.substring(3));
         int nextNum = lastNum + 1;
         return String.format("WH-%03d", nextNum); // WH-001, WH-002 ...
+    }
+
+    @Override
+    @Transactional
+    public void update(WarehouseUpdateCommand command, Long departmentId) {
+        List<Long> allowedDeptIds = List.of(3L, 7L, 8L, 9L);
+        if (!allowedDeptIds.contains(departmentId)) {
+            throw new InvalidDepartmentException("창고 수정은 '물류팀' 소속만 가능합니다.");
+        }
+
+        WarehouseEntity entity = warehouseRepository.findById(command.getId())
+                .orElseThrow(() -> new WarehouseNotFoundException("해당 창고를 찾을 수 없습니다."));
+
+        UserEntity user = userCommandRepository.findById(command.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("담당자 정보 없음"));
+
+        entity.updateInfo(command.getName(), command.getAddress(), user);
     }
 }

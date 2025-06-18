@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.statistics.query.view.repository.FranchiseReturnProductMapper">
+
+    <resultMap id="FranchiseReturnProductQueryDTOMap" type="com.x1.frans.statistics.query.view.dto.FranchiseReturnProductQueryDTO">
+        <result property="id" column="id"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="returnQuantity" column="return_quantity"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="deletedReason" column="deleted_reason"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="productId" column="product_id"/>
+        <result property="franchiseId" column="franchise_id"/>
+    </resultMap>
+
+    <!-- 1. 해당 매니저가 관리하는 가맹점 존재 여부 -->
+    <select id="existsFranchiseByManagerId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM franchise WHERE manager_id = #{managerId}
+        )
+    </select>
+
+    <!-- 2. 해당 부서가 관리하는 가맹점 존재 여부 -->
+    <select id="existsFranchiseByDepartmentId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM franchise WHERE department_id = #{departmentId}
+        )
+    </select>
+
+    <!-- 3. 매니저별 월별 반품 통계 -->
+    <select id="selectStatsByManager" resultMap="FranchiseReturnProductQueryDTOMap">
+        SELECT
+               s.id,
+               s.year,
+               s.month,
+               s.return_quantity,
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
+               s.product_id,
+               s.franchise_id
+          FROM franchise_return_product_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+         WHERE f.manager_id = #{managerId}
+    </select>
+
+    <!-- 4. 부서별 월별 반품 통계 -->
+    <select id="selectStatsByDepartment" resultMap="FranchiseReturnProductQueryDTOMap">
+        SELECT
+               s.id,
+               s.year,
+               s.month,
+               s.return_quantity,
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
+               s.product_id,
+               s.franchise_id
+          FROM franchise_return_product_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+         WHERE f.department_id = #{departmentId}
+    </select>
+
+    <!-- 5. 전체 반품 통계 조회 (권한 체크는 서비스 단에서 처리됨) -->
+    <select id="selectAllStats" resultMap="FranchiseReturnProductQueryDTOMap">
+        SELECT
+               s.id,
+               s.year,
+               s.month,
+               s.return_quantity,
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
+               s.product_id,
+               s.franchise_id
+          FROM franchise_return_product_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+    </select>
+
+    <!-- 6. 직책 이름 조회 -->
+    <select id="selectDutyNameById" resultType="string">
+        SELECT name FROM duty WHERE id = #{dutyId}
+    </select>
+
+    <!-- 7. 부서 코드 조회 -->
+    <select id="selectDeptCodeById" resultType="string">
+        SELECT dept_code FROM department WHERE id = #{departmentId}
+    </select>
+
+</mapper>

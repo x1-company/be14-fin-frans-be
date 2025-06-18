@@ -9,8 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OrderSearchConditionDto {
     private Long franchiseId;
-    private String filterType;
-    private String keyword;
+    private Long userId;
+    private Long ownerId;
     private String code;
     private String product;
     private String status;

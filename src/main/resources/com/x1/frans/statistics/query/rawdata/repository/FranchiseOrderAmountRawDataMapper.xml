@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.statistics.query.rawdata.repository.FranchiseOrderAmountRawDataMapper">
+
+    <select id="findTotalOrderAmountByFranchise"
+            resultType="com.x1.frans.statistics.query.rawdata.dto.FranchiseOrderAmountRawDTO">
+        SELECT
+            franchise_id AS franchiseId,
+            SUM(total_amount) AS totalAmount
+        FROM orders
+        WHERE created_at BETWEEN #{from} AND #{to}
+          AND status = 'DELIVERED'
+        GROUP BY franchise_id
+    </select>
+
+</mapper>

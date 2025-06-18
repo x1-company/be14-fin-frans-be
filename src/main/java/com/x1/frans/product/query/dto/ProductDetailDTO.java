@@ -1,12 +1,9 @@
 package com.x1.frans.product.query.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Schema(description = "자재 상세 조회")
 @Getter
@@ -52,4 +49,6 @@ public class ProductDetailDTO {
     @Schema(description = "공급처명")
     private String supplierName;
 
+    @Schema(description = "주문 수량")
+    private Integer quantity;
 }

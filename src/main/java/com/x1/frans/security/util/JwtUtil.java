@@ -2,6 +2,7 @@ package com.x1.frans.security.util;
 
 import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.security.config.properties.TokenProperties;
+import com.x1.frans.user.enums.UserType;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,14 +34,25 @@ public class JwtUtil {
 
     public String generateAccessToken(CustomUserDetails userDetails) {
 
+        UserType userType = userDetails.getUserType();
+
         Claims claims = Jwts.claims();
         claims.put("userCode", userDetails.getUsername());
         claims.put("userId", userDetails.getUserId());
         claims.put("userProfileUrl", userDetails.getProfileUrl());
-        claims.put("userType", userDetails.getUserType().name());
-        claims.put("departmentId", userDetails.getDepartmentId());
-        claims.put("positionId", userDetails.getPositionId());
-        claims.put("dutyId", userDetails.getDutyId());
+        claims.put("userType", userType.name());
+        claims.put("userName", userDetails.getName());
+
+        switch (userType) {
+            case HQ -> {
+                claims.put("departmentId", userDetails.getDepartmentId());
+                claims.put("positionId", userDetails.getPositionId());
+                claims.put("dutyId", userDetails.getDutyId());
+                claims.put("userSignUrl", userDetails.getSignUrl());
+            }
+            case FRANCHISE -> claims.put("franchiseId", userDetails.getFranchiseId());
+            case SUPPLIER -> claims.put("supplierId", userDetails.getSupplierId());
+        }
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

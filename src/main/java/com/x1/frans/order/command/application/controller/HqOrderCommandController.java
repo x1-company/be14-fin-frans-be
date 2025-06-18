@@ -1,7 +1,9 @@
 package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.exception.InvalidTimeFormatException;
+import com.x1.frans.order.command.application.dto.DeliveryInfoRequestDto;
 import com.x1.frans.order.command.application.dto.OrderRejectRequestDto;
+import com.x1.frans.order.command.application.dto.OrderStatusUpdateRequestDto;
 import com.x1.frans.order.command.application.service.HqOrderCommandService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +21,7 @@ import java.time.format.DateTimeParseException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/hq/orders")
-@Tag(name = "📝 주문", description = "orders")
+@Tag(name = "📝 주문 처리", description = "주문 상태 변경, 처리 관련 API")
 public class HqOrderCommandController {
 
     private final HqOrderCommandService hqOrderCommandService;
@@ -61,7 +63,7 @@ public class HqOrderCommandController {
 
     @PatchMapping("/{orderId}/review-complete")
     @Operation(
-            summary = "주문 상태 변경 (검토중 -> 검토 완료)",
+            summary = "주문 상태 변경 (검토 중 -> 검토 완료)",
             description = "검토중인 주문을 검토 완료로 변경합니다."
     )
     public ResponseEntity<Void> completeReview(
@@ -70,6 +72,49 @@ public class HqOrderCommandController {
     ) {
         hqOrderCommandService.markReviewComplete(orderId, userDetails.getUserId());
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/review-cancel")
+    @Operation(
+            summary = "주문 상태 변경 (검토 완료 -> 검토 중)",
+            description = "검토 완료된 주문을 검토 취소 처리하여 검토 중으로 변경합니다."
+    )
+    public ResponseEntity<Void> cancelReview(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.cancelReviewComplete(orderId, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/status")
+    @Operation(
+            summary = "주문 배송 상태 변경",
+            description = "결재 완료 이후의 상태들을 결재 완료, 배송 준비 중, 배송 중, 배송 완료 중 하나로 변경합니다."
+    )
+    public ResponseEntity<Void> updateOrderStatusAndDelivery(
+            @PathVariable Long orderId,
+            @RequestBody @Valid OrderStatusUpdateRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        hqOrderCommandService.updateOrderStatusAndDelivery(orderId, dto, userDetails.getUserId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/delivery")
+    @Operation(
+            summary = "배송 정보 등록 또는 수정",
+            description = "결재 완료 또는 배송 중 상태의 주문에 배송 정보를 입력합니다. 최초 등록 시 주문 상태가 배송 중으로 변경됩니다."
+    )
+    public ResponseEntity<Void> registerOrUpdateDelivery(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody DeliveryInfoRequestDto dto
+    ) {
+        hqOrderCommandService.registerOrUpdateDelivery(orderId, userDetails.getUserId(), dto);
         return ResponseEntity.ok().build();
     }
 }

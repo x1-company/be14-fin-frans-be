@@ -8,7 +8,6 @@ public enum OrderStatus {
     REVIEWING("검토 중"),
     REVIEW_COMPLETED("검토 완료"),
     APPROVED("결재 완료"),
-    READY_FOR_DELIVERY("배송 준비 중"),
     DELIVERING("배송 중"),
     DELIVERED("배송 완료");
 

@@ -38,6 +38,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getId();
     }
 
+    public String getName() {
+        return user.getName();
+    }
+
     public String getProfileUrl() {
         return user.getProfileUrl();
     }
@@ -50,6 +54,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getType();
     }
 
+    public String getSignUrl() {
+        return user.getSignUrl();
+    }
+
     public Long getDepartmentId() {
         return user.getDepartmentId();
     }
@@ -60,6 +68,14 @@ public class CustomUserDetails implements UserDetails {
 
     public Long getDutyId() {
         return user.getDutyId();
+    }
+
+    public Long getSupplierId() {
+        return user.getSupplierId();
+    }
+
+    public Long getFranchiseId() {
+        return user.getFranchiseId();
     }
 
     // 주의. org.springframework.boot version 3.5.0 => 3.2.5로 변경하면서 필수적으로 오버라딩해야 하는 메소드들

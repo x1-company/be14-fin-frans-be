@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.statistics.query.view.repository.FranchiseProductOrderMapper">
+
+    <select id="getStats" resultType="com.x1.frans.statistics.query.view.dto.FranchiseProductOrderQueryDTO">
+        SELECT
+               a.`order_quantity` AS `orderQuantity`
+             , a.`product_id` AS `productId`
+             , b.`code` AS `productCode`
+             , b.`name` AS `productName`
+             , b.`purchase_price` AS `productPurchasePrice`
+             , b.`sale_price` AS `productSalePrice`
+             , b.`purchase_unit` AS `productPurchaseUnit`
+             , b.`unit` AS `productUnit`
+             , b.`spec` AS `productSpec`
+             , c.`name` AS `productAttributeName`
+             , d.`name` AS `productGroupName`
+             , e.`name` AS `productTypeName`
+          FROM `franchise_product_order_stat` a
+          LEFT JOIN `product` b ON a.`product_id` = b.id
+          LEFT JOIN `product_attribute` c ON b.`product_attribute_id` = c.`id`
+          LEFT JOIN `product_group` d ON b.`product_group_id` = d.`id`
+          LEFT JOIN `product_type` e ON b.`product_type_id` = e.`id`
+         WHERE `franchise_id` = #{franchiseId}
+           AND `year` = #{year}
+           AND `month` = #{month}
+    </select>
+
+</mapper>
