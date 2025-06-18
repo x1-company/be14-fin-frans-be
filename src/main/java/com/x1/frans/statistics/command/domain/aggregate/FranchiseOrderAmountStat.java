@@ -68,6 +68,4 @@ public class FranchiseOrderAmountStat {
         this.updatedAt = LocalDateTime.now();
     }
 
-
-
 }

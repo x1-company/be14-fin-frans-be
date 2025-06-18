@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Schema(description = "월별 가맹점 총 주문 금액 통계를 임의로 삭제하기 위한 DTO")
+@Schema(description = "월별 가맹점 자재별 반품량 통계를 임의로 삭제하기 위한 DTO")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class FranchiseOrderAmountStatDeleteDTO {
+public class FranchiseReturnProductStatDeleteDTO {
 
-    @Schema(description = "삭제할 통계 데이터의 ID")
+    @Schema(description = "삭제할 통계 데이터 id")
     @NotNull
     private Long id;
 

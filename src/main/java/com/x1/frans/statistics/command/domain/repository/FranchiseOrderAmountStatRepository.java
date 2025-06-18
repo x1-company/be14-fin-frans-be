@@ -5,9 +5,5 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FranchiseOrderAmountStatRepository extends JpaRepository<FranchiseOrderAmountStat, Long> {
-
-    FranchiseOrderAmountStat findByFranchiseIdAndYearAndMonth(
-            @NotNull Long franchiseId, @NotNull Integer year, @NotNull Integer month);
-
 }
 

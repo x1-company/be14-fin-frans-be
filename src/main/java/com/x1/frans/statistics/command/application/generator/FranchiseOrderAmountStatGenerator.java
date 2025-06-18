@@ -47,6 +47,9 @@ public class FranchiseOrderAmountStatGenerator implements StatisticsGenerator {
                     .orderAmount(dto.getTotalAmount())
                     .createdAt(now)
                     .updatedAt(now)
+                    .isDeleted(false)
+                    .deletedReason(null)
+                    .deletedAt(null)
                     .franchiseId(dto.getFranchiseId())
                     .build();
 

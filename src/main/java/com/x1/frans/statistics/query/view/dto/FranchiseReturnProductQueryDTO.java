@@ -31,6 +31,18 @@ public class FranchiseReturnProductQueryDTO {
     @Schema(description = "생성일")
     private LocalDateTime createdAt;
 
+    @Schema(description = "수정일")
+    private LocalDateTime updatedAt;
+
+    @Schema(description = "삭제 여부")
+    private Boolean isDeleted;
+
+    @Schema(description = "삭제 사유")
+    private String deletedReason;
+
+    @Schema(description = "삭제일")
+    private LocalDateTime deletedAt;
+
     @Schema(description = "자재 id")
     private Long productId;
 
