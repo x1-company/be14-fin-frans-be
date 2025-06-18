@@ -92,6 +92,8 @@ public class AmazonS3Service {
                 return "return";
             case "sign":
                 return "sign";
+            case "profile":
+                return "profile";
             default:
                 throw new InvalidFilUploadTypeException("지원하지 않는 업로드 타입입니다.");
         }
