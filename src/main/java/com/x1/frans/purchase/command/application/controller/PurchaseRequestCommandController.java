@@ -3,6 +3,7 @@ package com.x1.frans.purchase.command.application.controller;
 import com.x1.frans.purchase.command.application.service.PurchaseRequestCommandService;
 import com.x1.frans.purchase.command.application.service.dto.PurchaseRequestCreateCommand;
 import com.x1.frans.purchase.command.application.service.dto.PurchaseRequestUpdateCommand;
+import com.x1.frans.purchase.enums.PurchaseRequestStatus;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/hq/purchase/requests")
@@ -48,6 +51,19 @@ public class PurchaseRequestCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         purchaseRequestCommandService.delete(purchaseRequestId, userDetails.getUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{purchaseRequestId}/status")
+    @Operation(summary = "구매요청 상태 변경", description = "구매요청의 상태를 검토중/승인/반려 등으로 변경")
+    public ResponseEntity<Void> changeStatus(
+            @PathVariable Long purchaseRequestId,
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        String statusStr = body.get("status");
+        PurchaseRequestStatus status = PurchaseRequestStatus.valueOf(statusStr);
+        purchaseRequestCommandService.changeStatus(purchaseRequestId, status, userDetails.getUserId());
         return ResponseEntity.ok().build();
     }
 }
