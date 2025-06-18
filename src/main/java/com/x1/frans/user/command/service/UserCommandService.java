@@ -12,4 +12,6 @@ public interface UserCommandService {
     void createSupplierUser(SupplierUserRequestVO supplierUserRequestVO);
 
     void accountLock(String userCode);
+
+    void updateSignUrl(Long userId, String newSignUrl, String oldSignUrl);
 }

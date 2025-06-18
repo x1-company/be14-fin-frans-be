@@ -48,6 +48,7 @@ public class JwtUtil {
                 claims.put("departmentId", userDetails.getDepartmentId());
                 claims.put("positionId", userDetails.getPositionId());
                 claims.put("dutyId", userDetails.getDutyId());
+                claims.put("userSignUrl", userDetails.getSignUrl());
             }
             case FRANCHISE -> claims.put("franchiseId", userDetails.getFranchiseId());
 

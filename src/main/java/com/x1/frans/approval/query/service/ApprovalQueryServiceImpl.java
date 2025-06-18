@@ -72,8 +72,8 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public List<ApprovalListDTO> getApprovalListReceivedClosed(long userId) {
-        return approvalQueryMapper.getApprovalListReceivedClosed(userId);
+    public List<ApprovalListDTO> getApprovalListReceivedClosedAll(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedClosedAll(userId);
     }
 
     @Override
@@ -179,7 +179,31 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalLineDetailTemplates(userId, templateId);
     }
 
+    @Override
+    public List<ApprovalListDTO> getApprovalListReceivedApprovalAll(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedApprovalAll(userId);
+    }
 
+    @Override
+    public List<ApprovalListDTO> getApprovalListReceivedClosedApprovalAll(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedClosedApprovalAll(userId);
+    }
+
+    @Override
+    public List<ApprovalListDTO> getApprovalListReceivedClosedCooperatorAll(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedClosedCooperatorAll(userId);
+    }
+
+    @Override
+    public List<ApprovalListDTO> getApprovalListCooperateUpcoming(long userId) {
+        return approvalQueryMapper.getApprovalListCooperateUpcoming(userId);
+
+    }
+
+    @Override
+    public List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId) {
+        return approvalQueryMapper.getApprovalListCooperateMyCompletedAll(userId);
+    }
 
 }
 

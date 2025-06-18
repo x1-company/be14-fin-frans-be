@@ -19,7 +19,7 @@ public interface UserQueryMapper {
     LoginUserDTO findByCode(@Param("userCode") String userCode);
 
     List<SearchHqUserDTO> findHqUser(@Param("name") String name,
-                                     @Param("departmentId") Long departmentId);
+                                     @Param("departmentIds") List<Long> departmentIds);
 
     List<SearchFranchiseUserDTO> findFranchiseUser(@Param("name") String name);
 

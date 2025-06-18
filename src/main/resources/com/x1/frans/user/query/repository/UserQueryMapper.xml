@@ -112,8 +112,11 @@
          WHERE a.`type` = 'HQ'
            AND a.`name` LIKE CONCAT('%', #{name}, '%')
            AND a.`is_deleted` = FALSE
-        <if test="departmentId != null">
-            AND c.`id` = #{departmentId}
+        <if test="departmentIds != null and departmentIds.size() > 0">
+            AND c.`id` IN
+            <foreach item="id" collection="departmentIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
         </if>
     </select>
 

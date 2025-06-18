@@ -1,5 +1,6 @@
 package com.x1.frans.user.command.service;
 
+import com.x1.frans.aws.service.AmazonS3Service;
 import com.x1.frans.email.dto.UserCredentialsDTO;
 import com.x1.frans.email.service.EmailService;
 import com.x1.frans.exception.DuplicationException;
@@ -24,6 +25,7 @@ import com.x1.frans.user.enums.UserType;
 import com.x1.frans.user.query.service.UserQueryService;
 import com.x1.frans.user.util.GenerateRandomPassword;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserCommandServiceImpl implements UserCommandService {
@@ -45,6 +48,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final FranchiseQueryService franchiseQueryService;
     private final SupplierCommandRepository supplierCommandRepository;
     private final SupplierQueryService supplierQueryService;
+    private final AmazonS3Service amazonS3Service;
 
     /**
      * 본사(HQ) 사용자 계정을 생성
@@ -345,5 +349,31 @@ public class UserCommandServiceImpl implements UserCommandService {
     public void accountLock(String userCode) {
 
         userCommandRepository.accountLock(userCode);
+    }
+
+    /**
+     * 회원 서명 url 업데이트
+     *
+     * @param userId 회원 ID
+     * @param newSignUrl 새로운 url
+     * @param oldSignUrl 이전 url
+     */
+    @Transactional
+    @Override
+    public void updateSignUrl(Long userId, String newSignUrl, String oldSignUrl) {
+
+        if (oldSignUrl != null) {
+            try {
+                String[] parts = oldSignUrl.split("/");
+                String fileName = parts[parts.length - 1];
+
+                amazonS3Service.deleteFile(fileName, "sign");
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+
+        }
+
+        userCommandRepository.updateSignUrl(userId, newSignUrl);
     }
 }

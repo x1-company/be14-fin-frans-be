@@ -1,6 +1,6 @@
 package com.x1.frans.order.query.controller;
 
-import com.x1.frans.order.query.dto.OrderDetailDto;
+import com.x1.frans.order.query.dto.HqOrderDetailDto;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
 import com.x1.frans.order.query.service.HqOrderQueryService;
@@ -38,13 +38,13 @@ public class HqOrderQueryController {
             summary = "주문 상세 조회",
             description = "주문 ID로 주문 상세 정보를 조회합니다."
     )
-    public ResponseEntity<OrderDetailDto> getOrderDetail(
+    public ResponseEntity<HqOrderDetailDto> getOrderDetail(
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
 
-        OrderDetailDto dto = orderQueryService.getOrderDetail(orderId, userId);
+        HqOrderDetailDto dto = orderQueryService.getOrderDetail(orderId, userId);
 
         return ResponseEntity.ok(dto);
     }

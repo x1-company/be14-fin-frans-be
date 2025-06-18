@@ -1,6 +1,7 @@
 package com.x1.frans.order.query.service.support;
 
-import com.x1.frans.order.query.dto.OrderDetailDto;
+import com.x1.frans.order.query.dto.FranchiseOrderDetailDto;
+import com.x1.frans.order.query.dto.HqOrderDetailDto;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,13 @@ import java.util.List;
 @Component
 public class OrderDetailCalculator {
 
-    public void fillDetails(OrderDetailDto detail, List<ProductDetailDTO> products) {
+    public void fillDetails(HqOrderDetailDto detail, List<ProductDetailDTO> products) {
+        detail.setProducts(products);
+        detail.setTotalQuantity(calculateTotalQuantity(products));
+        detail.setTotalAmount(calculateTotalAmount(products));
+    }
+
+    public void frfillDetails(FranchiseOrderDetailDto detail, List<ProductDetailDTO> products) {
         detail.setProducts(products);
         detail.setTotalQuantity(calculateTotalQuantity(products));
         detail.setTotalAmount(calculateTotalAmount(products));
