@@ -6,7 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SupplierDeliveryInfoCommandRepository extends JpaRepository<SupplierDeliveryInfo, Long> {
-
-    String findLatestCodeByPrefix(String codePrefix);
-
 }

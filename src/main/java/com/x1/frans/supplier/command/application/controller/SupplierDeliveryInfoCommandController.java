@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "🐔 공급처", description = "공급처가 등록한 납품 정보 API")
+@Tag(name = "🐔 공급처", description = "공급처가 납품서를 등록하는 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/supplier/delivery-infos")
@@ -35,6 +35,7 @@ public class SupplierDeliveryInfoCommandController {
             @RequestBody @Valid DeliveryInfoCreateRequestDTO requestDTO,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+        log.info("Authenticated supplierId: {}, supplierCode: {}", customUserDetails.getSupplierId(), customUserDetails.getSupplierCode());
         Long supplierId = customUserDetails.getSupplierId();
         String supplierCode = customUserDetails.getSupplierCode();
 

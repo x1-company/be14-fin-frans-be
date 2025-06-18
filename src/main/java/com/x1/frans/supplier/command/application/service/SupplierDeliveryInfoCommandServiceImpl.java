@@ -5,8 +5,8 @@ import com.x1.frans.exception.SupplierNotFoundException;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
 import com.x1.frans.product.command.domain.repository.SupplierRepository;
-import com.x1.frans.purchase_order.command.domain.aggregate.PurchaseOrderEntity;
-import com.x1.frans.purchase_order.command.domain.repository.PurchaseOrderRepository;
+import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
+import com.x1.frans.purchase.command.domain.repository.PurchaseRequestRepository;
 import com.x1.frans.supplier.command.application.dto.DeliveryInfoCreateRequestDTO;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryDetail;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryInfo;
@@ -33,12 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryInfoCommandService {
 
     private final SupplierRepository supplierRepository;
-    private final PurchaseOrderRepository purchaseOrderRepository;
     private final ProductRepository productRepository;
 
     private final SupplierDeliveryDetailCommandRepository supplierDeliveryDetailRepository;
     private final SupplierDeliveryInfoCommandRepository supplierDeliveryInfoCommandRepository;
     private final SupplierDeliveryInfoQueryMapper supplierDeliveryInfoQueryMapper;
+    private final PurchaseRequestRepository purchaseRequestRepository;
 
     @Override
     @Transactional
@@ -47,14 +47,14 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         SupplierEntity supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new SupplierNotFoundException("존재하지 않는 공급처입니다."));
 
-        PurchaseOrderEntity purchaseOrder = purchaseOrderRepository.findById(requestDTO.getPurchaseOrderId())
+        PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(requestDTO.getPurchaseOrderId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 발주입니다."));
 
         String deliveryCode = generateNextDeliveryCode(supplierCode);
 
         SupplierDeliveryInfo deliveryInfo = new SupplierDeliveryInfo();
         deliveryInfo.setSupplier(supplier);
-        deliveryInfo.setPurchaseOrder(purchaseOrder);
+        deliveryInfo.setPurchaseRequest(purchaseRequest);
         deliveryInfo.setCode(deliveryCode);
         deliveryInfo.setExpectedDate(requestDTO.getExpectedDate());
         deliveryInfo.setDate(LocalDateTime.now());
