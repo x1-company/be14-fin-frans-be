@@ -47,7 +47,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     }
 
     // 영업팀 허용 부서 id (id: 2, 4, 5, 6 = 영업팀, 영업1팀, 영업2팀, 영업3팀)
-    private static final List<Long> ALLOWED_DEPARTMENT_IDS = List.of(2L, 4L, 5L, 6L);
+    private static final List<Long> SALES_ALLOWED_DEPARTMENT_IDS = List.of(2L, 4L, 5L, 6L);
 
     /*** 구매 요청 작성 ***/
     @Override
@@ -59,7 +59,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         // 부서 체크
         HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
                 .orElseThrow(() -> new InvalidDepartmentException("부서 정보를 찾을 수 없습니다."));
-        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+        if (!SALES_ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
             throw new InvalidDepartmentException("영업팀 소속만 구매 요청을 할 수 있습니다.");
         }
 
@@ -200,7 +200,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         // 영업팀 부서 체크
         HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
                 .orElseThrow(() -> new InvalidDepartmentException("부서 정보를 찾을 수 없습니다."));
-        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+        if (!SALES_ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
             throw new InvalidDepartmentException("영업팀 소속만 삭제할 수 있습니다.");
         }
 
@@ -215,6 +215,33 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
 
         // 구매요청 삭제
         purchaseRequestRepository.delete(entity);
+    }
+
+    // 구매팀만 허용
+    private static final List<Long> PURCHASE_ALLOWED_DEPARTMENT_IDS = List.of(1L);
+
+    @Override
+    @Transactional
+    public void changeStatus(Long purchaseRequestId, PurchaseRequestStatus status, Long userId) {
+        PurchaseRequestEntity entity = purchaseRequestRepository.findById(purchaseRequestId)
+                .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 정보 없음"));
+
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보를 찾을 수 없습니다."));
+
+        if (!PURCHASE_ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 상태를 변경할 수 있니다.");
+        }
+
+        if (status == PurchaseRequestStatus.DRAFT) {
+            throw new InvalidPurchaseRequestStatusException("잘못된 상태 변경입니다.");
+        }
+
+        entity.setStatus(status);
+        entity.setUpdatedAt(LocalDateTime.now());
     }
 
     private String generateNextPurchaseRequestCode() {
