@@ -1,5 +1,7 @@
 package com.x1.frans.approval.query.controller;
 
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
@@ -299,21 +301,21 @@ public class ApprovalQueryController {
 
     @Operation(summary = "결재 템플릿 목록 조회", description = "결재 템플릿 목록 조회할 수 있다.")
     @GetMapping("/templates")
-    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<List<ApprovalLineTemplateDTO>> getApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user) {
 
         long userId = user.getUserId();
-        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalLineTemplates(userId);
+        List<ApprovalLineTemplateDTO> list = approvalQueryService.getApprovalLineTemplates(userId);
 
         return ResponseEntity.ok(list);
     }
 
     @Operation(summary = "결재 템플릿 상세 조회", description = "결재 템플릿 상세 조회할 수 있다.")
     @GetMapping("/templates/{templateId}")
-    public ResponseEntity<List<ApprovalLinesDTO>> getApprovalLineDetailTemplates(@AuthenticationPrincipal CustomUserDetails user,
-                                                                           @PathVariable long templateId) {
+    public ResponseEntity<List<ApprovalLineTemplateDetailDTO>> getApprovalLineDetailTemplates(@AuthenticationPrincipal CustomUserDetails user,
+                                                                                              @PathVariable long templateId) {
 
         long userId = user.getUserId();
-        List<ApprovalLinesDTO> list = approvalQueryService.getApprovalLineDetailTemplates(userId, templateId);
+        List<ApprovalLineTemplateDetailDTO> list = approvalQueryService.getApprovalLineDetailTemplates(userId, templateId);
 
         return ResponseEntity.ok(list);
     }
