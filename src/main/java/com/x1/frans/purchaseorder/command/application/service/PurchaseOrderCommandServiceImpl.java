@@ -409,8 +409,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             order.setStatus(PurchaseOrderStatus.APPROVED);
         } else if ("REJECTED".equalsIgnoreCase(dto.getStatus())) {
             order.setStatus(PurchaseOrderStatus.REJECTED);
-            // 반려 사유 저장하고 싶으면 remarks 같은 필드에 저장
-            // order.setRejectReason(dto.getRemarks());
+
         } else {
             throw new InvalidOrderStatusException("올바른 상태값이 아닙니다. (APPROVED/REJECTED)");
         }
