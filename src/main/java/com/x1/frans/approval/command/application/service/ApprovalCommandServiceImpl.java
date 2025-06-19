@@ -16,6 +16,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -295,10 +297,13 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         UserEntity owner = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
+        BigDecimal maxSeq = approvalLineTemplateCommandRepository.findMaxSeq();
+        BigDecimal nextSeq = maxSeq.add(new BigDecimal("1.0000"));
+
         ApprovalLineTemplateEntity template = new ApprovalLineTemplateEntity();
         template.setName(request.getName());
         template.setDescription(request.getDescription());
-        template.setSeq(request.getSeq());
+        template.setSeq(nextSeq);
         template.setUser(owner);
 
 
@@ -325,7 +330,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateCreateRequestDTO request, long userId, Long templateId) {
+    public Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateModifyRequestDTO request, long userId, Long templateId) {
         if (templateId == null) {
             throw new IllegalArgumentException("템플릿 ID가 없습니다.");
         }
@@ -338,12 +343,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             throw new UnauthorizedTemplateAccessException("수정 권한이 없습니다.");
         }
 
-
-
         //  템플릿 정보 업데이트
         template.setName(request.getName());
         template.setDescription(request.getDescription());
-        template.setSeq(request.getSeq());
         approvalLineTemplateCommandRepository.save(template);
 
         // 기존 상세 결재선 삭제
@@ -591,5 +593,47 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         approvalCommandRepository.save(approval);
 
         return new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
+    }
+
+    @Transactional
+    @Override
+    public void approvalLineTemplatesSeqModify(long userId, Long templateId, int seq) {
+
+        // 현재 템플릿
+        ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
+                .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
+
+        // 👇 전체 템플릿 리스트 (내림차순 정렬: seq 큰 게 앞에)
+        List<ApprovalLineTemplateEntity> templates =
+                approvalLineTemplateCommandRepository.findByUserIdOrderBySeqDesc(userId);
+
+        BigDecimal prevSeq = null;
+        BigDecimal nextSeq = null;
+
+        if (seq - 1 >= 0) {
+            prevSeq = templates.get(seq - 1).getSeq();
+        }
+        if (seq < templates.size()) {
+            nextSeq = templates.get(seq).getSeq();
+        }
+
+        BigDecimal newSeq;
+
+        if (prevSeq == null && nextSeq == null) {
+            // 아무 것도 없을 때
+            newSeq = new BigDecimal("1.0000");
+        } else if (prevSeq == null) {
+            // 맨 위로 넣기 (next만 존재)
+            newSeq = nextSeq.add(new BigDecimal("1.0000"));
+        } else if (nextSeq == null) {
+            // 맨 아래로 넣기 (prev만 존재)
+            newSeq = prevSeq.subtract(new BigDecimal("1.0000"));
+        } else {
+            // 중간 삽입
+            newSeq = prevSeq.add(nextSeq)
+                    .divide(new BigDecimal("2.0000"), 4, RoundingMode.HALF_UP);
+        }
+
+        template.setSeq(newSeq);
     }
 }

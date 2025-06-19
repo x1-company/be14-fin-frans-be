@@ -97,7 +97,7 @@ public class ApprovalCommandController {
     }
     @Operation(summary = "결재선 템플릿 수정", description = "결재선 템플릿 수정합니다.")
     @PutMapping("/templates/{templateId}")
-    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approvalLineTemplatesModify(@RequestBody ApprovalLineTemplateCreateRequestDTO request,
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> approvalLineTemplatesModify(@RequestBody ApprovalLineTemplateModifyRequestDTO request,
                                                                                      @AuthenticationPrincipal CustomUserDetails user,
                                                                                            @PathVariable Long templateId) {
         long userId = user.getUserId();
@@ -112,6 +112,19 @@ public class ApprovalCommandController {
                 .body(CommonResponse.success(responseDTO, "결재선 템플릿이 수정되었습니다."));
 
     }
+
+    @Operation(summary = "결재선 템플릿 순서 수정", description = "결재선 템플릿 순서를 수정합니다.")
+    @PatchMapping("/templates/{templateId}/seq/{seq}")
+    public ResponseEntity<Void> approvalLineTemplatesSeqModify(@AuthenticationPrincipal CustomUserDetails user,
+                                                               @PathVariable Long templateId,
+                                                               @PathVariable int seq) {
+        long userId = user.getUserId();
+
+        approvalCommandService.approvalLineTemplatesSeqModify(userId, templateId, seq);
+
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "결재선 템플릿 삭제", description = "결재선 템플릿 삭제합니다.")
     @DeleteMapping("/templates/{templateId}")
     public ResponseEntity<CommonResponse<ApprovalResponseDTO>> deleteApprovalLineTemplates(@AuthenticationPrincipal CustomUserDetails user,
