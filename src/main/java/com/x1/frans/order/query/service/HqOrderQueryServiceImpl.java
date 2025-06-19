@@ -3,10 +3,7 @@ package com.x1.frans.order.query.service;
 import com.x1.frans.exception.OrderNotFoundException;
 import com.x1.frans.order.common.OrderAuthorizationService;
 import com.x1.frans.order.query.dao.HqOrderQueryMapper;
-import com.x1.frans.order.query.dto.HqOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
-import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
+import com.x1.frans.order.query.dto.*;
 import com.x1.frans.order.query.service.support.OrderDetailCalculator;
 import com.x1.frans.order.query.service.support.OrderQuerySupport;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
@@ -50,5 +47,10 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
         List<ProductDetailDTO> products = orderQueryMapper.findProductsByOrderId(orderId);
         orderDetailCalculator.fillDetails(detail, products);
         return detail;
+    }
+
+    @Override
+    public List<OrderReviewCompletedListDto> getOrderReviewCompleted(Long userId) {
+        return orderQueryMapper.findOrderReviewCompleted(userId);
     }
 }

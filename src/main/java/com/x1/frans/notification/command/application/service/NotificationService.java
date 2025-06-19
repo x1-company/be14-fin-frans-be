@@ -237,4 +237,7 @@ public class NotificationService {
         log.info("주문 상태 변경 알림 생성 및 발송: orderId={}, status={}, receiverId={}", orderId, status, receiverId);
     }
 
+    public void createAbnormalOrderRequestNotification(Long orderId, Long receiverId) {
+        
+    }
 }

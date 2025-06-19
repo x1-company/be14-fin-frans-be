@@ -592,4 +592,5 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         return new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
     }
+
 }
