@@ -1,6 +1,7 @@
 package com.x1.frans.supplier.command.domain.aggregate;
 
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
+import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -63,6 +64,6 @@ public class SupplierDeliveryInfo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_order_id", nullable = false)
-    private PurchaseRequestEntity purchaseRequest;
+    private PurchaseOrderEntity purchaseOrder;
 
 }

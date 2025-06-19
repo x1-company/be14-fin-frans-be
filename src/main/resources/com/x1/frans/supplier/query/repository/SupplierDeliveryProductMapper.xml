@@ -5,10 +5,10 @@
 
 <mapper namespace="com.x1.frans.supplier.query.repository.SupplierDeliveryProductMapper">
 
-    <resultMap id="SupplierDeliveryProductMap"
-               type="com.x1.frans.supplier.query.dto.SupplierDeliveryProductDTO">
+    <resultMap id="SupplierDeliveryProductMap" type="com.x1.frans.supplier.query.dto.SupplierDeliveryProductDTO">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="code" column="code"/>
         <result property="salePrice" column="purchase_price"/>
         <result property="saleUnit" column="purchase_unit"/>
         <result property="unit" column="unit"/>
@@ -19,6 +19,7 @@
         SELECT
                p.id,
                p.name,
+               p.code,
                p.purchase_price AS salePrice,
                p.purchase_unit AS saleUnit,
                p.unit,
@@ -28,4 +29,49 @@
            AND p.is_active = 1
     </select>
 
+    <select id="findProductByName" resultMap="SupplierDeliveryProductMap">
+        SELECT
+               p.id,
+               p.name,
+               p.code,
+               p.purchase_price AS salePrice,
+               p.purchase_unit AS saleUnit,
+               p.unit,
+               p.spec
+          FROM product p
+         WHERE p.supplier_id = #{supplierId}
+           AND p.is_active = 1
+           AND p.name LIKE CONCAT('%', #{name}, '%')
+    </select>
+
+    <select id="findProductByCode" resultMap="SupplierDeliveryProductMap">
+        SELECT
+               p.id,
+               p.name,
+               p.code,
+               p.purchase_price AS salePrice,
+               p.purchase_unit AS saleUnit,
+               p.unit,
+               p.spec
+          FROM product p
+         WHERE p.supplier_id = #{supplierId}
+           AND p.is_active = 1
+           AND p.code = #{code}
+    </select>
+
+    <select id="findProductByNameAndCode" resultMap="SupplierDeliveryProductMap">
+        SELECT
+            p.id,
+            p.name,
+            p.code,
+            p.purchase_price AS salePrice,
+            p.purchase_unit AS saleUnit,
+            p.unit,
+            p.spec
+        FROM product p
+        WHERE p.supplier_id = #{supplierId}
+          AND p.is_active = 1
+          AND p.name LIKE CONCAT('%', #{name}, '%')
+          AND p.code = #{code}
+    </select>
 </mapper>

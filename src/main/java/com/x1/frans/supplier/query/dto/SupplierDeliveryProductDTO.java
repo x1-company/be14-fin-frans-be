@@ -23,6 +23,9 @@ public class SupplierDeliveryProductDTO {
     @Schema(description = "자재명")
     private String name;
 
+    @Schema(description = "자재 코드")
+    private String code;
+
     @Schema(description = "판매 단가")
     private BigDecimal salePrice;
 

@@ -1,12 +1,14 @@
 package com.x1.frans.supplier.command.application.service;
 
 import com.x1.frans.exception.ProductNotFoundException;
+import com.x1.frans.exception.PurchaseRequestNotFoundException;
 import com.x1.frans.exception.SupplierNotFoundException;
+import com.x1.frans.exception.enums.EmptyDeliveryItemException;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
 import com.x1.frans.product.command.domain.repository.SupplierRepository;
-import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
-import com.x1.frans.purchase.command.domain.repository.PurchaseRequestRepository;
+import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
+import com.x1.frans.purchaseorder.command.domain.repository.PurchaseOrderRepository;
 import com.x1.frans.supplier.command.application.dto.DeliveryInfoCreateRequestDTO;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryDetail;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryInfo;
@@ -38,7 +40,7 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
     private final SupplierDeliveryDetailCommandRepository supplierDeliveryDetailRepository;
     private final SupplierDeliveryInfoCommandRepository supplierDeliveryInfoCommandRepository;
     private final SupplierDeliveryInfoQueryMapper supplierDeliveryInfoQueryMapper;
-    private final PurchaseRequestRepository purchaseRequestRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     @Override
     @Transactional
@@ -47,22 +49,27 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         SupplierEntity supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new SupplierNotFoundException("존재하지 않는 공급처입니다."));
 
-        PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(requestDTO.getPurchaseOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 발주입니다."));
+        PurchaseOrderEntity purchaseOrder = purchaseOrderRepository.findById(requestDTO.getPurchaseOrderId())
+                .orElseThrow(() -> new PurchaseRequestNotFoundException("존재하지 않는 발주입니다."));
 
         String deliveryCode = generateNextDeliveryCode(supplierCode);
+        LocalDateTime now = LocalDateTime.now();
 
         SupplierDeliveryInfo deliveryInfo = new SupplierDeliveryInfo();
         deliveryInfo.setSupplier(supplier);
-        deliveryInfo.setPurchaseRequest(purchaseRequest);
+        deliveryInfo.setPurchaseOrder(purchaseOrder);
         deliveryInfo.setCode(deliveryCode);
         deliveryInfo.setExpectedDate(requestDTO.getExpectedDate());
-        deliveryInfo.setDate(LocalDateTime.now());
+        deliveryInfo.setDate(now);
         deliveryInfo.setDeliveryCompanyName(requestDTO.getDeliveryCompanyName());
         deliveryInfo.setVehicleNumber(requestDTO.getVehicleNumber());
         deliveryInfo.setTrackingNumber(requestDTO.getTrackingNumber());
-        deliveryInfo.setCreatedAt(LocalDateTime.now());
-        deliveryInfo.setUpdatedAt(LocalDateTime.now());
+        deliveryInfo.setCreatedAt(now);
+        deliveryInfo.setUpdatedAt(now);
+
+        if (requestDTO.getItems() == null || requestDTO.getItems().isEmpty()) {
+            throw new EmptyDeliveryItemException("납품 자재 항목이 비어 있습니다.");
+        }
 
         List<SupplierDeliveryDetail> details = requestDTO.getItems().stream()
                 .map(item -> {
@@ -84,10 +91,13 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         deliveryInfo.setTotalAmount(totalAmount);
 
         SupplierDeliveryInfo savedInfo = supplierDeliveryInfoCommandRepository.save(deliveryInfo);
-        details.forEach(detail -> detail.setDeliveryInfo(savedInfo));
         supplierDeliveryDetailRepository.saveAll(details);
 
+        log.info("납품 등록 완료: deliveryInfoId={}, supplierId={}, purchaseOrderId={}",
+                savedInfo.getId(), supplierId, requestDTO.getPurchaseOrderId());
+
         return savedInfo.getId();
+
     }
 
 

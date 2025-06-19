@@ -7,4 +7,9 @@ public interface SupplierDeliveryProductService {
 
     List<SupplierDeliveryProductDTO> getAllProductsBySupplier(Long supplierId);
 
+    List<SupplierDeliveryProductDTO> getProductsByName(Long supplierId, String name);
+
+    List<SupplierDeliveryProductDTO> getProductsByCode(Long supplierId, String code);
+
+    List<SupplierDeliveryProductDTO> getProductsByNameAndCode(Long supplierId, String name, String code);
 }
