@@ -13,7 +13,7 @@ public interface ApprovalCommandService {
 
     Optional<ApprovalResponseDTO> approvalLineTemplates(ApprovalLineTemplateCreateRequestDTO request, long userId);
 
-    Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateCreateRequestDTO request, long userId, Long templateId);
+    Optional<ApprovalResponseDTO> approvalLineTemplatesModify(ApprovalLineTemplateModifyRequestDTO request, long userId, Long templateId);
 
     Optional<ApprovalResponseDTO> deleteApprovalLineTemplates(long userId, Long templateId);
 
@@ -22,4 +22,6 @@ public interface ApprovalCommandService {
     ApprovalResponseDTO updateRequestState(ApprovalStatusUpdateDTO request, long userId, long approvalId);
 
     ApprovalResponseDTO requestApproval(long userId, long approvalId);
+
+    void approvalLineTemplatesSeqModify(long userId, Long templateId, int seq);
 }

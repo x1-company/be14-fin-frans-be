@@ -7,10 +7,15 @@
 
     <resultMap id="FranchiseOrderAmountQueryDTOMap" type="com.x1.frans.statistics.query.view.dto.FranchiseOrderAmountQueryDTO">
         <result property="id" column="id"/>
+        <result property="franchiseName" column="franchise_name"/>
         <result property="year" column="year"/>
         <result property="month" column="month"/>
         <result property="orderAmount" column="order_amount"/>
         <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="deletedReason" column="deleted_reason"/>
+        <result property="deletedAt" column="deleted_at"/>
         <result property="franchiseId" column="franchise_id"/>
     </resultMap>
 
@@ -37,7 +42,11 @@
                s.year,
                s.month,
                s.order_amount,
-               s.created_at
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at
           FROM franchise_order_amount_stat s
           JOIN franchise f ON s.franchise_id = f.id
          WHERE f.manager_id = #{managerId}
@@ -52,7 +61,11 @@
                s.year,
                s.month,
                s.order_amount,
-               s.created_at
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at
           FROM franchise_order_amount_stat s
           JOIN franchise f ON s.franchise_id = f.id
          WHERE f.department_id = #{departmentId}
@@ -67,7 +80,11 @@
                s.year,
                s.month,
                s.order_amount,
-               s.created_at
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at
           FROM franchise_order_amount_stat s
           JOIN franchise f ON s.franchise_id = f.id
     </select>

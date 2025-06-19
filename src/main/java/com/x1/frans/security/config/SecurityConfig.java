@@ -135,6 +135,9 @@ public class SecurityConfig {
                                 // AWS 관련 기능
                                 .requestMatchers("/api/upload/**").permitAll()
 
+                                // 알림 구독
+                                .requestMatchers("/api/notification/**").authenticated()
+
         );
 
         http.authenticationManager(authenticationManager());

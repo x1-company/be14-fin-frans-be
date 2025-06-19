@@ -1,6 +1,7 @@
 package com.x1.frans.order.query.controller;
 
 import com.x1.frans.order.query.dto.HqOrderDetailDto;
+import com.x1.frans.order.query.dto.OrderReviewCompletedListDto;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
 import com.x1.frans.order.query.service.HqOrderQueryService;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/hq/orders")
@@ -45,6 +48,21 @@ public class HqOrderQueryController {
         Long userId = userDetails.getUserId();
 
         HqOrderDetailDto dto = orderQueryService.getOrderDetail(orderId, userId);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/reviewCompleted")
+    @Operation(
+            summary = "(검토 완료 상태인) 주문 목록 조회 ",
+            description = "주문 ID로 주문 상세 정보를 조회합니다."
+    )
+    public ResponseEntity<List<OrderReviewCompletedListDto>> getOrderReviewCompleted(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUserId();
+
+        List<OrderReviewCompletedListDto> dto = orderQueryService.getOrderReviewCompleted(userId);
 
         return ResponseEntity.ok(dto);
     }

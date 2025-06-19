@@ -18,10 +18,6 @@ public class ApprovalLineTemplateModifyRequestDTO {
     @Schema(description = "설명")
     private String description;
 
-    @Schema(description = "순서")
-    @NotNull(message = "순서는 필수입니다.")
-    private Integer seq;
-
     @Schema(description = "결재선 템플릿 정보")
     @NotNull(message = "결재선 템플릿 정보는 필수입니다.")
     private List<ApprovalTemplateLineDTO> lines;

@@ -38,14 +38,18 @@ public class FranchiseOrderAmountStatGenerator implements StatisticsGenerator {
         List<FranchiseOrderAmountRawDTO> rawData = franchiseOrderAmountRawQueryService.getOrderAmounts(from, to);
         int year = targetMonth.getYear();
         int month = targetMonth.getMonthValue();
-        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         for (FranchiseOrderAmountRawDTO dto : rawData) {
             FranchiseOrderAmountStat stat = FranchiseOrderAmountStat.builder()
                     .year(year)
                     .month(month)
                     .orderAmount(dto.getTotalAmount())
-                    .createdAt(createdAt)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .isDeleted(false)
+                    .deletedReason(null)
+                    .deletedAt(null)
                     .franchiseId(dto.getFranchiseId())
                     .build();
 

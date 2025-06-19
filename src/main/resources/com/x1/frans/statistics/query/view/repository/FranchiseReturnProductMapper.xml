@@ -11,7 +11,12 @@
         <result property="month" column="month"/>
         <result property="returnQuantity" column="return_quantity"/>
         <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="deletedReason" column="deleted_reason"/>
+        <result property="deletedAt" column="deleted_at"/>
         <result property="productId" column="product_id"/>
+        <result property="franchiseName" column="franchise_name"/>
         <result property="franchiseId" column="franchise_id"/>
     </resultMap>
 
@@ -33,10 +38,15 @@
     <select id="selectStatsByManager" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
                s.id,
+               f.name AS franchise_name,
                s.year,
                s.month,
                s.return_quantity,
                s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
                s.product_id,
                s.franchise_id
           FROM franchise_return_product_stat s
@@ -48,10 +58,15 @@
     <select id="selectStatsByDepartment" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
                s.id,
+               f.name AS franchise_name,
                s.year,
                s.month,
                s.return_quantity,
                s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
                s.product_id,
                s.franchise_id
           FROM franchise_return_product_stat s
@@ -63,10 +78,15 @@
     <select id="selectAllStats" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
                s.id,
+               f.name AS franchise_name,
                s.year,
                s.month,
                s.return_quantity,
                s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
                s.product_id,
                s.franchise_id
           FROM franchise_return_product_stat s

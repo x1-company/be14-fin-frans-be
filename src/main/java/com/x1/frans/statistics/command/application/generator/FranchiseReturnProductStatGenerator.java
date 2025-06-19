@@ -37,14 +37,18 @@ public class FranchiseReturnProductStatGenerator implements StatisticsGenerator 
         List<FranchiseReturnProductRawDTO> rawData = franchiseReturnProductRawQueryService.getReturnProducts(from, to);
         int year = targetMonth.getYear();
         int month = targetMonth.getMonthValue();
-        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         for (FranchiseReturnProductRawDTO dto : rawData) {
             FranchiseReturnProductStat stat = FranchiseReturnProductStat.builder()
                     .year(year)
                     .month(month)
                     .returnQuantity(dto.getTotalQuantity())
-                    .createdAt(createdAt)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .isDeleted(false)
+                    .deletedReason(null)
+                    .deletedAt(null)
                     .productId(dto.getProductId())
                     .franchiseId(dto.getFranchiseId())
                     .build();
