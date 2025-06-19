@@ -9,4 +9,6 @@ public interface PurchaseOrderCommandService {
     void updateDraft(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId);
 
     void delete(Long purchaseOrderId, Long userId);
+
+    void requestOrder(Long purchaseOrderId, Long userId);
 }

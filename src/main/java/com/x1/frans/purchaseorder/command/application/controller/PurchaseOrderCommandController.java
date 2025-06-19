@@ -54,4 +54,15 @@ public class PurchaseOrderCommandController {
         purchaseOrderCommandService.delete(purchaseOrderId, userId);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{purchaseOrderId}/request")
+    @Operation(summary = "임시저장 발주 정식 등록", description = "임시저장 상태의 발주를 정식으로 등록ㄱ한다.")
+    public ResponseEntity<Void> requestOrder(
+            @PathVariable Long purchaseOrderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        purchaseOrderCommandService.requestOrder(purchaseOrderId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

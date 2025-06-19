@@ -258,6 +258,35 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         purchaseOrderRepository.delete(order);
     }
 
+    @Override
+    @Transactional
+    public void requestOrder(Long purchaseOrderId, Long userId) {
+
+        PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));
+
+
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+
+
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
+        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 발주 요청할 수 있습니다.");
+        }
+
+        if (!PurchaseOrderStatus.DRAFT.equals(order.getStatus())) {
+            throw new InvalidOrderStatusException("임시저장 상태만 발주 요청이 가능합니다.");
+        }
+
+        // 상태/필드 변경
+        order.setStatus(PurchaseOrderStatus.REQUEST_PENDING);
+        order.setIsRequested(true);
+        order.setUpdatedAt(LocalDateTime.now());
+        purchaseOrderRepository.save(order);
+    }
+
     private String generateOrderCode() {
         Long maxId = purchaseOrderRepository.findTopByOrderByIdDesc().map(PurchaseOrderEntity::getId).orElse(0L);
         return String.format("PO%04d", maxId + 1);
