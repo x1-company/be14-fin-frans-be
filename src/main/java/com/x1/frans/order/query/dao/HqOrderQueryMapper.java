@@ -1,6 +1,7 @@
 package com.x1.frans.order.query.dao;
 
 import com.x1.frans.order.query.dto.HqOrderDetailDto;
+import com.x1.frans.order.query.dto.OrderReviewCompletedListDto;
 import com.x1.frans.order.query.dto.OrderSearchConditionDto;
 import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
@@ -21,4 +22,5 @@ public interface HqOrderQueryMapper {
 
     List<ProductDetailDTO> findProductsByOrderId(@Param("orderId") Long orderId);
 
+    List<OrderReviewCompletedListDto> findOrderReviewCompleted(Long userId);
 }

@@ -20,6 +20,9 @@ public class FranchiseOrderAmountQueryDTO {
     @Schema(description = "가맹점별 월 주문 금액 통계 id")
     private Long id;
 
+    @Schema(description = "가맹점 이름")
+    private String franchiseName;
+
     @Schema(description = "연도")
     private Integer year;
 
