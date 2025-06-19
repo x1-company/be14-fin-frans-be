@@ -143,31 +143,27 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
     @Override
     @Transactional
     public void updateDraft(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId) {
-        // 1. 발주(PurchaseOrder) 존재 여부
+
         PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
                 .orElseThrow(() -> new PurchaseRequestNotFoundException("발주 정보 없음"));
 
-        // 2. 사용자(User) 존재 여부
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
 
-        // 3. 부서(구매팀) 체크
         HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
                 .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
         if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
             throw new InvalidDepartmentException("구매팀만 발주를 수정할 수 있습니다.");
         }
 
-        // 4. 상태 체크 (이미 요청된 상태라면 임시저장 불가)
         if (Boolean.TRUE.equals(order.getIsRequested())) {
             throw new CannotChangeToDraftExceptioin("저장(요청) 상태에서는 다시 임시저장 상태로 변경할 수 없습니다.");
         }
 
-        // 6. 요청일자 등 기본 정보 세팅
         order.setRequestedDeliveryDate(dto.getRequestedDeliveryDate());
         order.setUpdatedAt(LocalDateTime.now());
 
-        // 7. 상품 전체 검증 및 업데이트
+        // 상품 전체 검증 및 업데이트
         List<PurchaseOrderProductEntity> oldProducts = order.getPurchaseOrderProducts();
         Map<Long, PurchaseOrderProductEntity> oldMap = oldProducts.stream()
                 .filter(p -> p.getId() != null)
@@ -181,25 +177,22 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         SupplierEntity orderSupplier = order.getSupplier();
 
         for (PurchaseOrderProductUpdateDto p : dto.getProducts()) {
-            // 8. 상품(Product) 존재 여부
+
             ProductEntity product = productRepository.findById(p.getProductId())
                     .orElseThrow(() -> new ProductNotFoundException("자재 정보 없음"));
 
-            // 9. 상품의 공급처 일치 여부
             if (!product.getSupplier().getId().equals(orderSupplier.getId())) {
                 throw new ProductSupplierMisMatchException("자재 공급처와 발주 공급처가 다릅니다.");
             }
 
-            // 10. 구매요청(PurchaseRequest) 존재 여부
             PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(p.getPurchaseRequestId())
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
 
-            // 11. 구매요청 상태 체크
+
             if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
                 throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
             }
 
-            // 12. 구매요청-자재(PurchaseRequestProduct) 매핑 여부
             if (!purchaseRequestProductRepository.existsByPurchaseRequestIdAndProductId(p.getPurchaseRequestId(), p.getProductId())) {
                 throw new InvalidPurchaseRequestProductException("구매요청에 해당 자재가 포함되어 있지 않습니다.");
             }
@@ -229,18 +222,40 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             total = total.add(product.getPurchasePrice().multiply(BigDecimal.valueOf(p.getQuantity())));
         }
 
-        // 13. 삭제된 상품 처리 (기존에 있던 상품 중 dto에 없는 상품 삭제)
+        // 삭제된 상품 처리 (기존에 있던 상품 중 dto에 없는 상품 삭제)
         oldProducts.removeIf(old -> old.getId() != null && !newIds.contains(old.getId()));
 
-        // 14. 상품 목록 교체
+        // 상품 목록 교체
         order.getPurchaseOrderProducts().clear();
         order.getPurchaseOrderProducts().addAll(newProductList);
 
-        // 15. 합계 적용
+        // 합계 적용
         order.setTotalAmount(total);
 
-        // 16. 저장 (CascadeType.ALL 적용 시 order만 save)
         purchaseOrderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long purchaseOrderId, Long userId) {
+        PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));
+
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
+        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 삭제할 수 있습니다.");
+        }
+
+        // 발주 상태가 '임시저장' 또는 '발주대기'만 삭제 가능
+        if (order.getStatus() != PurchaseOrderStatus.DRAFT && order.getStatus() != PurchaseOrderStatus.REQUEST_PENDING) {
+            throw new CannotDeleteOrderException("임시저장 또는 발주대기 상태만 삭제할 수 있습니다.");
+        }
+
+        purchaseOrderRepository.delete(order);
     }
 
     private String generateOrderCode() {

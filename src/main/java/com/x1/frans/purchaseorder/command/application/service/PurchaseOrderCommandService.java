@@ -7,4 +7,6 @@ public interface PurchaseOrderCommandService {
     Long saveDraft(PurchaseOrderSaveRequestDto dto, Long userId);
 
     void updateDraft(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId);
+
+    void delete(Long purchaseOrderId, Long userId);
 }

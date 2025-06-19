@@ -43,4 +43,15 @@ public class PurchaseOrderCommandController {
         purchaseOrderCommandService.updateDraft(orderId, dto, userId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{purchaseOrderId}")
+    @Operation(summary = "발주 삭제", description = "발주 임시저장/발주 대기 상태에서만 발주를 삭제한다.")
+    public ResponseEntity<Void> delete(
+            @PathVariable("purchaseOrderId") Long purchaseOrderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        purchaseOrderCommandService.delete(purchaseOrderId, userId);
+        return ResponseEntity.ok().build();
+    }
 }
