@@ -1,7 +1,10 @@
 package com.x1.frans.purchaseorder.command.application.service;
 
-import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
+import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderSaveRequestDto;
+import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderUpdateRequestDto;
 
 public interface PurchaseOrderCommandService {
-    PurchaseOrderEntity saveDraft(PurchaseOrderEntity entity, Long userId);
+    Long saveDraft(PurchaseOrderSaveRequestDto dto, Long userId);
+
+    void updateDraft(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId);
 }

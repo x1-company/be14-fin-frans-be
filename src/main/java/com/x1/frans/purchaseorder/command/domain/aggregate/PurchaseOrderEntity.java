@@ -55,6 +55,7 @@ public class PurchaseOrderEntity {
     @Column(name = "requested_delivery_date", nullable = false)
     private LocalDate requestedDeliveryDate;
 
+    @Builder.Default
     @OneToMany(mappedBy = "purchaseOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<PurchaseOrderProductEntity> purchaseOrderProducts = new ArrayList<>();
 }
