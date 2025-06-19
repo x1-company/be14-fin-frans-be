@@ -235,6 +235,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         purchaseOrderRepository.save(order);
     }
 
+    /** 발주 삭제 */
     @Override
     @Transactional
     public void delete(Long purchaseOrderId, Long userId) {
@@ -258,6 +259,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         purchaseOrderRepository.delete(order);
     }
 
+    /** 발주 임시등록 -> 정식 등록 */
     @Override
     @Transactional
     public void requestOrder(Long purchaseOrderId, Long userId) {
@@ -285,6 +287,81 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         order.setIsRequested(true);
         order.setUpdatedAt(LocalDateTime.now());
         purchaseOrderRepository.save(order);
+    }
+
+    /** 발주 정식 등록 */
+    @Override
+    @Transactional
+    public Long saveAndRequest(PurchaseOrderSaveRequestDto dto, Long userId) {
+
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
+        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 발주할 수 있습니다.");
+        }
+
+        // 2. 공급처, 요청일자
+        SupplierEntity supplier = supplierCommandRepository.findById(dto.getSupplierId())
+                .orElseThrow(() -> new RuntimeException("공급처 정보 없음"));
+        LocalDate requestedDeliveryDate = dto.getRequestedDeliveryDate();
+
+        PurchaseOrderEntity order = PurchaseOrderEntity.builder()
+                .code(generateOrderCode())
+                .supplier(supplier)
+                .user(user)
+                .status(PurchaseOrderStatus.REQUEST_PENDING)
+                .isRequested(true)
+                .totalAmount(BigDecimal.ZERO)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .requestedDeliveryDate(requestedDeliveryDate)
+                .build();
+
+        BigDecimal total = BigDecimal.ZERO;
+        int idx = 1;
+        for (PurchaseOrderProductCreateDto p : dto.getProducts()) {
+
+            ProductEntity product = productRepository.findById(p.getProductId())
+                    .orElseThrow(() -> new ProductNotFoundException("자재 정보 없음"));
+
+            if (!product.getSupplier().getId().equals(supplier.getId())) {
+                throw new ProductSupplierMisMatchException("자재 공급처와 발주 공급처가 다릅니다.");
+            }
+
+            PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(p.getPurchaseRequestId())
+                    .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
+                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            }
+            // 구매요청-자재 매핑 검증
+            if (!purchaseRequestProductRepository.existsByPurchaseRequestIdAndProductId(
+                    p.getPurchaseRequestId(), p.getProductId())) {
+                throw new InvalidPurchaseRequestProductException("구매요청에 해당 자재가 포함되어 있지 않습니다.");
+            }
+
+            BigDecimal itemTotal = product.getPurchasePrice().multiply(BigDecimal.valueOf(p.getQuantity()));
+            total = total.add(itemTotal);
+
+            PurchaseOrderProductEntity productEntity = PurchaseOrderProductEntity.builder()
+                    .purchaseOrder(order)
+                    .no(idx++)
+                    .product(product)
+                    .quantity(p.getQuantity())
+                    .remarks(p.getRemarks())
+                    .purchaseRequestId(p.getPurchaseRequestId())
+                    .build();
+
+            order.getPurchaseOrderProducts().add(productEntity);
+        }
+
+        // 합계 적용
+        order.setTotalAmount(total);
+
+        purchaseOrderRepository.save(order);
+
+        return order.getId();
     }
 
     private String generateOrderCode() {

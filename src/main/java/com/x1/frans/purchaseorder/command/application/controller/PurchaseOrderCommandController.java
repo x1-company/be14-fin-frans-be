@@ -65,4 +65,16 @@ public class PurchaseOrderCommandController {
         purchaseOrderCommandService.requestOrder(purchaseOrderId, userId);
         return ResponseEntity.ok().build();
     }
+
+
+    @PostMapping("/request")
+    @Operation(summary = "발주 정식 등록(임시저장 없이 바로)", description = "임시저장 없이 바로 발주요청 상태로 등록")
+    public ResponseEntity<Long> saveAndRequest(
+            @RequestBody PurchaseOrderSaveRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        Long orderId = purchaseOrderCommandService.saveAndRequest(dto, userId);
+        return ResponseEntity.ok(orderId);
+    }
 }
