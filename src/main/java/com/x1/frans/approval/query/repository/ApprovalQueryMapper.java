@@ -1,5 +1,7 @@
 package com.x1.frans.approval.query.repository;
 
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.dto.ApprovalListLineDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
@@ -107,9 +109,9 @@ public interface ApprovalQueryMapper  {
     List<ApprovalLineDTO> findApprovalDetailLine(@Param("approvalId") Long approvalId);
 
 
-    List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
+    List<ApprovalLineTemplateDTO> getApprovalLineTemplates(long userId);
 
-    List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
+    List<ApprovalLineTemplateDetailDTO> getApprovalLineDetailTemplates(long userId, long templateId);
 
     // 목록조회 - 결재자 조회
     List<ApprovalListLineDTO> findApprovalListLine(@Param("approvalId") Long approvalId);

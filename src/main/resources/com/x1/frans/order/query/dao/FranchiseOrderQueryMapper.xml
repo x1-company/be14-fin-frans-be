@@ -89,7 +89,7 @@
     <select id="findFranchiseOrderDetailById" resultType="com.x1.frans.order.query.dto.FranchiseOrderDetailDto">
         SELECT
         -- 가맹점 정보
-            f.name            AS franchiseName
+               f.name            AS franchiseName
              , f.code            AS franchiseCode
              , f.business_number AS businessNumber
              , u.name            AS ceoName
@@ -125,15 +125,15 @@
     <!-- 가맹점 주문 자재 리스트 -->
     <select id="findProductsByOrderId" resultType="com.x1.frans.product.query.dto.ProductDetailDTO">
         SELECT
-            p.id
+               p.id
              , p.code
              , p.name
              , p.spec
              , p.purchase_unit        AS purchaseUnit
              , p.unit
-             , p.product_group_id     AS productGroupId
-             , p.product_type_id      AS productTypeId
-             , p.product_attribute_id AS productAttributeId
+             , pg.name                AS productGroupName
+             , pt.name                AS productTypeName
+             , pa.name                AS productAttributeName
              , p.purchase_price       AS purchasePrice
              , p.sale_price           AS salePrice
              , s.name                 AS supplierName
@@ -142,6 +142,9 @@
         JOIN product p ON po.product_id = p.id
         JOIN supplier s ON p.supplier_id = s.id
         JOIN orders o ON o.id = po.order_id
+        JOIN product_group pg ON pg.id = p.product_group_id
+        JOIN product_type pt ON pt.id = p.product_type_id
+        JOIN product_attribute pa ON pa.id = p.product_attribute_id
         WHERE o.id = #{orderId}
     </select>
 

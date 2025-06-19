@@ -1,5 +1,7 @@
 package com.x1.frans.approval.query.service;
 
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
@@ -57,9 +59,9 @@ public interface ApprovalQueryService {
   
     String findLatestApprovalCode(String codePrefix);
 
-    List<ApprovalLinesDTO> getApprovalLineTemplates(long userId);
+    List<ApprovalLineTemplateDTO> getApprovalLineTemplates(long userId);
 
-    List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId);
+    List<ApprovalLineTemplateDetailDTO> getApprovalLineDetailTemplates(long userId, long templateId);
 
 
 

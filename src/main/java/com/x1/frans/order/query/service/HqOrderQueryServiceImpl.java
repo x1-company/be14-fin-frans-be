@@ -54,3 +54,5 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
         return orderQueryMapper.findOrderReviewCompleted(userId);
     }
 }
+
+}

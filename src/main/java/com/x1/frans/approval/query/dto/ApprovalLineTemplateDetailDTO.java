@@ -9,6 +9,9 @@ public class ApprovalLineTemplateDetailDTO {
     @Schema(description = "결재선 템플릿 ID")
     private Long templateId;
 
+    @Schema(description = "결재자 ID")
+    private Long userId;
+
     @Schema(description = "결재자명")
     private String userName;
 
