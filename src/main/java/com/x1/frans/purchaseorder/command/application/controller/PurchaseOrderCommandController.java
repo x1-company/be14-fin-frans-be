@@ -66,7 +66,6 @@ public class PurchaseOrderCommandController {
         return ResponseEntity.ok().build();
     }
 
-
     @PostMapping("/request")
     @Operation(summary = "발주 정식 등록(임시저장 없이 바로)", description = "임시저장 없이 바로 발주요청 상태로 등록")
     public ResponseEntity<Long> saveAndRequest(
@@ -76,5 +75,16 @@ public class PurchaseOrderCommandController {
         Long userId = userDetails.getUserId();
         Long orderId = purchaseOrderCommandService.saveAndRequest(dto, userId);
         return ResponseEntity.ok(orderId);
+    }
+
+    @PutMapping("/{orderId}/cancel")
+    @Operation(summary = "발주 취소", description = "발주 대기 상태에서만 취소 가능")
+    public ResponseEntity<Void> cancel(
+            @PathVariable("orderId") Long orderId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        purchaseOrderCommandService.cancel(orderId, userId);
+        return ResponseEntity.ok().build();
     }
 }

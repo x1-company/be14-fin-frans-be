@@ -364,6 +364,35 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         return order.getId();
     }
 
+    @Override
+    @Transactional
+    public void cancel(Long purchaseOrderId, Long userId) {
+        // 1. 발주(PurchaseOrder) 존재 여부
+        PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));
+
+        // 2. 사용자/부서(구매팀) 체크 (옵션, 필요시)
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
+        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 발주를 취소할 수 있습니다.");
+        }
+
+        // 3. 현재 상태가 발주 대기(ORDER_REQUESTED)인지 체크
+        if (order.getStatus() != PurchaseOrderStatus.REQUEST_PENDING) {
+            throw new CannotCancelPurchaseOrderException("발주 대기 상태에서만 취소할 수 있습니다.");
+        }
+
+        // 4. 상태 변경
+        order.setStatus(PurchaseOrderStatus.CANCELED);
+        order.setUpdatedAt(LocalDateTime.now());
+
+        // 5. 저장 (optional, 영속성 context에서 자동 플러시됨)
+        purchaseOrderRepository.save(order);
+    }
+
     private String generateOrderCode() {
         Long maxId = purchaseOrderRepository.findTopByOrderByIdDesc().map(PurchaseOrderEntity::getId).orElse(0L);
         return String.format("PO%04d", maxId + 1);

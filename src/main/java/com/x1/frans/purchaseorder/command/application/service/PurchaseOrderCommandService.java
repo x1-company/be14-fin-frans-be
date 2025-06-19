@@ -13,4 +13,6 @@ public interface PurchaseOrderCommandService {
     void requestOrder(Long purchaseOrderId, Long userId);
 
     Long saveAndRequest(PurchaseOrderSaveRequestDto dto, Long userId);
+
+    void cancel(Long purchaseOrderId, Long userId);
 }
