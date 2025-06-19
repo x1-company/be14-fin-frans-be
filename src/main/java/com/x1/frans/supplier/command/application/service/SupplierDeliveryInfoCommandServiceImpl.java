@@ -14,7 +14,6 @@ import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryDetail;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryInfo;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
 import com.x1.frans.supplier.command.domain.repository.SupplierDeliveryDetailCommandRepository;
-
 import com.x1.frans.supplier.command.domain.repository.SupplierDeliveryInfoCommandRepository;
 import com.x1.frans.supplier.query.repository.SupplierDeliveryInfoQueryMapper;
 import java.math.BigDecimal;
@@ -23,7 +22,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -80,17 +78,26 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
                     detail.setProduct(product);
                     detail.setQuantity(item.getQuantity());
                     detail.setDeliveryInfo(deliveryInfo);
+
+                    // 각 상세 항목별 총 금액 계산 후 세팅
+                    BigDecimal itemTotalAmount = product.getSalePrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+                    detail.setTotalAmount(itemTotalAmount);
+
                     return detail;
                 }).collect(Collectors.toList());
 
         BigDecimal totalAmount = details.stream()
-                .map(detail -> detail.getProduct().getSalePrice()
-                        .multiply(BigDecimal.valueOf(detail.getQuantity())))
+                .map(SupplierDeliveryDetail::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         deliveryInfo.setTotalAmount(totalAmount);
 
         SupplierDeliveryInfo savedInfo = supplierDeliveryInfoCommandRepository.save(deliveryInfo);
+
+        // 저장된 deliveryInfo 엔티티 참조로 각 detail에 다시 세팅
+        details.forEach(detail -> detail.setDeliveryInfo(savedInfo));
+
         supplierDeliveryDetailRepository.saveAll(details);
 
         log.info("납품 등록 완료: deliveryInfoId={}, supplierId={}, purchaseOrderId={}",
@@ -99,7 +106,6 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         return savedInfo.getId();
 
     }
-
 
     // 납품 코드 생성 메서드 (supplierCode 기반 코드 생성)
     private String generateNextDeliveryCode(String supplierCode) {
@@ -120,6 +126,6 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         }
 
         return codePrefix + String.format("%04d", nextNumber);
-
     }
+
 }

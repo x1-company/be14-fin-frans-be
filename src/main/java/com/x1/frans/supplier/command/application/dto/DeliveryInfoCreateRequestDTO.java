@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,10 @@ public class DeliveryInfoCreateRequestDTO {
     @Schema(description = "발주 id")
     @NotNull
     private Long purchaseOrderId;
+
+    @Schema(description = "총 금액")
+    @NotNull
+    private BigDecimal totalAmount;
 
     @Schema(description = "납품 예정일")
     @NotNull
@@ -61,6 +66,7 @@ public class DeliveryInfoCreateRequestDTO {
 
         @Schema(description = "수량")
         @Min(1)
+        @NotNull
         private Integer quantity;
 
     }

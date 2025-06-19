@@ -41,7 +41,7 @@ public class SupplierDeliveryInfo {
     private LocalDateTime date;
 
     @Column(nullable = false)
-    private BigDecimal totalAmount;
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
