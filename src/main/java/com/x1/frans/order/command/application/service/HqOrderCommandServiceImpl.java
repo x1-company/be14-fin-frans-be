@@ -2,6 +2,7 @@ package com.x1.frans.order.command.application.service;
 
 import com.x1.frans.exception.DuplicateDeadlineTimeException;
 import com.x1.frans.exception.InvalidRejectConditionException;
+import com.x1.frans.franchise.command.application.service.OrderNotificationService;
 import com.x1.frans.order.command.application.dto.DeliveryInfoRequestDto;
 import com.x1.frans.order.command.application.dto.OrderStatusUpdateRequestDto;
 import com.x1.frans.order.command.domain.aggregate.Delivery;
@@ -28,6 +29,7 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     private final DeliveryRepository deliveryRepository;
     private final OrderAuthorizationService orderAuthorizationService;
     private final OrderCommandRepository orderCommandRepository;
+    private final OrderNotificationService orderNotificationService;
 
     @Override
     @Transactional
@@ -51,34 +53,47 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     @Transactional
     public void rejectOrder(Long orderId, String reason, Long userId) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
+        OrderStatus beforeStatus = order.getStatus();
+
         order.reject(reason);
+        notifyIfStatusChanged(order, beforeStatus);
     }
 
     @Override
     @Transactional
     public void markReviewComplete(Long orderId, Long userId) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
+        OrderStatus beforeStatus = order.getStatus();
+
         order.markReviewComplete();
+        notifyIfStatusChanged(order, beforeStatus);
     }
 
     @Override
     @Transactional
     public void cancelReviewComplete(Long orderId, Long userId) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
+        OrderStatus beforeStatus = order.getStatus();
+
         order.cancelReviewComplete();
+        notifyIfStatusChanged(order, beforeStatus);
     }
 
     @Override
     @Transactional
     public void updateOrderStatusAndDelivery(Long orderId, OrderStatusUpdateRequestDto dto, Long userId) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
+        OrderStatus beforeStatus = order.getStatus();
+
         order.updateStatus(dto.getStatus());
+        notifyIfStatusChanged(order, beforeStatus);
     }
 
     @Override
     @Transactional
     public void registerOrUpdateDelivery(Long orderId, Long userId, DeliveryInfoRequestDto dto) {
         Order order = orderAuthorizationService.getAuthorizedOrder(orderId, userId);
+        OrderStatus beforeStatus = order.getStatus();
 
         OrderStatus currentStatus = order.getStatus();
         if (!(currentStatus.equals(OrderStatus.APPROVED) || currentStatus.equals(OrderStatus.DELIVERING))) {
@@ -120,11 +135,20 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
             order.assignDelivery(delivery);
             order.updateStatus(OrderStatus.DELIVERING); // 최초 등록 시에만 배송 중으로 전환
         }
-    }
 
+        notifyIfStatusChanged(order, beforeStatus);
+    }
 
     @Override
     public void setOrderStatusToDelivering(List<Long> orderIds) {
         orderCommandRepository.updateOrderStatusToDelivering(orderIds);
     }
+
+    private void notifyIfStatusChanged(Order order, OrderStatus previousStatus) {
+        if (!previousStatus.equals(order.getStatus())) {
+            Long franchiseOwnerId = order.getFranchise().getOwner().getId();
+            orderNotificationService.notifyOrderStatusChanged(order.getId(), order.getStatus(), franchiseOwnerId);
+        }
+    }
+
 }

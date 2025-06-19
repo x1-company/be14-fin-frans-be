@@ -4,13 +4,17 @@ import com.x1.frans.exception.AllMessagesAlreadyReadException;
 import com.x1.frans.exception.NoDeletableMessagesException;
 import com.x1.frans.exception.NoPermissionOrNoneExist;
 import com.x1.frans.exception.UnreadMessagesCannotBeDeletedException;
+import com.x1.frans.exception.UserNotFoundException;
+import com.x1.frans.notification.command.domain.model.NotificationDomainType;
 import com.x1.frans.notification.command.domain.repository.EmitterRepository;
 import com.x1.frans.notification.command.domain.aggregate.Notification;
 import com.x1.frans.notification.command.dto.NotificationDTO;
 import com.x1.frans.notification.command.domain.repository.NotificationRepository;
 import com.x1.frans.notification.command.domain.model.NotificationTarget;
 import com.x1.frans.notification.command.domain.model.NotificationType;
+import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.command.repository.UserCommandRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +23,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -35,10 +40,14 @@ public class NotificationService {
 
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final UserCommandRepository userCommandRepository;
 
-    public NotificationService(EmitterRepository emitterRepository, NotificationRepository notificationRepository) {
+    @Autowired
+    public NotificationService(EmitterRepository emitterRepository, NotificationRepository notificationRepository,
+                               UserCommandRepository userCommandRepository) {
         this.emitterRepository = emitterRepository;
         this.notificationRepository = notificationRepository;
+        this.userCommandRepository = userCommandRepository;
     }
 
     private String generateEmitterId(String userIdStr) {
@@ -207,6 +216,25 @@ public class NotificationService {
         emitterRepository.deleteAllEventCacheStartWithId(userIdStr);
 
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
+    }
+
+    public void createOrderStatusNotification(Long orderId, OrderStatus status, Long receiverId) {
+
+        UserEntity receiver = userCommandRepository.findById(receiverId)
+                .orElseThrow(() -> new UserNotFoundException("수신자(가맹점주)를 찾을 수 없습니다. id=" + receiverId));
+
+        NotificationTarget target = new NotificationTarget(
+                NotificationDomainType.ORDER,
+                orderId,
+
+                "status=" + status.name()
+        );
+
+        NotificationType notificationType = NotificationType.ORDER_RESPONSE;
+
+        send(receiver, notificationType, target);
+
+        log.info("주문 상태 변경 알림 생성 및 발송: orderId={}, status={}, receiverId={}", orderId, status, receiverId);
     }
 
 }
