@@ -1,6 +1,7 @@
 package com.x1.frans.purchaseorder.command.application.controller;
 
 import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderSaveRequestDto;
+import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderStatusUpdateRequestDto;
 import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderUpdateRequestDto;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
 import com.x1.frans.purchaseorder.command.application.service.PurchaseOrderCommandService;
@@ -85,6 +86,18 @@ public class PurchaseOrderCommandController {
     ) {
         Long userId = userDetails.getUserId();
         purchaseOrderCommandService.cancel(orderId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{orderId}/status")
+    @Operation(summary = "발주 상태 변경", description = "발주 대기 → 승인/반려")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable("orderId") Long orderId,
+            @RequestBody PurchaseOrderStatusUpdateRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        purchaseOrderCommandService.updateStatus(orderId, dto, userId);
         return ResponseEntity.ok().build();
     }
 }

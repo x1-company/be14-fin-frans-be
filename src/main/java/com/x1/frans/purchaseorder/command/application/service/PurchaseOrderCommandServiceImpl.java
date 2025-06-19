@@ -7,10 +7,7 @@ import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
 import com.x1.frans.purchase.command.domain.repository.PurchaseRequestProductRepository;
 import com.x1.frans.purchase.command.domain.repository.PurchaseRequestRepository;
 import com.x1.frans.purchase.enums.PurchaseRequestStatus;
-import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderProductCreateDto;
-import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderProductUpdateDto;
-import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderSaveRequestDto;
-import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderUpdateRequestDto;
+import com.x1.frans.purchaseorder.command.application.dto.*;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderProductEntity;
 import com.x1.frans.purchaseorder.command.domain.repository.PurchaseOrderRepository;
@@ -367,11 +364,10 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
     @Override
     @Transactional
     public void cancel(Long purchaseOrderId, Long userId) {
-        // 1. 발주(PurchaseOrder) 존재 여부
+
         PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
                 .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));
 
-        // 2. 사용자/부서(구매팀) 체크 (옵션, 필요시)
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
         HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
@@ -380,16 +376,46 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             throw new InvalidDepartmentException("구매팀만 발주를 취소할 수 있습니다.");
         }
 
-        // 3. 현재 상태가 발주 대기(ORDER_REQUESTED)인지 체크
         if (order.getStatus() != PurchaseOrderStatus.REQUEST_PENDING) {
             throw new CannotCancelPurchaseOrderException("발주 대기 상태에서만 취소할 수 있습니다.");
         }
 
-        // 4. 상태 변경
+        // 상태 변경
         order.setStatus(PurchaseOrderStatus.CANCELED);
         order.setUpdatedAt(LocalDateTime.now());
 
-        // 5. 저장 (optional, 영속성 context에서 자동 플러시됨)
+        purchaseOrderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long purchaseOrderId, PurchaseOrderStatusUpdateRequestDto dto, Long userId) {
+        PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));
+
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
+        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 발주 상태를 변경할 수 있습니다.");
+        }
+
+        if (order.getStatus() != PurchaseOrderStatus.REQUEST_PENDING) {
+            throw new InvalidOrderStatusException("발주 대기 상태에서만 승인/반려가 가능합니다.");
+        }
+
+        if ("APPROVED".equalsIgnoreCase(dto.getStatus())) {
+            order.setStatus(PurchaseOrderStatus.APPROVED);
+        } else if ("REJECTED".equalsIgnoreCase(dto.getStatus())) {
+            order.setStatus(PurchaseOrderStatus.REJECTED);
+            // 반려 사유 저장하고 싶으면 remarks 같은 필드에 저장
+            // order.setRejectReason(dto.getRemarks());
+        } else {
+            throw new InvalidOrderStatusException("올바른 상태값이 아닙니다. (APPROVED/REJECTED)");
+        }
+
+        order.setUpdatedAt(LocalDateTime.now());
         purchaseOrderRepository.save(order);
     }
 

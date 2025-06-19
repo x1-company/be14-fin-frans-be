@@ -1,6 +1,7 @@
 package com.x1.frans.purchaseorder.command.application.service;
 
 import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderSaveRequestDto;
+import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderStatusUpdateRequestDto;
 import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderUpdateRequestDto;
 
 public interface PurchaseOrderCommandService {
@@ -15,4 +16,6 @@ public interface PurchaseOrderCommandService {
     Long saveAndRequest(PurchaseOrderSaveRequestDto dto, Long userId);
 
     void cancel(Long purchaseOrderId, Long userId);
+
+    void updateStatus(Long purchaseOrderId, PurchaseOrderStatusUpdateRequestDto dto, Long userId);
 }
