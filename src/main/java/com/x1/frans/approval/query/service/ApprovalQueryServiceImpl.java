@@ -1,6 +1,8 @@
 package com.x1.frans.approval.query.service;
 
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
+import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
@@ -170,12 +172,12 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public List<ApprovalLinesDTO> getApprovalLineTemplates(long userId) {
+    public List<ApprovalLineTemplateDTO> getApprovalLineTemplates(long userId) {
         return approvalQueryMapper.getApprovalLineTemplates(userId);
     }
 
     @Override
-    public List<ApprovalLinesDTO> getApprovalLineDetailTemplates(long userId, long templateId) {
+    public List<ApprovalLineTemplateDetailDTO> getApprovalLineDetailTemplates(long userId, long templateId) {
         return approvalQueryMapper.getApprovalLineDetailTemplates(userId, templateId);
     }
 
