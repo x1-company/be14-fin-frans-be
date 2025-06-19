@@ -7,6 +7,7 @@
 
     <resultMap id="FranchiseOrderAmountQueryDTOMap" type="com.x1.frans.statistics.query.view.dto.FranchiseOrderAmountQueryDTO">
         <result property="id" column="id"/>
+        <result property="franchiseName" column="franchise_name"/>
         <result property="year" column="year"/>
         <result property="month" column="month"/>
         <result property="orderAmount" column="order_amount"/>

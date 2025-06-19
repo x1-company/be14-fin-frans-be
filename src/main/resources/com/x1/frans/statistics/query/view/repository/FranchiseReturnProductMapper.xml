@@ -16,6 +16,7 @@
         <result property="deletedReason" column="deleted_reason"/>
         <result property="deletedAt" column="deleted_at"/>
         <result property="productId" column="product_id"/>
+        <result property="franchiseName" column="franchise_name"/>
         <result property="franchiseId" column="franchise_id"/>
     </resultMap>
 
@@ -37,6 +38,7 @@
     <select id="selectStatsByManager" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
                s.id,
+               f.name AS franchise_name,
                s.year,
                s.month,
                s.return_quantity,
@@ -56,6 +58,7 @@
     <select id="selectStatsByDepartment" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
                s.id,
+               f.name AS franchise_name,
                s.year,
                s.month,
                s.return_quantity,
@@ -75,6 +78,7 @@
     <select id="selectAllStats" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
                s.id,
+               f.name AS franchise_name,
                s.year,
                s.month,
                s.return_quantity,
