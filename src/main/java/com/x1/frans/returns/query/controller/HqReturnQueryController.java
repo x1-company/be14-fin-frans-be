@@ -1,6 +1,7 @@
 package com.x1.frans.returns.query.controller;
 
 import com.x1.frans.returns.query.dto.HqReturnDetailDTO;
+import com.x1.frans.returns.query.dto.HqReturnReviewCompltedDTO;
 import com.x1.frans.returns.query.dto.ReturnSearchConditionDTO;
 import com.x1.frans.returns.query.dto.ReturnSearchPageDTO;
 import com.x1.frans.returns.query.service.ReturnQueryService;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "🔄 반품", description = "반품 관련 API")
 @RestController
@@ -48,6 +51,22 @@ public class HqReturnQueryController {
         Long userId = userDetails.getUserId();
 
         HqReturnDetailDTO detail = returnQueryService.findHqReturnDetailById(userId, returnId);
+
+        return ResponseEntity.ok(detail);
+    }
+
+    @GetMapping("/reviewCompleted")
+    @Operation(
+            summary = "검토 완료된 반품 목록 조회",
+            description = "해당 본사직원에 대한 검토 완료된 반품 목록 정보를 조회할 수 있다."
+    )
+    public ResponseEntity<List<HqReturnReviewCompltedDTO>> findReturnReviewCompletedById(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+            ) {
+
+        Long userId = userDetails.getUserId();
+
+        List<HqReturnReviewCompltedDTO> detail = returnQueryService.findReturnReviewCompletedById(userId);
 
         return ResponseEntity.ok(detail);
     }
