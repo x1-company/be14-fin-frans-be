@@ -49,6 +49,7 @@
         <result property="dutyId" column="dutyId"/>
         <result property="dutyName" column="dutyName"/>
         <result property="supplierId" column="supplierId"/>
+        <result property="supplierCode" column="supplierCode"/>
         <result property="franchiseId" column="franchiseId"/>
     </resultMap>
     <select id="findByCode" resultMap="findByCodeResultMap">
@@ -77,6 +78,7 @@
 
              -- SUPPLIER
              , g.`id` AS `supplierId`
+             , g.`code` AS `supplierCode`
           FROM `user` a
           LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
           LEFT JOIN `department` c ON b.`department_id` = c.`id`
