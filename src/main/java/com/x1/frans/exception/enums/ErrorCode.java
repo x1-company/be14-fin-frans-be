@@ -97,8 +97,9 @@ public enum ErrorCode {
     OUTBOUND_NOT_FOUND("OUTBOUND_NOT_FOUND", HttpStatus.NOT_FOUND),
 
     // 납품 관련 에러
-    EMPTY_DELIVERY_ITEM("EMPTY_DELIVERY_ITEM", HttpStatus.NOT_FOUND);
-
+    EMPTY_DELIVERY_ITEM("EMPTY_DELIVERY_ITEM", HttpStatus.NOT_FOUND),
+    NOT_FOUND_DELIVERY_INFO("NOT_FOUND_DELIVERY_INFO", HttpStatus.NOT_FOUND),
+    CANNOT_MODIFY_DELIVERY_INFO("CANNOT_MODIFY_DELIVERY_INFO", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final HttpStatus httpStatus;

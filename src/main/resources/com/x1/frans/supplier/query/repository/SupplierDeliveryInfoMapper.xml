@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.supplier.query.repository.SupplierDeliveryInfoMapper">
+
+    <resultMap id="SupplierDeliveryInfoDTOMap" type="com.x1.frans.supplier.query.dto.SupplierDeliveryInfoDTO">
+        <id property="id" column="delivery_info_id"/>
+        <result property="code" column="code"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deliveryCompanyName" column="delivery_company_name"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="purchaseOrderId" column="purchase_order_id"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <collection property="details" ofType="com.x1.frans.supplier.query.dto.DeliveryDetailDTO">
+            <id property="id" column="detail_id"/>
+            <result property="quantity" column="detail_quantity"/>
+            <result property="totalAmount" column="detail_total_amount"/>
+            <result property="productId" column="product_id"/>
+            <result property="deliveryInfoId" column="delivery_info_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="findDeliveryInfos" resultMap="SupplierDeliveryInfoDTOMap" parameterType="map">
+        SELECT
+               di.id AS delivery_info_id,
+               di.code,
+               di.year,
+               di.month,
+               di.day,
+               di.total_amount,
+               di.created_at,
+               di.updated_at,
+               di.delivery_company_name,
+               di.vehicle_number,
+               di.tracking_number,
+               di.supplier_id,
+               di.purchase_order_id,
+               dd.id AS detail_id,
+               dd.quantity AS detail_quantity,
+               dd.total_amount AS detail_total_amount,
+               dd.product_id,
+               dd.delivery_info_id AS delivery_info_id
+        FROM delivery_info di
+          LEFT JOIN delivery_detail dd ON di.id = dd.delivery_info_id
+         WHERE di.supplier_id = #{supplierId}
+        <if test="year != null">
+            AND di.year = #{year}
+        </if>
+        <if test="month != null">
+            AND di.month = #{month}
+        </if>
+        <if test="day != null">
+            AND di.day = #{day}
+        </if>
+          ORDER BY di.created_at DESC, di.id, dd.id
+    </select>
+
+</mapper>
+

@@ -1,5 +1,7 @@
 package com.x1.frans.supplier.command.application.service;
 
+import com.x1.frans.exception.CannotModifyDeliveryInfoException;
+import com.x1.frans.exception.NotFoundDeliveryInfoException;
 import com.x1.frans.exception.ProductNotFoundException;
 import com.x1.frans.exception.PurchaseRequestNotFoundException;
 import com.x1.frans.exception.SupplierNotFoundException;
@@ -10,6 +12,8 @@ import com.x1.frans.product.command.domain.repository.SupplierRepository;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
 import com.x1.frans.purchaseorder.command.domain.repository.PurchaseOrderRepository;
 import com.x1.frans.supplier.command.application.dto.DeliveryInfoCreateRequestDTO;
+import com.x1.frans.supplier.command.application.dto.DeliveryInfoModifyDTO;
+import com.x1.frans.supplier.command.application.dto.DeliveryInfoModifyDTO.DeliveryItemModifyDTO;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryDetail;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryInfo;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
@@ -21,6 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,12 +64,14 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         deliveryInfo.setPurchaseOrder(purchaseOrder);
         deliveryInfo.setCode(deliveryCode);
         deliveryInfo.setExpectedDate(requestDTO.getExpectedDate());
-        deliveryInfo.setDate(now);
         deliveryInfo.setDeliveryCompanyName(requestDTO.getDeliveryCompanyName());
         deliveryInfo.setVehicleNumber(requestDTO.getVehicleNumber());
         deliveryInfo.setTrackingNumber(requestDTO.getTrackingNumber());
         deliveryInfo.setCreatedAt(now);
         deliveryInfo.setUpdatedAt(now);
+        deliveryInfo.setYear(null);
+        deliveryInfo.setMonth(null);
+        deliveryInfo.setDay(null);
 
         if (requestDTO.getItems() == null || requestDTO.getItems().isEmpty()) {
             throw new EmptyDeliveryItemException("납품 자재 항목이 비어 있습니다.");
@@ -79,7 +87,6 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
                     detail.setQuantity(item.getQuantity());
                     detail.setDeliveryInfo(deliveryInfo);
 
-                    // 각 상세 항목별 총 금액 계산 후 세팅
                     BigDecimal itemTotalAmount = product.getSalePrice()
                             .multiply(BigDecimal.valueOf(item.getQuantity()));
                     detail.setTotalAmount(itemTotalAmount);
@@ -95,7 +102,6 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
 
         SupplierDeliveryInfo savedInfo = supplierDeliveryInfoCommandRepository.save(deliveryInfo);
 
-        // 저장된 deliveryInfo 엔티티 참조로 각 detail에 다시 세팅
         details.forEach(detail -> detail.setDeliveryInfo(savedInfo));
 
         supplierDeliveryDetailRepository.saveAll(details);
@@ -126,6 +132,72 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
         }
 
         return codePrefix + String.format("%04d", nextNumber);
+    }
+
+    @Transactional
+    public void modifyDeliveryInfo(DeliveryInfoModifyDTO dto, Long supplierId, String supplierCode) {
+        SupplierDeliveryInfo deliveryInfo = supplierDeliveryInfoCommandRepository.findByIdAndSupplierId(dto.getId(), supplierId)
+                .orElseThrow(() -> new NotFoundDeliveryInfoException("납품서를 찾을 수 없습니다."));
+
+        if (deliveryInfo.getYear() != null || deliveryInfo.getMonth() != null || deliveryInfo.getDay() != null) {
+            throw new CannotModifyDeliveryInfoException("이미 납품일이 기입된 납품서는 수정할 수 없습니다.");
+        }
+
+        if (dto.getExpectedDate() != null) {
+            deliveryInfo.setExpectedDate(dto.getExpectedDate());
+        }
+        if (dto.getDeliveryCompanyName() != null) {
+            deliveryInfo.setDeliveryCompanyName(dto.getDeliveryCompanyName());
+        }
+        if (dto.getVehicleNumber() != null) {
+            deliveryInfo.setVehicleNumber(dto.getVehicleNumber());
+        }
+        if (dto.getTrackingNumber() != null) {
+            deliveryInfo.setTrackingNumber(dto.getTrackingNumber());
+        }
+
+        if (dto.getItems() != null) {
+            syncDeliveryItems(deliveryInfo, dto.getItems());
+        }
+    }
+
+    private void syncDeliveryItems(SupplierDeliveryInfo deliveryInfo, List<DeliveryItemModifyDTO> updatedItems) {
+        Map<Long, SupplierDeliveryDetail> currentItemsMap = deliveryInfo.getDetails().stream()
+                .collect(Collectors.toMap(item -> item.getProduct().getId(), item -> item));
+
+        Set<Long> updatedProductIds = updatedItems.stream()
+                .map(DeliveryItemModifyDTO::getProductId)
+                .collect(Collectors.toSet());
+
+        List<SupplierDeliveryDetail> itemsToRemove = deliveryInfo.getDetails().stream()
+                .filter(item -> !updatedProductIds.contains(item.getProduct().getId()))
+                .toList();
+
+        itemsToRemove.forEach(deliveryInfo::removeItem);
+
+        for (DeliveryItemModifyDTO dto : updatedItems) {
+            SupplierDeliveryDetail existingItem = currentItemsMap.get(dto.getProductId());
+            if (existingItem != null) {
+                existingItem.setQuantity(dto.getQuantity());
+
+                BigDecimal totalAmount = existingItem.getProduct().getSalePrice()
+                        .multiply(BigDecimal.valueOf(dto.getQuantity()));
+                existingItem.setTotalAmount(totalAmount);
+            } else {
+                ProductEntity product = productRepository.findById(dto.getProductId())
+                        .orElseThrow(() -> new ProductNotFoundException("자재가 없습니다: " + dto.getProductId()));
+
+                SupplierDeliveryDetail newItem = new SupplierDeliveryDetail();
+                newItem.setProduct(product);
+                newItem.setQuantity(dto.getQuantity());
+                newItem.setDeliveryInfo(deliveryInfo);
+
+                BigDecimal totalAmount = product.getSalePrice().multiply(BigDecimal.valueOf(dto.getQuantity()));
+                newItem.setTotalAmount(totalAmount);
+
+                deliveryInfo.addItem(newItem);
+            }
+        }
     }
 
 }
