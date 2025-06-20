@@ -76,4 +76,16 @@ public class UserQueryController {
 
         return ResponseEntity.ok().body(supplierUsers);
     }
+
+    @GetMapping("/groupedByDepartment")
+    @Operation(
+            summary = "부서별 본사 직원 전체 조회",
+            description = "부서별로 본사 직원 전체를 조회할 수 있습니다."
+    )
+    public ResponseEntity<List<SearchSupplierUserDTO>>  getHqUsersGroupedByDepartment() {
+
+        List<SearchSupplierUserDTO> list = userQueryService.getHqUsersGroupedByDepartment();
+
+        return ResponseEntity.ok().body(list);
+    }
 }

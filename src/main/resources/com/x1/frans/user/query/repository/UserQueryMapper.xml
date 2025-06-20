@@ -184,4 +184,30 @@
          WHERE department_id = #{departmentId}
     </select>
 
+
+    <resultMap id="departmentUserGroupResultMap" type="com.x1.frans.user.query.dto.DepartmentUserGroupDTO">
+        <id property="departmentId" column="departmentId"/>
+        <result property="departmentName" column="departmentName"/>
+
+        <collection property="users" ofType="com.x1.frans.user.query.dto.UserSimpleDTO">
+            <id property="userId" column="id"/>
+            <result property="userName" column="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getHqUsersGroupedByDepartment" resultMap="departmentUserGroupResultMap">
+        SELECT
+               d.id AS departmentId
+             , d.name AS departmentName
+             , u.id
+             , u.name
+        FROM department d
+        JOIN hq_user_detail hud ON hud.department_id = d.id
+        JOIN user u
+            ON hud.user_id = u.id
+            AND u.type = 'HQ'
+            AND u.is_deleted = false
+        ORDER BY d.name, u.name
+    </select>
+
 </mapper>

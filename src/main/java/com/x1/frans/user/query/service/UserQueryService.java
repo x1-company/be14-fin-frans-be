@@ -25,4 +25,6 @@ public interface UserQueryService extends UserDetailsService {
     HqUserDepartmentDTO getDepartmentInfo(Long userId);
 
     List<Long> getAccessibleFranchiseIdsForUser(Long userId);
+
+    List<SearchSupplierUserDTO> getHqUsersGroupedByDepartment();
 }

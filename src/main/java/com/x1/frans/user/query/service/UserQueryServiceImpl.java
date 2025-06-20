@@ -95,4 +95,9 @@ public class UserQueryServiceImpl implements UserQueryService {
         return userQueryMapper.findFranchiseIdsByDepartmentId(dept.getDepartmentId());
     }
 
+    @Override
+    public List<SearchSupplierUserDTO> getHqUsersGroupedByDepartment() {
+
+        return userQueryMapper.getHqUsersGroupedByDepartment();
+    }
 }
