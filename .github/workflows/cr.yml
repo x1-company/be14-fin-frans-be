@@ -75,6 +75,11 @@ jobs:
                 credentials:
                   accessKey: \${AWS_ACCESS_KEY_ID}
                   secretKey: \${AWS_SECRET_ACCESS_KEY}
+          token: 
+            access-expiration-time: 10000
+            refresh-expiration-time: 20000
+            secret: \${TOKEN_SECRET}
+            
           EOL
 
       - name: Set Yaml
@@ -95,6 +100,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
 
       - name: Build with Gradle
         run: ./gradlew clean build --info
