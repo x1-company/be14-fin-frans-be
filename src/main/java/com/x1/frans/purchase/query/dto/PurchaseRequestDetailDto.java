@@ -1,7 +1,7 @@
 package com.x1.frans.purchase.query.dto;
 
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
-import lombok.Getter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PurchaseRequestDetailDto {
     private Long id;
     private String code;
