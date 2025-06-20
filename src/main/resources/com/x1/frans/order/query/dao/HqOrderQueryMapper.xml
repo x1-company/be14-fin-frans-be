@@ -226,6 +226,9 @@
             ON f.manager_id = u.id
          WHERE o.status = 'REVIEW_COMPLETED'
            AND u.id = #{userId}
+         ORDER BY o.created_at
     </select>
+
+
 
 </mapper>
