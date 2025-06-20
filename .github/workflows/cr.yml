@@ -62,19 +62,19 @@ jobs:
                 mail.smtp.starttls.enable: true
           
             cloud:
-            aws:
-              s3:
-                bucket: \${S3_BUCKET_NAME}
-                path:
-                  return: return
-                  approval: approval
-              region:
-                static: ap-northeast-2
-              stack:
-                auto: false
-              credentials:
-                accessKey: \${AWS_ACCESS_KEY_ID}
-                secretKey: \${AWS_SECRET_ACCESS_KEY}
+              aws:
+                s3:
+                  bucket: \${S3_BUCKET_NAME}
+                  path:
+                    return: return
+                    approval: approval
+                region:
+                  static: ap-northeast-2
+                stack:
+                  auto: false
+                credentials:
+                  accessKey: \${AWS_ACCESS_KEY_ID}
+                  secretKey: \${AWS_SECRET_ACCESS_KEY}
           EOL
 
       - name: Set Yaml
