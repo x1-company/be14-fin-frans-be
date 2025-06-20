@@ -56,6 +56,7 @@ public class JwtUtil {
             }
             case SUPPLIER -> {
                 claims.put("supplierId", userDetails.getSupplierId());
+                claims.put("supplierCode", userDetails.getSupplierCode());
                 claims.put("supplierName", userDetails.getSupplierName());
             }
         }

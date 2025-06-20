@@ -74,6 +74,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getSupplierId();
     }
 
+    public String getSupplierCode() {
+        return user.getSupplierCode();
+    }
+
     public Long getFranchiseId() {
         return user.getFranchiseId();
     }

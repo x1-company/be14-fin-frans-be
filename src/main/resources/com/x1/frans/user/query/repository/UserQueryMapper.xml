@@ -49,6 +49,7 @@
         <result property="dutyId" column="dutyId"/>
         <result property="dutyName" column="dutyName"/>
         <result property="supplierId" column="supplierId"/>
+        <result property="supplierCode" column="supplierCode"/>
         <result property="franchiseId" column="franchiseId"/>
         <result property="franchiseName" column="franchiseName"/>
         <result property="supplierName" column="supplierName"/>
@@ -80,6 +81,7 @@
 
              -- SUPPLIER
              , g.`id` AS `supplierId`
+             , g.`code` AS `supplierCode`
              , g.`name` AS `supplierName`
           FROM `user` a
           LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
