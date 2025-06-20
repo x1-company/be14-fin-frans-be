@@ -12,4 +12,5 @@ import lombok.Setter;
 public class UserSimpleDTO {
     private Long userId;
     private String userName;
+    private String position;
 }

@@ -191,7 +191,8 @@
 
         <collection property="users" ofType="com.x1.frans.user.query.dto.UserSimpleDTO">
             <id property="userId" column="id"/>
-            <result property="userName" column="name"/>
+            <result property="userName" column="userName"/>
+            <result property="position" column="positionName"/>
         </collection>
     </resultMap>
 
@@ -200,9 +201,11 @@
                d.id AS departmentId
              , d.name AS departmentName
              , u.id
-             , u.name
+             , u.name AS userName
+             , pos.name AS positionName
         FROM department d
         JOIN hq_user_detail hud ON hud.department_id = d.id
+        JOIN position pos ON pos.id = hud.position_id
         JOIN user u
             ON hud.user_id = u.id
             AND u.type = 'HQ'
