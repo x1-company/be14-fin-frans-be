@@ -1,9 +1,13 @@
 package com.x1.frans.purchase.query.dto;
 
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestProductEntity;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PurchaseRequestProductSimpleDto {
     private Long id;
     private Integer no;
