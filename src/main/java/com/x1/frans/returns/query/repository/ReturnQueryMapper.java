@@ -35,4 +35,6 @@ public interface ReturnQueryMapper {
     List<ReturnFileEntity> findReturnFilesById(@Param("returnId") Long returnId);
 
     List<ReturnProductDTO> findReturnProductsById(@Param("returnId") Long returnId);
+
+    List<HqReturnReviewCompltedDTO> findReturnReviewCompletedById(Long userId);
 }

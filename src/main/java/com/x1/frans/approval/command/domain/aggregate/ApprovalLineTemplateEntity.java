@@ -5,6 +5,7 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ApprovalLineTemplateEntity {
     private String description;
 
     @Column(nullable = false)
-    private Integer seq;
+    private BigDecimal seq;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

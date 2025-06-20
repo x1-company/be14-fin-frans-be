@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -90,10 +91,17 @@ public class SecurityConfig {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy("""
         ROLE_ADMIN > ROLE_HQ
-        ROLE_ADMIN > ROLE_FRANCHISE
-        ROLE_ADMIN > ROLE_SUPPLIER
+        ROLE_HQ > ROLE_FRANCHISE
+        ROLE_HQ > ROLE_SUPPLIER
     """);
         return roleHierarchy;
+    }
+
+    @Bean
+    public DefaultWebSecurityExpressionHandler customWebSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+        DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy);
+        return handler;
     }
 
 
@@ -105,38 +113,38 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize ->
 
-                        // TODO: 개발용 설정. 배포 시 변경 필요
-                        authorize
-                                // ADMIN 전용 API 보호
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // TODO: 개발용 설정. 배포 시 변경 필요
+                authorize
+                        // ADMIN 전용 API 보호
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
 
-                                // Swagger 관련 리소스 전부 허용
-                                .requestMatchers(
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-resources/**",
-                                        "/webjars/**",
-                                        "/api-docs/**"
-                                ).permitAll()
+                        // Swagger 관련 리소스 전부 허용
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/api-docs/**"
+                        ).permitAll()
 
-                                // auth 관련 기능
-                                .requestMatchers("/api/auth/**").permitAll()
+                        // auth 관련 기능
+                        .requestMatchers("/api/auth/**").permitAll()
 
-                                // 본사 전용
-                                .requestMatchers("/api/hq/**").hasRole("HQ")
+                        // 본사 전용
+                        .requestMatchers("/api/hq/**").hasRole("HQ")
 
-                                // 가맹점 전용
-                                .requestMatchers("/api/franchise/**").hasRole("FRANCHISE")
+                        // 가맹점 전용
+                        .requestMatchers("/api/franchise/**").hasRole("FRANCHISE")
 
-                                // 공급사 전용 예시
-                                .requestMatchers("/api/supplier/**").hasRole("SUPPLIER")
+                        // 공급사 전용 예시
+                        .requestMatchers("/api/supplier/**").hasRole("SUPPLIER")
 
-                                // AWS 관련 기능
-                                .requestMatchers("/api/upload/**").permitAll()
+                        // AWS 관련 기능
+                        .requestMatchers("/api/upload/**").permitAll()
 
-                                // 알림 구독
-                                .requestMatchers("/api/notification/**").authenticated()
+                        // 알림 구독
+                        .requestMatchers("/api/notification/**").authenticated()
 
         );
 

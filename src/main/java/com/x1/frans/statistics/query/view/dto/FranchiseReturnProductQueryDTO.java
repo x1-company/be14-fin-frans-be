@@ -19,6 +19,9 @@ public class FranchiseReturnProductQueryDTO {
     @Schema(description = "가맹점 자재별 월 반품량 통계 id")
     private Long id;
 
+    @Schema(description = "가맹점 이름")
+    private String franchiseName;
+
     @Schema(description = "연도")
     private Integer year;
 

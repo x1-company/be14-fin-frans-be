@@ -15,4 +15,6 @@ public interface ReturnQueryService {
     HqReturnDetailDTO findHqReturnDetailById(Long userId, Long returnId);
 
     ReturnDetailDTO findReturnDetailById(Long userId, Long returnId);
+
+    List<HqReturnReviewCompltedDTO> findReturnReviewCompletedById(Long userId);
 }

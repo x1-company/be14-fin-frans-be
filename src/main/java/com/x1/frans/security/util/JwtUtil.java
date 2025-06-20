@@ -50,8 +50,15 @@ public class JwtUtil {
                 claims.put("dutyId", userDetails.getDutyId());
                 claims.put("userSignUrl", userDetails.getSignUrl());
             }
-            case FRANCHISE -> claims.put("franchiseId", userDetails.getFranchiseId());
-            case SUPPLIER -> claims.put("supplierId", userDetails.getSupplierId());
+            case FRANCHISE -> {
+                claims.put("franchiseId", userDetails.getFranchiseId());
+                claims.put("franchiseName", userDetails.getFranchiseName());
+            }
+            case SUPPLIER -> {
+                claims.put("supplierId", userDetails.getSupplierId());
+                claims.put("supplierCode", userDetails.getSupplierCode());
+                claims.put("supplierName", userDetails.getSupplierName());
+            }
         }
 
         List<String> roles = userDetails.getAuthorities().stream()

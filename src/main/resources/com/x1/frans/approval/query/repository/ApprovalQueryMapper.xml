@@ -1088,12 +1088,14 @@
           FROM approval_line_template alt
           JOIN user u ON u.id = alt.user_id
          WHERE u.id = #{userId}
+         ORDER BY alt.seq DESC
 
     </select>
 <!--    결재선 템플릿 상세 조회-->
     <select id="getApprovalLineDetailTemplates" resultType="com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO">
         SELECT
                alt.id AS templateId
+             , u.id AS userId
              , u.name AS userName
              , altd.type
              , dept.name AS departmentName

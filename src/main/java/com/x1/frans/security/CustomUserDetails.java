@@ -74,8 +74,20 @@ public class CustomUserDetails implements UserDetails {
         return user.getSupplierId();
     }
 
+    public String getSupplierCode() {
+        return user.getSupplierCode();
+    }
+
     public Long getFranchiseId() {
         return user.getFranchiseId();
+    }
+
+    public String getSupplierName() {
+        return user.getSupplierName();
+    }
+
+    public String getFranchiseName() {
+        return user.getFranchiseName();
     }
 
     // 주의. org.springframework.boot version 3.5.0 => 3.2.5로 변경하면서 필수적으로 오버라딩해야 하는 메소드들

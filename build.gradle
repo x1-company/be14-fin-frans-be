@@ -23,6 +23,11 @@ repositories {
     mavenCentral()
 }
 
+// Github actions
+jar {
+    enabled = false
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
@@ -37,6 +42,7 @@ dependencies {
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'com.h2database:h2'
 
     // AWS
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'

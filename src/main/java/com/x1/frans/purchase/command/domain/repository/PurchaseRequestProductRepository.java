@@ -9,4 +9,5 @@ import java.util.List;
 public interface PurchaseRequestProductRepository extends JpaRepository<PurchaseRequestProductEntity, Long> {
     void deleteByPurchaseRequest(PurchaseRequestEntity entity);
     List<PurchaseRequestProductEntity> findByPurchaseRequest(PurchaseRequestEntity purchaseRequest);
+    boolean existsByPurchaseRequestIdAndProductId(Long purchaseRequestId, Long productId);
 }
