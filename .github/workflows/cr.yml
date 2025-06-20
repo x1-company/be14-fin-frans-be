@@ -60,6 +60,21 @@ jobs:
               properties:
                 mail.smtp.auth: true
                 mail.smtp.starttls.enable: true
+          
+            cloud:
+            aws:
+              s3:
+                bucket: \${S3_BUCKET_NAME}
+                path:
+                  return: return
+                  approval: approval
+              region:
+                static: ap-northeast-2
+              stack:
+                auto: false
+              credentials:
+                accessKey: \${AWS_ACCESS_KEY_ID}
+                secretKey: \${AWS_SECRET_ACCESS_KEY}
           EOL
 
       - name: Set Yaml
@@ -77,6 +92,9 @@ jobs:
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
 
       - name: Build with Gradle
         run: ./gradlew clean build --info
