@@ -51,6 +51,15 @@ jobs:
               properties:
                 hibernate:
                   '[format_sql]': true
+          
+            mail:
+              host: \${MAIL_HOST}
+              port: \${MAIL_PORT}
+              username: \${MAIL_USERNAME}
+              password: \${MAIL_PASSWORD}
+              properties:
+                mail.smtp.auth: true
+                mail.smtp.starttls.enable: true
           EOL
 
       - name: Set Yaml
