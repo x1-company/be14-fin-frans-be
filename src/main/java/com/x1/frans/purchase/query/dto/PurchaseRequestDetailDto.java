@@ -24,6 +24,8 @@ public class PurchaseRequestDetailDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<PurchaseRequestProductSimpleDto> products;
+    private String userName;
+    private String userEmail;
 
     public PurchaseRequestDetailDto(PurchaseRequestEntity entity) {
         this.id = entity.getId();
