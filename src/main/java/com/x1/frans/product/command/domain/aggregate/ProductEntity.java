@@ -35,6 +35,9 @@ public class ProductEntity {
     private String unit;
 
     @Column(nullable = false, length = 50)
+    private String purchaseUnit;
+
+    @Column(nullable = false, length = 50)
     private String spec;
 
     @Column(name = "is_active", nullable = false)
@@ -69,6 +72,7 @@ public class ProductEntity {
             BigDecimal purchasePrice,
             BigDecimal salePrice,
             String unit,
+            String purchaseUnit,
             String spec,
             boolean active,
             SupplierEntity supplier,
@@ -82,6 +86,7 @@ public class ProductEntity {
                 .purchasePrice(purchasePrice)
                 .salePrice(salePrice)
                 .unit(unit)
+                .purchaseUnit(purchaseUnit)
                 .spec(spec)
                 .active(active)
                 .createdAt(LocalDateTime.now())
@@ -100,6 +105,7 @@ public class ProductEntity {
             BigDecimal purchasePrice,
             BigDecimal salePrice,
             String unit,
+            String purchaseUnit,
             String spec,
             boolean active,
             SupplierEntity supplier,
@@ -112,6 +118,7 @@ public class ProductEntity {
         this.purchasePrice = purchasePrice;
         this.salePrice = salePrice;
         this.unit = unit;
+        this.purchaseUnit = purchaseUnit;
         this.spec = spec;
         this.active = active;
         this.supplier = supplier;
