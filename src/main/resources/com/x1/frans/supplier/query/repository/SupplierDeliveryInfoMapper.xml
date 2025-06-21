@@ -95,7 +95,8 @@
         <result property="requestedDeliveryDate" column="requestedDeliveryDate"/>
 
         <collection property="productList" ofType="com.x1.frans.supplier.query.dto.PurchaseOrderProductDTO">
-            <result property="productName" column="product_name"/>
+            <result property="productId" column="productId"/>
+            <result property="productName" column="productName"/>
             <result property="quantity" column="quantity"/>
             <result property="purchasePrice" column="purchasePrice"/>
             <result property="purchaseUnit" column="purchaseUnit"/>
@@ -109,9 +110,10 @@
              , a.total_amount AS totalAmount
              , a.requested_delivery_date AS requestedDeliveryDate
              , b.quantity
-             , c.name AS product_name
+             , c.name AS productName
              , c.purchase_price AS purchasePrice
              , c.purchase_unit AS purchaseUnit
+             , c.id AS productId
           FROM purchase_order a
           LEFT JOIN purchase_order_product b ON a.id = b.purchase_order_id
           LEFT JOIN product c ON b.product_id = c.id
