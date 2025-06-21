@@ -75,6 +75,7 @@ public class SecurityConfig {
 
         // TODO: 배포 시 변경 필요
         CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("https://frans.co.kr"));
         config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // 개발 중 origin
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
