@@ -3,6 +3,7 @@ package com.x1.frans.approval.query.service;
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
 import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
 import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
+import com.x1.frans.approval.query.dto.ApprovalReceivedListDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
@@ -207,6 +208,21 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalListCooperateMyCompletedAll(userId);
     }
 
+
+    @Override
+    public List<ApprovalReceivedListDTO> getApprovalListReceivedInProgress(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedInProgress(userId);
+    }
+
+    @Override
+    public List<ApprovalReceivedListDTO> getApprovalListReceivedApproved(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedApproved(userId);
+    }
+
+    @Override
+    public List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedRejected(userId);
+    }
 }
 
 

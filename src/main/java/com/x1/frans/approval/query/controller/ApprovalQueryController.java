@@ -2,6 +2,7 @@ package com.x1.frans.approval.query.controller;
 
 import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
 import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
+import com.x1.frans.approval.query.dto.ApprovalReceivedListDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.ApprovalListDTO;
@@ -316,6 +317,34 @@ public class ApprovalQueryController {
 
         long userId = user.getUserId();
         List<ApprovalLineTemplateDetailDTO> list = approvalQueryService.getApprovalLineDetailTemplates(userId, templateId);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @Operation(summary = "결재 중인 수신받은 문서 목록조회", description = "결재 중인 수신받은 문서 목록 조회할 수 있다.")
+    @GetMapping("/list/received/in-progress")
+    public ResponseEntity<List<ApprovalReceivedListDTO>> getApprovalListReceivedInProgress(@AuthenticationPrincipal CustomUserDetails user) {
+
+        long userId = user.getUserId();
+        List<ApprovalReceivedListDTO> list = approvalQueryService.getApprovalListReceivedInProgress(userId);
+
+        return ResponseEntity.ok(list);
+    }
+    @Operation(summary = "결재 완료인 수신받은 문서 목록조회", description = "결재 완료인 수신받은 문서 목록 조회할 수 있다.")
+    @GetMapping("/list/received/approved")
+    public ResponseEntity<List<ApprovalReceivedListDTO>> getApprovalListReceivedApproved(@AuthenticationPrincipal CustomUserDetails user) {
+
+        long userId = user.getUserId();
+        List<ApprovalReceivedListDTO> list = approvalQueryService.getApprovalListReceivedApproved(userId);
+
+        return ResponseEntity.ok(list);
+    }
+    @Operation(summary = "결재 반려인 수신받은 문서 목록조회", description = "결재 반려인 수신받은 문서 목록조회 할 수 있다.")
+    @GetMapping("/list/received/rejected")
+    public ResponseEntity<List<ApprovalReceivedListDTO>> getApprovalListReceivedRejected(@AuthenticationPrincipal CustomUserDetails user) {
+
+        long userId = user.getUserId();
+        List<ApprovalReceivedListDTO> list = approvalQueryService.getApprovalListReceivedRejected(userId);
 
         return ResponseEntity.ok(list);
     }
