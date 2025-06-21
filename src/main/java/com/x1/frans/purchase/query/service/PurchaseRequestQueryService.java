@@ -19,4 +19,6 @@ public interface PurchaseRequestQueryService {
     Page<PurchaseRequestSimpleDto> getDraftPurchaseRequests(Pageable pageable);
 
     PurchaseRequestDetailDto getDraftDetail(Long id);
+
+    Page<PurchaseRequestSimpleDto> getAllRequests(Pageable pageable);
 }
