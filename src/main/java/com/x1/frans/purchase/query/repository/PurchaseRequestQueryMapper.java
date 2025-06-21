@@ -14,29 +14,28 @@ public interface PurchaseRequestQueryMapper {
     List<PurchaseRequestSimpleDto> selectByStatus(@Param("status") String status,
                                                   @Param("limit") int limit,
                                                   @Param("offset") int offset);
-
     int countByStatus(@Param("status") String status);
 
     List<PurchaseRequestSimpleDto> selectByTitle(@Param("title") String title,
                                                  @Param("limit") int limit,
                                                  @Param("offset") int offset);
-
     int countByTitle(@Param("title") String title);
 
     List<PurchaseRequestSimpleDto> selectByCode(@Param("code") String code,
                                                 @Param("limit") int limit,
                                                 @Param("offset") int offset);
-
     int countByCode(@Param("code") String code);
 
-    PurchaseRequestDetailDto selectDetailById(@Param("id") Long id);
-
-    List<PurchaseRequestProductSimpleDto> selectProductsByRequestId(@Param("requestId") Long requestId);
+    List<PurchaseRequestSimpleDto> selectAllRequests(@Param("limit") int limit,
+                                                     @Param("offset") int offset);
+    int countAllRequests();
 
     List<PurchaseRequestSimpleDto> selectDrafts(@Param("limit") int limit,
                                                 @Param("offset") int offset);
-
     int countDrafts();
 
+    PurchaseRequestDetailDto selectDetailById(@Param("id") Long id);
     PurchaseRequestDetailDto selectDraftDetailById(@Param("id") Long id);
+
+    List<PurchaseRequestProductSimpleDto> selectProductsByRequestId(@Param("requestId") Long requestId);
 }
