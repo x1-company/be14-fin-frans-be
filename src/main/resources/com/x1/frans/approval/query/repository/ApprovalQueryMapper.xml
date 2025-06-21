@@ -1156,22 +1156,22 @@
     <!--  결재반려인 수신받은 문서  -->
     <select id="getApprovalListReceivedRejected" resultType="com.x1.frans.approval.query.dto.ApprovalReceivedListDTO">
         SELECT
-            a.id
+               a.id
              , a.title
              , u.name
              , dept.name AS departmentName
              , pos.name AS positionName
              , a.created_at
-        FROM approval a
-                 JOIN user u ON u.id = a.user_id
-                 JOIN hq_user_detail hud ON hud.user_id = u.id
-                 JOIN department dept ON dept.id = hud.department_id
-                 JOIN position pos ON pos.id = hud.position_id
-                 JOIN approval_line al ON al.approval_id = a.id
-                 JOIN user Approver ON Approver.id = al.user_id
-        WHERE Approver.id = #{userId}
-          AND a.status = 'REJECTED'
-        ORDER BY a.created_at
+          FROM approval a
+          JOIN user u ON u.id = a.user_id
+          JOIN hq_user_detail hud ON hud.user_id = u.id
+          JOIN department dept ON dept.id = hud.department_id
+          JOIN position pos ON pos.id = hud.position_id
+          JOIN approval_line al ON al.approval_id = a.id
+          JOIN user Approver ON Approver.id = al.user_id
+         WHERE Approver.id = #{userId}
+           AND a.status = 'REJECTED'
+         ORDER BY a.created_at
     </select>
 
 </mapper>
