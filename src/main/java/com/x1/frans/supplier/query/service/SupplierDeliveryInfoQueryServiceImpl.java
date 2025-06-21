@@ -1,5 +1,7 @@
 package com.x1.frans.supplier.query.service;
 
+import com.x1.frans.supplier.query.dto.DeliveryInfoDetailsDTO;
+import com.x1.frans.supplier.query.dto.RequestedDeliveryInfoDTO;
 import com.x1.frans.supplier.query.dto.SupplierDeliveryInfoDTO;
 import com.x1.frans.supplier.query.repository.SupplierDeliveryInfoMapper;
 import java.util.List;
@@ -20,6 +22,16 @@ public class SupplierDeliveryInfoQueryServiceImpl implements SupplierDeliveryInf
     public List<SupplierDeliveryInfoDTO> findDeliveryInfos(Long supplierId, Integer year, Integer month, Integer day) {
         // 매퍼 쿼리 호출
         return supplierDeliveryInfoMapper.findDeliveryInfos(supplierId, year, month, day);
+    }
+
+    @Override
+    public List<RequestedDeliveryInfoDTO> getRequestedPurchaseOrders(Long supplierId, String type) {
+        return supplierDeliveryInfoMapper.getRequestedPurchaseOrders(supplierId, type);
+    }
+
+    @Override
+    public DeliveryInfoDetailsDTO getPurchaseOrderDetail(Long purchaseOrderId, Long supplierId) {
+        return supplierDeliveryInfoMapper.getPurchaseOrderDetail(purchaseOrderId, supplierId);
     }
 }
 
