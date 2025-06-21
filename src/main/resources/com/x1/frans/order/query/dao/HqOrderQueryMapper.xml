@@ -39,8 +39,11 @@
             <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <if test="status != null and status.trim() != ''">
-                AND o.status = #{status}
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="userId != null">
@@ -84,8 +87,11 @@
             <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <if test="status != null and status.trim() != ''">
-                AND o.status = #{status}
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="userId != null">
