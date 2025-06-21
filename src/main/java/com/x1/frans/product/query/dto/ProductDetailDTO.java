@@ -60,4 +60,8 @@ public class ProductDetailDTO {
 
     @Schema(description = "주문 수량")
     private Integer quantity;
+
+    @Schema(description = "사용 여부")
+    private Boolean isActive;
+
 }
