@@ -1,5 +1,6 @@
 package com.x1.frans.approval.command.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApprovalCreateRequestDTO {
 
     @Schema(description = "결재 제목")
