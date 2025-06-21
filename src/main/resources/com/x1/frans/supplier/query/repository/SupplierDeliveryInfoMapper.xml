@@ -69,6 +69,7 @@
              , `a`.`code` AS `purchaseOrderCode`
              , `a`.`total_amount` AS `totalAmount`
              , `a`.`requested_delivery_date` AS `requestedDeliveryDate`
+             , `d`.`date` AS `deliveredDate`
           FROM `purchase_order` `a`
           JOIN `purchase_order_approval` `b` ON `a`.`id` = `b`.`purchase_order_id`
           JOIN `approval` `c` ON `b`.`approval_id` = `c`.`id`

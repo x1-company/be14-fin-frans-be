@@ -18,4 +18,5 @@ public class RequestedDeliveryInfoDTO {
     private String purchaseOrderCode;
     private BigDecimal totalAmount;
     private LocalDate requestedDeliveryDate;
+    private LocalDate deliveredDate;
 }
