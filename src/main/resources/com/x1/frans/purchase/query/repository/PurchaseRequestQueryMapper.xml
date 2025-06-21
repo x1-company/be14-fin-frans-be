@@ -4,6 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.x1.frans.purchase.query.repository.PurchaseRequestQueryMapper">
 
+    <!-- Simple 목록 DTO -->
     <resultMap id="purchaseRequestSimpleResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestSimpleDto">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
@@ -13,8 +14,10 @@
         <result property="totalAmount" column="total_amount"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+        <result property="userName" column="user_name"/>
     </resultMap>
 
+    <!-- 제품 DTO -->
     <resultMap id="purchaseRequestProductResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto">
         <id property="id" column="product_id"/>
         <result property="no" column="no"/>
@@ -23,6 +26,7 @@
         <result property="productId" column="product_id"/>
     </resultMap>
 
+    <!-- 상세 DTO -->
     <resultMap id="purchaseRequestDetailResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestDetailDto">
         <id property="id" column="id"/>
         <result property="code" column="code"/>
@@ -32,33 +36,52 @@
         <result property="totalAmount" column="total_amount"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+        <result property="userName" column="user_name"/>
+        <result property="userEmail" column="user_email"/>
         <collection property="products" ofType="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto"
                     resultMap="purchaseRequestProductResultMap"/>
     </resultMap>
 
-    <!-- 목록 조회 쿼리들 -->
+    <!-- 목록 쿼리들 -->
     <select id="selectByStatus" resultMap="purchaseRequestSimpleResultMap">
-        SELECT * FROM purchase_request
-        WHERE status = #{status}
-        ORDER BY created_at DESC
+        SELECT pr.*, u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.status = #{status}
+        ORDER BY pr.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
 
     <select id="selectByTitle" resultMap="purchaseRequestSimpleResultMap">
-        SELECT * FROM purchase_request
-        WHERE title LIKE CONCAT('%', #{title}, '%')
-        ORDER BY created_at DESC
+        SELECT pr.*, u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.title LIKE CONCAT('%', #{title}, '%')
+        ORDER BY pr.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
 
     <select id="selectByCode" resultMap="purchaseRequestSimpleResultMap">
-        SELECT * FROM purchase_request
-        WHERE code LIKE CONCAT('%', #{code}, '%')
-        ORDER BY created_at DESC
+        SELECT pr.*, u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.code LIKE CONCAT('%', #{code}, '%')
+        ORDER BY pr.created_at DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="selectDrafts" resultMap="purchaseRequestSimpleResultMap">
+        SELECT pr.*, u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.is_requested = false
+        ORDER BY pr.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -66,10 +89,31 @@
 
     <!-- 상세 조회 -->
     <select id="selectDetailById" resultMap="purchaseRequestDetailResultMap">
-        SELECT * FROM purchase_request
-        WHERE id = #{id}
+        SELECT pr.*, u.name AS user_name, u.email AS user_email
+        FROM purchase_request pr
+                 JOIN user u ON pr.user_id = u.id
+        WHERE pr.id = #{id}
     </select>
 
+    <select id="selectDraftDetailById" resultMap="purchaseRequestDetailResultMap">
+        SELECT
+            pr.id,
+            pr.code,
+            pr.title,
+            pr.status,
+            pr.requested_delivery_date,
+            pr.total_amount,
+            pr.created_at,
+            pr.updated_at,
+            u.name AS user_name,
+            u.email AS user_email
+        FROM purchase_request pr
+                 JOIN user u ON pr.user_id = u.id
+        WHERE pr.id = #{id}
+          AND pr.is_requested = false
+    </select>
+
+    <!-- 자재 목록 -->
     <select id="selectProductsByRequestId" resultMap="purchaseRequestProductResultMap">
         SELECT id AS product_id, no, quantity, remarks, product_id
         FROM purchase_request_product
@@ -88,6 +132,10 @@
 
     <select id="countByCode" resultType="int">
         SELECT COUNT(*) FROM purchase_request WHERE code LIKE CONCAT('%', #{code}, '%')
+    </select>
+
+    <select id="countDrafts" resultType="int">
+        SELECT COUNT(*) FROM purchase_request WHERE status = '임시저장'
     </select>
 
 </mapper>
