@@ -64,4 +64,10 @@ public class PurchaseRequestQueryController {
     public PurchaseRequestDetailDto getDetail(@PathVariable Long id) {
         return purchaseRequestQueryServiceImpl.getDetail(id);
     }
+
+    @GetMapping
+    @Operation(summary = "구매 요청 전체 목록 조회", description = "임시저장을 제외한 모든 상태의 구매 요청을 조회한다.")
+    public Page<PurchaseRequestSimpleDto> getAllRequests(Pageable pageable) {
+        return purchaseRequestQueryServiceImpl.getAllRequests(pageable);
+    }
 }

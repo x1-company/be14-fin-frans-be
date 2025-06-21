@@ -79,4 +79,13 @@ public class PurchaseRequestQueryServiceImpl implements PurchaseRequestQueryServ
         dto.setProducts(products);
         return dto;
     }
+
+    @Override
+    public Page<PurchaseRequestSimpleDto> getAllRequests(Pageable pageable) {
+        int total = purchaseRequestQueryMapper.countAllRequests();
+        List<PurchaseRequestSimpleDto> list = purchaseRequestQueryMapper.selectAllRequests(
+                pageable.getPageSize(), (int) pageable.getOffset()
+        );
+        return new PageImpl<>(list, pageable, total);
+    }
 }

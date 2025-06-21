@@ -87,6 +87,21 @@
         </if>
     </select>
 
+    <select id="selectAllRequests" resultMap="purchaseRequestSimpleResultMap">
+        SELECT pr.*, u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.status != '임시저장'
+        ORDER BY pr.created_at DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countAllRequests" resultType="int">
+        SELECT COUNT(*) FROM purchase_request WHERE status != '임시저장'
+    </select>
+
     <!-- 상세 조회 -->
     <select id="selectDetailById" resultMap="purchaseRequestDetailResultMap">
         SELECT pr.*, u.name AS user_name, u.email AS user_email
