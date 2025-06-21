@@ -1,9 +1,6 @@
 package com.x1.frans.approval.query.repository;
 
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
-import com.x1.frans.approval.query.dto.ApprovalListDTO;
-import com.x1.frans.approval.query.dto.ApprovalListLineDTO;
+import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
 import com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO;
@@ -117,4 +114,11 @@ public interface ApprovalQueryMapper  {
     List<ApprovalListLineDTO> findApprovalListLine(@Param("approvalId") Long approvalId);
 
     List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId);
+
+    // 수신 목록 조회
+    List<ApprovalReceivedListDTO> getApprovalListReceivedInProgress(long userId);
+
+    List<ApprovalReceivedListDTO> getApprovalListReceivedApproved(long userId);
+
+    List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId);
 }
