@@ -1,4 +1,4 @@
-package com.x1.frans.order.query.dto;
+package com.x1.frans.purchaseorder.query.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,13 +8,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class OrderReviewCompletedListDto {
+public class PurchaseOrderRequestPendingListDto {
 
     private Long id;
     private String code;
-    private String status;
-    private LocalDateTime createdAt;
+    private String supplierName;
     private BigDecimal totalAmount;
-    private String franchiseName;
-
+    private LocalDateTime createdAt;
 }

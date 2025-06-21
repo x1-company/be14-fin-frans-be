@@ -8,8 +8,8 @@ import com.x1.frans.purchase.command.application.service.dto.PurchaseRequestProd
 import com.x1.frans.purchase.command.application.service.dto.PurchaseRequestUpdateCommand;
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestProductEntity;
-import com.x1.frans.purchase.command.domain.repository.PurchaseRequestProductRepository;
-import com.x1.frans.purchase.command.domain.repository.PurchaseRequestRepository;
+import com.x1.frans.purchase.command.domain.repository.PurchaseRequestProductMapper;
+import com.x1.frans.purchase.command.domain.repository.PurchaseRequestMapper;
 import com.x1.frans.purchase.enums.PurchaseRequestStatus;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
@@ -27,20 +27,20 @@ import java.util.*;
 @Service
 public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommandService {
 
-    private final PurchaseRequestRepository purchaseRequestRepository;
-    private final PurchaseRequestProductRepository purchaseRequestProductRepository;
+    private final PurchaseRequestMapper purchaseRequestMapper;
+    private final PurchaseRequestProductMapper purchaseRequestProductMapper;
     private final UserCommandRepository userCommandRepository;
     private final HqUserDetailCommandRepository hqUserDetailCommandRepository;
     private final ProductRepository productRepository;
 
     @Autowired
-    public PurchaseRequestCommandServiceImpl(PurchaseRequestRepository purchaseRequestRepository,
-                                             PurchaseRequestProductRepository purchaseRequestProductRepository,
+    public PurchaseRequestCommandServiceImpl(PurchaseRequestMapper purchaseRequestMapper,
+                                             PurchaseRequestProductMapper purchaseRequestProductMapper,
                                              UserCommandRepository userCommandRepository,
                                              HqUserDetailCommandRepository hqUserDetailCommandRepository,
                                              ProductRepository productRepository) {
-        this.purchaseRequestRepository = purchaseRequestRepository;
-        this.purchaseRequestProductRepository = purchaseRequestProductRepository;
+        this.purchaseRequestMapper = purchaseRequestMapper;
+        this.purchaseRequestProductMapper = purchaseRequestProductMapper;
         this.userCommandRepository = userCommandRepository;
         this.hqUserDetailCommandRepository = hqUserDetailCommandRepository;
         this.productRepository = productRepository;
@@ -91,7 +91,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        purchaseRequestRepository.save(entity);
+        purchaseRequestMapper.save(entity);
 
         int idx = 1;
         for (PurchaseRequestProductCreateCommand p : command.getProducts()) {
@@ -102,7 +102,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                     .productId(p.getProductId())
                     .purchaseRequest(entity)
                     .build();
-            purchaseRequestProductRepository.save(product);
+            purchaseRequestProductMapper.save(product);
         }
 
         return entity.getId();
@@ -113,7 +113,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     @Override
     @Transactional
     public void update(Long purchaseRequestId, PurchaseRequestUpdateCommand command, Long userId) {
-        PurchaseRequestEntity entity = purchaseRequestRepository.findById(purchaseRequestId)
+        PurchaseRequestEntity entity = purchaseRequestMapper.findById(purchaseRequestId)
                 .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 정보 없음"));
 
         // isRequested(임시저장) 값 처리 (null이면 true)
@@ -134,7 +134,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         entity.setUpdatedAt(LocalDateTime.now());
 
         // 기존 자재 목록 가져오기
-        List<PurchaseRequestProductEntity> oldProducts = purchaseRequestProductRepository.findByPurchaseRequest(entity);
+        List<PurchaseRequestProductEntity> oldProducts = purchaseRequestProductMapper.findByPurchaseRequest(entity);
         Map<Long, PurchaseRequestProductEntity> oldMap = new HashMap<>();
         for (PurchaseRequestProductEntity p : oldProducts) {
             oldMap.put(p.getId(), p);
@@ -159,7 +159,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                         .productId(dto.getProductId())
                         .purchaseRequest(entity)
                         .build();
-                purchaseRequestProductRepository.save(add);
+                purchaseRequestProductMapper.save(add);
             } else {
                 // 기존 자재 수정
                 PurchaseRequestProductEntity exist = oldMap.get(dto.getId());
@@ -172,7 +172,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
                             .productId(dto.getProductId())
                             .purchaseRequest(entity)
                             .build();
-                    purchaseRequestProductRepository.save(exist);
+                    purchaseRequestProductMapper.save(exist);
                     newIds.add(dto.getId());
                 }
             }
@@ -180,7 +180,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         // 삭제: 기존 자재 중에 새 리스트에 없는 것 삭제
         for (PurchaseRequestProductEntity p : oldProducts) {
             if (!newIds.contains(p.getId())) {
-                purchaseRequestProductRepository.delete(p);
+                purchaseRequestProductMapper.delete(p);
             }
         }
 
@@ -190,7 +190,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     @Override
     @Transactional
     public void delete(Long purchaseRequestId, Long userId) {
-        PurchaseRequestEntity entity = purchaseRequestRepository.findById(purchaseRequestId)
+        PurchaseRequestEntity entity = purchaseRequestMapper.findById(purchaseRequestId)
                 .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 정보 없음"));
 
         // 유저 정보 조회
@@ -211,10 +211,10 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         }
 
         // 자재 삭제
-        purchaseRequestProductRepository.deleteByPurchaseRequest(entity);
+        purchaseRequestProductMapper.deleteByPurchaseRequest(entity);
 
         // 구매요청 삭제
-        purchaseRequestRepository.delete(entity);
+        purchaseRequestMapper.delete(entity);
     }
 
     // 구매팀만 허용
@@ -223,7 +223,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     @Override
     @Transactional
     public void changeStatus(Long purchaseRequestId, PurchaseRequestStatus status, Long userId) {
-        PurchaseRequestEntity entity = purchaseRequestRepository.findById(purchaseRequestId)
+        PurchaseRequestEntity entity = purchaseRequestMapper.findById(purchaseRequestId)
                 .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 정보 없음"));
 
         UserEntity user = userCommandRepository.findById(userId)
@@ -245,7 +245,7 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     }
 
     private String generateNextPurchaseRequestCode() {
-        String lastCode = purchaseRequestRepository.findTopByOrderByIdDesc()
+        String lastCode = purchaseRequestMapper.findTopByOrderByIdDesc()
                 .map(PurchaseRequestEntity::getCode)
                 .orElse(null);
         if (lastCode == null || !lastCode.matches("PR-\\d{4}")) {

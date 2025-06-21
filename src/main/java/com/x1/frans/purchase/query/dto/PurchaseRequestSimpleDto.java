@@ -21,6 +21,7 @@ public class PurchaseRequestSimpleDto {
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String userName;
 
     public PurchaseRequestSimpleDto(PurchaseRequestEntity entity) {
         this.id = entity.getId();
