@@ -16,8 +16,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class HqReturnReviewCompltedDTO {
 
+    @Schema(description = "반품 ID")
+    private Long id;
+
     @Schema(description = "반품 코드")
     private String code;
+
+    @Schema(description = "가맹점명")
+    private String name;
 
     @Schema(description = "상태")
     private String status;
