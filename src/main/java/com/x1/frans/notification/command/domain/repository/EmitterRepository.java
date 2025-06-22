@@ -30,4 +30,6 @@ public interface EmitterRepository {
 
     boolean exists(String emitterId);
 
+    // 특정 id로 알림 캐시 삭제
+    void deleteEventCacheByNotificationId(String userId, Long notificationId);
 }

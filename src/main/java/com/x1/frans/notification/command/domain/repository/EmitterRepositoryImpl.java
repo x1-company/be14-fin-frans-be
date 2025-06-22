@@ -1,5 +1,6 @@
 package com.x1.frans.notification.command.domain.repository;
 
+import com.x1.frans.notification.command.domain.aggregate.Notification;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -70,6 +71,21 @@ public class EmitterRepositoryImpl implements EmitterRepository {
     @Override
     public boolean exists(String emitterId) {
         return emitters.containsKey(emitterId);
+    }
+
+    @Override
+    public void deleteEventCacheByNotificationId(String userId, Long notificationId) {
+        Map<String, Object> eventCaches = findAllEventCacheStartWithByUserId(userId);
+        for (Map.Entry<String, Object> entry : eventCaches.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Notification) {
+                Notification n = (Notification) value;
+                if (n.getId().equals(notificationId)) {
+                    // eventCacheMap → eventCache로 수정
+                    eventCache.remove(entry.getKey());
+                }
+            }
+        }
     }
 
 }
