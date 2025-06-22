@@ -197,6 +197,12 @@ public class NotificationService {
         }
 
         notificationRepository.deleteAll(readNotifications);
+
+        // 이벤트 캐시에서도 모두 삭제
+        String userIdStr = String.valueOf(user.getId());
+        for (Notification n : readNotifications) {
+            emitterRepository.deleteEventCacheByNotificationId(userIdStr, n.getId());
+        }
     }
 
     @Transactional
@@ -209,6 +215,10 @@ public class NotificationService {
         }
 
         notificationRepository.delete(notification);
+
+        // 이벤트 캐시에서도 해당 알림 삭제
+        String userIdStr = String.valueOf(user.getId());
+        emitterRepository.deleteEventCacheByNotificationId(userIdStr, id);
     }
 
     public void clearEmittersAndCache(UserEntity user) {
