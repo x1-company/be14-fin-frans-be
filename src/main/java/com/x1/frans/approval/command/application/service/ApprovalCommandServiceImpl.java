@@ -159,7 +159,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             NotificationTarget target = new NotificationTarget(
                     NotificationDomainType.APPROVAL,
                     approval.getId(),
-                    "/api/approvals/detail/" + approval.getId() + "/content"
+                    "/approval/" + approval.getId()
             );
 
             // 1. 결재자/협조자에게 알림 전송
@@ -318,7 +318,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         NotificationTarget target = new NotificationTarget(
                 NotificationDomainType.APPROVAL,
                 approval.getId(),
-                "결재 코드=" + approval.getCode()
+                "/approval/" + approval.getId()
         );
 
         approvalRequestNotificationSender.notifyApprovalRejected(approval.getId(), approval.getUser().getId(), target);
