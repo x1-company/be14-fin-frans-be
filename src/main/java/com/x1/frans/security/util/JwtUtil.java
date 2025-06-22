@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -67,12 +69,13 @@ public class JwtUtil {
 
         claims.put("roles", roles);
 
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + tokenProperties.getAccessExpirationTime());
+        ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime zonedExpiryDate = zonedNow.plusMinutes(tokenProperties.getAccessExpirationTime());
+        Date zonedDate = Date.from(zonedExpiryDate.toInstant());
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(expiryDate)
+                .setExpiration(zonedDate)
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -82,9 +85,13 @@ public class JwtUtil {
         Claims claims = Jwts.claims();
         claims.put("userCode", userCode);
 
+        ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime zonedExpiryDate = zonedNow.plusDays(tokenProperties.getRefreshExpirationTime());
+        Date zonedDate = Date.from(zonedExpiryDate.toInstant());
+
         return Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(new Date(System.currentTimeMillis() + tokenProperties.getRefreshExpirationTime()))
+                .setExpiration(zonedDate)
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
