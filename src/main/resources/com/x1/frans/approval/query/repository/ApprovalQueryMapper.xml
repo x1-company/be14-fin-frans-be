@@ -55,6 +55,7 @@
             ON dept.id = hud.department_id
           JOIN position pos
             ON pos.id = hud.position_id
+         WHERE u.id = #{userId}
     </select>
 
     <select id="getApprovalListDraft" resultMap="getApprovalListMap">
