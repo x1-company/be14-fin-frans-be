@@ -16,7 +16,9 @@ public interface SupplierDeliveryInfoMapper {
                                                     @Param("day") Integer day);
 
     List<RequestedDeliveryInfoDTO> getRequestedPurchaseOrders(@Param("supplierId") Long supplierId,
-                                                              @Param("type") String type);
+                                                              @Param("type") String type,
+                                                              @Param("startYearMonth") String startYearMonth,
+                                                              @Param("endYearMonth") String endYearMonth);
 
     DeliveryInfoDetailsDTO getPurchaseOrderDetail(@Param("purchaseOrderId") Long purchaseOrderId,
                                                   @Param("supplierId") Long supplierId);

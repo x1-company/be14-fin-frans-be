@@ -1,5 +1,6 @@
 package com.x1.frans.supplier.query.controller;
 
+import com.x1.frans.exception.InvalidSearchPeriodException;
 import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.supplier.query.dto.DeliveryInfoDetailsDTO;
 import com.x1.frans.supplier.query.dto.RequestedDeliveryInfoDTO;
@@ -45,16 +46,23 @@ public class SupplierDeliveryInfoQueryController {
     @GetMapping("/orders/{type}")
     @Operation(
             summary = "납품 정보 등록이 필요하거나 등록된 발주 목록 조회",
-            description = "type: requested, completed"
+            description = "type: requested, completed | YearMonth: 'yyyyMM'"
     )
     public ResponseEntity<List<RequestedDeliveryInfoDTO>> getRequestedPurchaseOrders(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable String type) {
+            @PathVariable String type,
+            @RequestParam(required = false) String startYearMonth,
+            @RequestParam(required = false) String endYearMonth) {
 
         Long supplierId = customUserDetails.getSupplierId();
 
+        if (startYearMonth == null || endYearMonth == null ||
+                (Integer.parseInt(endYearMonth) - Integer.parseInt(startYearMonth) > 5)) {
+            throw new InvalidSearchPeriodException("잘못된 기간입니다! 최대 6개월만 조회가 가능합니다.");
+        }
+
         List<RequestedDeliveryInfoDTO> requestedOrders = supplierDeliveryInfoQueryService
-                .getRequestedPurchaseOrders(supplierId, type);
+                .getRequestedPurchaseOrders(supplierId, type, startYearMonth, endYearMonth);
 
         return ResponseEntity.ok(requestedOrders);
     }
