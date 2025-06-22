@@ -127,6 +127,19 @@ jobs:
           cp -r .platform deploy/.platform
           cd deploy && zip -r deploy.zip .
 
+      - name: Check Beanstalk Environment Status
+        run: |
+          STATUS=$(aws elasticbeanstalk describe-environments --region ap-northeast-2 \
+            --environment-names Frans-be-blue-env --query "Environments[0].Status" \
+            --output text)
+          if [ "$STATUS" != "Ready" ]; then
+            echo "Environment is not Ready (current status: $STATUS)."
+            exit 1
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v22
         with:
