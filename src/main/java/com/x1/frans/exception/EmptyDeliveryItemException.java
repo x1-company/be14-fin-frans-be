@@ -1,6 +1,6 @@
-package com.x1.frans.exception.enums;
+package com.x1.frans.exception;
 
-import com.x1.frans.exception.BaseCustomException;
+import com.x1.frans.exception.enums.ErrorCode;
 
 public class EmptyDeliveryItemException extends BaseCustomException {
     public EmptyDeliveryItemException(String message) {

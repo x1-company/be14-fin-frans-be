@@ -6,4 +6,6 @@ public interface ApprovalRequestNotificationSender {
 
     void notifyApprovalRequested(Long approvalId, Long receiverId, NotificationTarget target);
 
+    void notifyApprovalRejected(Long approvalId, Long receiverId, NotificationTarget target);
+
 }

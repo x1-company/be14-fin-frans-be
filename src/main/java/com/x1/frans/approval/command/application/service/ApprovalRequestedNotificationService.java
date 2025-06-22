@@ -21,4 +21,8 @@ public class ApprovalRequestedNotificationService implements ApprovalRequestNoti
         notificationService.createApprovalLineNotification(approvalId, receiverId, target);
     }
 
+    @Override
+    public void notifyApprovalRejected(Long approvalId, Long receiverId, NotificationTarget target) {
+        notificationService.createApprovalRejectedNotification(approvalId, receiverId, target);
+    }
 }
