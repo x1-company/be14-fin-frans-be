@@ -76,8 +76,8 @@ jobs:
                   accessKey: \${AWS_ACCESS_KEY_ID}
                   secretKey: \${AWS_SECRET_ACCESS_KEY}
           token: 
-            access-expiration-time: 10000
-            refresh-expiration-time: 20000
+            access-expiration-time: 15
+            refresh-expiration-time: 14
             secret: \${TOKEN_SECRET}
             
           EOL
