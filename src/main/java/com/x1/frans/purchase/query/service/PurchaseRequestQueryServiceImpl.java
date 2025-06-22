@@ -24,9 +24,9 @@ public class PurchaseRequestQueryServiceImpl implements PurchaseRequestQueryServ
 
     @Override
     public Page<PurchaseRequestSimpleDto> getRequestsByStatus(PurchaseRequestStatus status, Pageable pageable) {
-        int total = purchaseRequestQueryMapper.countByStatus(status.name());
+        int total = purchaseRequestQueryMapper.countByStatus(status.getLabel());
         List<PurchaseRequestSimpleDto> list = purchaseRequestQueryMapper.selectByStatus(
-                status.name(), pageable.getPageSize(), (int) pageable.getOffset()
+                status.getLabel(), pageable.getPageSize(), (int) pageable.getOffset()
         );
         return new PageImpl<>(list, pageable, total);
     }
