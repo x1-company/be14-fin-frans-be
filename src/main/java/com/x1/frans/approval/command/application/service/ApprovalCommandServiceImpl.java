@@ -10,8 +10,13 @@ import com.x1.frans.approval.query.repository.ApprovalCategoryQueryMapper;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
 import com.x1.frans.exception.*;
+import com.x1.frans.notification.command.application.service.ApprovalRequestNotificationSender;
+import com.x1.frans.notification.command.domain.model.NotificationDomainType;
+import com.x1.frans.notification.command.domain.model.NotificationTarget;
+import com.x1.frans.notification.command.domain.model.NotificationType;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
+import com.x1.frans.user.common.DepartmentNotificationHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,6 +50,10 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final ApprovalLineTemplateDetailCommandRepository approvalLineTemplateDetailCommandRepository;
     private final ApprovalQueryMapper approvalQueryMapper;
     private final ApprovalCategoryQueryMapper approvalCategoryQueryMapper;
+    private final ApprovalRequestNotificationSender approvalLineNotificationService;
+
+//    private final DepartmentNotificationHelper departmentNotificationHelper;
+
 
     @Transactional
     @Override
@@ -147,6 +156,27 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         referenceLines.forEach(line -> line.setStatus(null));
 
         approvalLineCommandRepository.saveAll(allLines);
+
+        if (request.getIsRequest()) {
+            NotificationTarget target = new NotificationTarget(
+                    NotificationDomainType.APPROVAL,
+                    approval.getId(),
+                    "/api/approvals/detail/" + approval.getId() + "/content"
+            );
+
+            // 1. 결재자/협조자에게 알림 전송
+            for (ApprovalLineEntity line : approvalLines) {
+                if (line.getApprovalType() == ApprovalLineType.APPROVER
+                        || line.getApprovalType() == ApprovalLineType.COOPERATOR) {
+                    approvalLineNotificationService.notifyApprovalRequested(
+                            approval.getId(),
+                            line.getUser().getId(),
+                            target
+                    );
+                }
+            }
+        }
+
 
 
         // 첨부파일

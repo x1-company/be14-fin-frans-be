@@ -1,6 +1,7 @@
 package com.x1.frans.approval.command.domain.repository;
 
 import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -26,4 +27,7 @@ public interface ApprovalLineCommandRepository extends JpaRepository<ApprovalLin
     @Query("UPDATE ApprovalLineEntity al SET al.isChecked = true, al.checkedAt = CURRENT_TIMESTAMP " +
             "WHERE al.approval.id = :approvalId AND al.user.id = :userId")
     void markAsChecked(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+
+    List<ApprovalLineEntity> findByApprovalId(Long approvalId);
+
 }
