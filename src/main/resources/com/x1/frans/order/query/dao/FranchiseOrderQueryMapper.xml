@@ -43,7 +43,12 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                   AND EXISTS (
+                SELECT 1 FROM product_order po2
+                  JOIN product p2 ON po2.product_id = p2.id
+                 WHERE po2.order_id = o.id
+                   AND p2.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
 
             <if test="statusList != null and statusList.size > 0">
@@ -83,7 +88,12 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                   AND EXISTS (
+                SELECT 1 FROM product_order po2
+                  JOIN product p2 ON po2.product_id = p2.id
+                 WHERE po2.order_id = o.id
+                   AND p2.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
 
             <if test="statusList != null and statusList.size > 0">
