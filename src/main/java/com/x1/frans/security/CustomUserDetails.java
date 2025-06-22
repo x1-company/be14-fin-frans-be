@@ -58,6 +58,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getSignUrl();
     }
 
+    public String getEmail() {
+        return user.getEmail();
+    }
+
     public Long getDepartmentId() {
         return user.getDepartmentId();
     }
