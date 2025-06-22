@@ -14,7 +14,8 @@
 <!--    결재선 정보-->
     <select id="findApprovalListLine" resultType="com.x1.frans.approval.query.dto.ApprovalListLineDTO">
         SELECT
-               u.name AS approverName
+               u.id
+             , u.name AS approverName
              , dept.name AS deptName
              , pos.name AS positionName
              , al.seq
@@ -237,6 +238,7 @@
          WHERE al.user_id = #{userId}
            AND al.status = 'WAITING'
            AND al.approval_type = 'APPROVER'
+           AND a.status = 'IN_PROGRESS'
          ORDER BY a.created_at DESC
     </select>
 
