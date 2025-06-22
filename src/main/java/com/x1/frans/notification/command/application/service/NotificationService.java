@@ -1,5 +1,9 @@
 package com.x1.frans.notification.command.application.service;
 
+import com.x1.frans.approval.command.domain.aggregate.ApprovalEntity;
+import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
+import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
+import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.exception.AllMessagesAlreadyReadException;
 import com.x1.frans.exception.NoDeletableMessagesException;
 import com.x1.frans.exception.NoPermissionOrNoneExist;
@@ -41,13 +45,16 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final UserCommandRepository userCommandRepository;
+    private final ApprovalLineCommandRepository approvalLineCommandRepository;
 
     @Autowired
     public NotificationService(EmitterRepository emitterRepository, NotificationRepository notificationRepository,
-                               UserCommandRepository userCommandRepository) {
+                               UserCommandRepository userCommandRepository,
+                               ApprovalLineCommandRepository approvalLineCommandRepository) {
         this.emitterRepository = emitterRepository;
         this.notificationRepository = notificationRepository;
         this.userCommandRepository = userCommandRepository;
+        this.approvalLineCommandRepository = approvalLineCommandRepository;
     }
 
     private String generateEmitterId(String userIdStr) {
@@ -144,7 +151,7 @@ public class NotificationService {
         return Notification.builder()
                 .receiver(receiver)
                 .notificationType(notificationType)
-                .content(content)
+                .content(notificationType.getMessage())
                 .target(target)
                 .isRead(false)
                 .createdAt(LocalDateTime.now())
@@ -237,7 +244,25 @@ public class NotificationService {
         log.info("주문 상태 변경 알림 생성 및 발송: orderId={}, status={}, receiverId={}", orderId, status, receiverId);
     }
 
-    public void createAbnormalOrderRequestNotification(Long orderId, Long receiverId) {
-        
+    @Transactional
+    public void createApprovalLineNotification(Long approvalId, Long receiverId, NotificationTarget target) {
+
+        List<ApprovalLineEntity> approvalLines = approvalLineCommandRepository.findByApprovalId(approvalId);
+
+        approvalLines.stream()
+                .filter(line ->
+                        (line.getApprovalType() == ApprovalLineType.APPROVER || line.getApprovalType()
+                                                == ApprovalLineType.COOPERATOR)
+                        && line.getUser().getId().equals(receiverId))
+                .findFirst()
+                .ifPresent(line -> {
+                    UserEntity receiver = line.getUser();
+
+                    send(receiver, NotificationType.APPROVAL_REQUEST, target);
+
+                    log.info("결재 알림 전송: approvalId={}, receiverId={}", approvalId, receiverId);
+                });
     }
+
+
 }

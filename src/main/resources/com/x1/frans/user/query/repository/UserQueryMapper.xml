@@ -190,4 +190,17 @@
          WHERE department_id = #{departmentId}
     </select>
 
+    <select id="findHqUserIdsByParentDepartmentIds" resultType="long">
+        SELECT
+               a.id
+          FROM user a
+          JOIN hq_user_detail b ON a.id = b.user_id
+          JOIN department d ON b.department_id = d.id
+         WHERE d.parent_id IN
+        <foreach item="id" collection="parentIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND a.is_deleted = FALSE
+    </select>
+
 </mapper>
