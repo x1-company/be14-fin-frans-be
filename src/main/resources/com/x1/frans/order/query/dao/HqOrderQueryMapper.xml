@@ -39,8 +39,11 @@
             <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <if test="status != null and status.trim() != ''">
-                AND o.status = #{status}
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="userId != null">
@@ -56,11 +59,11 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND EXISTS (
+                   AND EXISTS (
                 SELECT 1 FROM product_order po2
-                JOIN product p2 ON po2.product_id = p2.id
-                WHERE po2.order_id = o.id
-                AND p2.name LIKE CONCAT('%', #{product}, '%')
+                  JOIN product p2 ON po2.product_id = p2.id
+                 WHERE po2.order_id = o.id
+                   AND p2.name LIKE CONCAT('%', #{product}, '%')
                 )
             </if>
 
@@ -84,8 +87,11 @@
             <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <if test="status != null and status.trim() != ''">
-                AND o.status = #{status}
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="userId != null">
@@ -101,11 +107,11 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND EXISTS (
+                   AND EXISTS (
                 SELECT 1 FROM product_order po
-                JOIN product p ON po.product_id = p.id
-                WHERE po.order_id = o.id
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                  JOIN product p ON po.product_id = p.id
+                 WHERE po.order_id = o.id
+                   AND p.name LIKE CONCAT('%', #{product}, '%')
                 )
             </if>
 

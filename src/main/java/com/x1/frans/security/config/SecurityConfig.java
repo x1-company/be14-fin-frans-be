@@ -15,6 +15,7 @@ import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -75,7 +76,8 @@ public class SecurityConfig {
 
         // TODO: 배포 시 변경 필요
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // 개발 중 origin
+        config.addAllowedOriginPattern("https://frans.co.kr");
+        config.addAllowedOriginPattern("http://localhost:5173"); // 개발 중 origin
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // 쿠키, 인증정보 허용
@@ -115,6 +117,9 @@ public class SecurityConfig {
 
                 // TODO: 개발용 설정. 배포 시 변경 필요
                 authorize
+                        // OPTIONS 요청 허용 (CORS preflight용)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // ADMIN 전용 API 보호
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 

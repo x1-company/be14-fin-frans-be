@@ -317,7 +317,9 @@
     <!-- 검토완료된 반품 목록 조회 -->
     <select id="findReturnReviewCompletedById" resultType="com.x1.frans.returns.query.dto.HqReturnReviewCompltedDTO">
         SELECT
-               r.code
+               r. id
+             , r.code
+             , f.name
              , r.status
              , r.created_at AS createdAt
              , r.total_amount AS totalAmount

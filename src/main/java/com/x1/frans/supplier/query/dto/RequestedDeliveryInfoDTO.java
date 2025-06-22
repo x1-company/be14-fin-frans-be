@@ -18,5 +18,9 @@ public class RequestedDeliveryInfoDTO {
     private String purchaseOrderCode;
     private BigDecimal totalAmount;
     private LocalDate requestedDeliveryDate;
-    private LocalDate deliveredDate;
+    private LocalDate processedAt;
+    private Long deliveryInfoId;
+    private Integer deliveredDay;
+    private Integer deliveredMonth;
+    private Integer deliveredYear;
 }

@@ -69,7 +69,11 @@
              , `a`.`code` AS `purchaseOrderCode`
              , `a`.`total_amount` AS `totalAmount`
              , `a`.`requested_delivery_date` AS `requestedDeliveryDate`
-             , `d`.`date` AS `deliveredDate`
+             , `c`.`processed_at` AS `processedAt`
+             , `d`.`id` AS `deilveryInfoId`
+             , `d`.`day` AS `deliveredDay`
+             , `d`.`month` AS `deliveredMonth`
+             , `d`.`year` AS `deliveredYear`
           FROM `purchase_order` `a`
           JOIN `purchase_order_approval` `b` ON `a`.`id` = `b`.`purchase_order_id`
           JOIN `approval` `c` ON `b`.`approval_id` = `c`.`id`
@@ -78,6 +82,13 @@
         <where>
             `c`.`status` = 'APPROVED'
             AND `a`.`supplier_id` = #{supplierId}
+
+            <if test="startYearMonth != null and endYearMonth != null">
+                <![CDATA[
+                AND a.requested_delivery_date >= STR_TO_DATE(CONCAT(#{startYearMonth}, '01'), '%Y%m%d')
+                AND a.requested_delivery_date < STR_TO_DATE(CONCAT(#{endYearMonth}, '01'), '%Y%m%d') + INTERVAL 1 MONTH
+                ]]>
+            </if>
 
             <if test="type == 'requested'">
                 AND d.`id` IS NULL
@@ -93,6 +104,11 @@
         <result property="purchaseOrderCode" column="purchaseOrderCode"/>
         <result property="totalAmount" column="totalAmount"/>
         <result property="requestedDeliveryDate" column="requestedDeliveryDate"/>
+        <result property="deliveryCompanyName" column="deliveryCompanyName"/>
+        <result property="vehicleNumber" column="vehicleNumber"/>
+        <result property="trackingNumber" column="trackingNumber"/>
+        <result property="expectedDate" column="expectedDate"/>
+        <result property="deliveryInfoId" column="deliveryInfoId"/>
 
         <collection property="productList" ofType="com.x1.frans.supplier.query.dto.PurchaseOrderProductDTO">
             <result property="productId" column="productId"/>
@@ -114,9 +130,15 @@
              , c.purchase_price AS purchasePrice
              , c.purchase_unit AS purchaseUnit
              , c.id AS productId
+             , d.delivery_company_name AS deliveryCompanyName
+             , d.vehicle_number AS vehicleNumber
+             , d.tracking_number AS trackingNumber
+             , d.expected_date AS expectedDate
+             , d.id AS deliveryInfoId
           FROM purchase_order a
           LEFT JOIN purchase_order_product b ON a.id = b.purchase_order_id
           LEFT JOIN product c ON b.product_id = c.id
+          LEFT JOIN delivery_info d ON a.id = d.purchase_order_id
          WHERE a.id = #{purchaseOrderId}
            AND a.supplier_id = #{supplierId}
     </select>
