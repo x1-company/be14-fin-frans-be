@@ -9,7 +9,10 @@ public interface SupplierDeliveryInfoQueryService {
 
     List<SupplierDeliveryInfoDTO> findDeliveryInfos(Long supplierId, Integer year, Integer month, Integer day);
 
-    List<RequestedDeliveryInfoDTO> getRequestedPurchaseOrders(Long supplierId, String type);
+    List<RequestedDeliveryInfoDTO> getRequestedPurchaseOrders(Long supplierId,
+                                                              String type,
+                                                              String startYearMonth,
+                                                              String endYearMonth);
 
     DeliveryInfoDetailsDTO getPurchaseOrderDetail(Long purchaseOrderId, Long supplierId);
 }

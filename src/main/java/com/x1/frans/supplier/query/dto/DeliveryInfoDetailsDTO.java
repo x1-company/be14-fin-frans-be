@@ -19,5 +19,10 @@ public class DeliveryInfoDetailsDTO {
     private String purchaseOrderCode;
     private BigDecimal totalAmount;
     private LocalDate requestedDeliveryDate;
+    private String deliveryCompanyName;
+    private String vehicleNumber;
+    private String trackingNumber;
+    private LocalDate expectedDate;
+    private Long deliveryInfoId;
     private List<PurchaseOrderProductDTO> productList;
 }

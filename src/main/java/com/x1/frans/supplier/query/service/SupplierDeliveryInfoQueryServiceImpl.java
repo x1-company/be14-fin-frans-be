@@ -25,8 +25,9 @@ public class SupplierDeliveryInfoQueryServiceImpl implements SupplierDeliveryInf
     }
 
     @Override
-    public List<RequestedDeliveryInfoDTO> getRequestedPurchaseOrders(Long supplierId, String type) {
-        return supplierDeliveryInfoMapper.getRequestedPurchaseOrders(supplierId, type);
+    public List<RequestedDeliveryInfoDTO> getRequestedPurchaseOrders(Long supplierId, String type,
+                                                                     String startYearMonth, String endYearMonth) {
+        return supplierDeliveryInfoMapper.getRequestedPurchaseOrders(supplierId, type, startYearMonth, endYearMonth);
     }
 
     @Override
