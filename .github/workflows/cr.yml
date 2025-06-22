@@ -3,11 +3,12 @@ permissions:
   pull-requests: write
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - "develop"
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
