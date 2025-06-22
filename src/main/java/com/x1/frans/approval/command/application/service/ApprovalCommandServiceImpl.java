@@ -13,10 +13,8 @@ import com.x1.frans.exception.*;
 import com.x1.frans.notification.command.application.service.ApprovalRequestNotificationSender;
 import com.x1.frans.notification.command.domain.model.NotificationDomainType;
 import com.x1.frans.notification.command.domain.model.NotificationTarget;
-import com.x1.frans.notification.command.domain.model.NotificationType;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
-import com.x1.frans.user.common.DepartmentNotificationHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,7 +48,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final ApprovalLineTemplateDetailCommandRepository approvalLineTemplateDetailCommandRepository;
     private final ApprovalQueryMapper approvalQueryMapper;
     private final ApprovalCategoryQueryMapper approvalCategoryQueryMapper;
-    private final ApprovalRequestNotificationSender approvalLineNotificationService;
+    private final ApprovalRequestNotificationSender approvalRequestNotificationSender;
 
 //    private final DepartmentNotificationHelper departmentNotificationHelper;
 
@@ -168,7 +166,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             for (ApprovalLineEntity line : approvalLines) {
                 if (line.getApprovalType() == ApprovalLineType.APPROVER
                         || line.getApprovalType() == ApprovalLineType.COOPERATOR) {
-                    approvalLineNotificationService.notifyApprovalRequested(
+                    approvalRequestNotificationSender.notifyApprovalRequested(
                             approval.getId(),
                             line.getUser().getId(),
                             target
@@ -316,6 +314,14 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             // 결재 상태 반려 처리
             approval.setStatus(ApprovalStatus.REJECTED);
             approvalCommandRepository.save(approval);
+
+        NotificationTarget target = new NotificationTarget(
+                NotificationDomainType.APPROVAL,
+                approval.getId(),
+                "결재 코드=" + approval.getCode()
+        );
+
+        approvalRequestNotificationSender.notifyApprovalRejected(approval.getId(), approval.getUser().getId(), target);
 
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }

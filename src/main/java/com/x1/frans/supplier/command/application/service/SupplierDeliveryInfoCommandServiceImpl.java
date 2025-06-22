@@ -5,7 +5,7 @@ import com.x1.frans.exception.NotFoundDeliveryInfoException;
 import com.x1.frans.exception.ProductNotFoundException;
 import com.x1.frans.exception.PurchaseRequestNotFoundException;
 import com.x1.frans.exception.SupplierNotFoundException;
-import com.x1.frans.exception.enums.EmptyDeliveryItemException;
+import com.x1.frans.exception.EmptyDeliveryItemException;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
 import com.x1.frans.product.command.domain.repository.SupplierRepository;

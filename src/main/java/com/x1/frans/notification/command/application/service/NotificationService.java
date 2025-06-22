@@ -2,9 +2,11 @@ package com.x1.frans.notification.command.application.service;
 
 import com.x1.frans.approval.command.domain.aggregate.ApprovalEntity;
 import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
+import com.x1.frans.approval.command.domain.repository.ApprovalCommandRepository;
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
 import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.exception.AllMessagesAlreadyReadException;
+import com.x1.frans.exception.ApprovalNotFoundException;
 import com.x1.frans.exception.NoDeletableMessagesException;
 import com.x1.frans.exception.NoPermissionOrNoneExist;
 import com.x1.frans.exception.UnreadMessagesCannotBeDeletedException;
@@ -24,16 +26,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationService {
 
     // SSE 연결 지속 시간 설정(성능 테스트 후 리팩토링 예정)
@@ -46,16 +50,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserCommandRepository userCommandRepository;
     private final ApprovalLineCommandRepository approvalLineCommandRepository;
-
-    @Autowired
-    public NotificationService(EmitterRepository emitterRepository, NotificationRepository notificationRepository,
-                               UserCommandRepository userCommandRepository,
-                               ApprovalLineCommandRepository approvalLineCommandRepository) {
-        this.emitterRepository = emitterRepository;
-        this.notificationRepository = notificationRepository;
-        this.userCommandRepository = userCommandRepository;
-        this.approvalLineCommandRepository = approvalLineCommandRepository;
-    }
+    private final ApprovalCommandRepository approvalCommandRepository;
 
     private String generateEmitterId(String userIdStr) {
         return userIdStr + "_" + UUID.randomUUID();
@@ -225,6 +220,21 @@ public class NotificationService {
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
 
+    @Scheduled(fixedRate = 30000) // 30초마다
+    public void sendHeartbeat() {
+        // 모든 연결된 클라이언트에게 heartbeat 전송
+        emitterRepository.findAllEmitterStartWithByUserId("*").forEach((emitterId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .id("heartbeat-" + System.currentTimeMillis())
+                        .name("heartbeat")
+                        .data("ping"));
+            } catch (IOException e) {
+                log.warn("Heartbeat 전송 실패: {}", emitterId);
+            }
+        });
+    }
+
     public void createOrderStatusNotification(Long orderId, OrderStatus status, Long receiverId) {
 
         UserEntity receiver = userCommandRepository.findById(receiverId)
@@ -259,10 +269,21 @@ public class NotificationService {
                     UserEntity receiver = line.getUser();
 
                     send(receiver, NotificationType.APPROVAL_REQUEST, target);
-
-                    log.info("결재 알림 전송: approvalId={}, receiverId={}", approvalId, receiverId);
                 });
+
     }
 
+    @Transactional
+    public void createApprovalRejectedNotification(Long approvalId, Long receiverId, NotificationTarget target) {
+
+        ApprovalEntity approvalEntity = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("해당 결재를 찾을 수 없습니다."));
+
+        UserEntity drafter = approvalEntity.getUser();
+
+        send(drafter, NotificationType.APPROVAL_REJECTED, target);
+
+        log.info("결재 반려 알림 전송: approvalId={}, drafterId={}", approvalId, drafter.getId());
+    }
 
 }
