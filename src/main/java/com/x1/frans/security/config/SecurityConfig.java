@@ -118,14 +118,14 @@ public class SecurityConfig {
 
                 // TODO: 개발용 설정. 배포 시 변경 필요
                 authorize
+                        // 배포용 health 체크
+                        .requestMatchers("/health").permitAll()
+
                         // OPTIONS 요청 허용 (CORS preflight용)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // ADMIN 전용 API 보호
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                        // 배포용 health 체크
-                        .requestMatchers("/health").permitAll()
 
                         // Swagger 관련 리소스 전부 허용
                         .requestMatchers(
