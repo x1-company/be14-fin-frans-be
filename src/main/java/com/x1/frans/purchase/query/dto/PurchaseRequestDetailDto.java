@@ -19,7 +19,7 @@ public class PurchaseRequestDetailDto {
     private String code;
     private String title;
     private String description;
-    private String status;
+//    private String status;
     private LocalDate requestedDeliveryDate;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
@@ -33,7 +33,7 @@ public class PurchaseRequestDetailDto {
         this.code = entity.getCode();
         this.title = entity.getTitle();
         this.description = entity.getDescription();
-        this.status = entity.getStatus().getLabel();
+//        this.status = entity.getStatus().getLabel();
         this.requestedDeliveryDate = entity.getRequestedDeliveryDate();
         this.totalAmount = entity.getTotalAmount();
         this.createdAt = entity.getCreatedAt();
