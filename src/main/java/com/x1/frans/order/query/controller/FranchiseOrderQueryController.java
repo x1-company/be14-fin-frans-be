@@ -1,8 +1,6 @@
 package com.x1.frans.order.query.controller;
 
-import com.x1.frans.order.query.dto.FranchiseOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
+import com.x1.frans.order.query.dto.*;
 import com.x1.frans.order.query.service.FranchiseOrderQueryService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/franchise/orders")
@@ -47,5 +47,27 @@ public class FranchiseOrderQueryController {
         FranchiseOrderDetailDto dto = franchiseOrderQueryService.getFranchiseOrderDetail(orderId, userId);
 
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping({"/templates"})
+    @Operation(
+            summary = "주문 템플릿 목록 조회",
+            description = "주문 템플릿 목록을 조회합니다."
+    )
+    public List<OrderTemplateListResponseDto> getTemplates(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return franchiseOrderQueryService.getTemplatesByUser(user.getUserId());
+    }
+
+    @GetMapping("/templates/{templateId}")
+    @Operation(
+            summary = "주문 템플릿 상세 조회",
+            description = "주문 템플릿을 상세 조회합니다."
+    )
+    public OrderTemplateDetailResponseDto getTemplateDetail(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long templateId) {
+        return franchiseOrderQueryService.getTemplateDetail(user.getUserId(), templateId);
     }
 }
