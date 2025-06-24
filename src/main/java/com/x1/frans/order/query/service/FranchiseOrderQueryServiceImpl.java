@@ -1,11 +1,9 @@
 package com.x1.frans.order.query.service;
 
 import com.x1.frans.exception.OrderNotFoundException;
+import com.x1.frans.exception.OrderTemplateNotFoundException;
 import com.x1.frans.order.query.dao.FranchiseOrderQueryMapper;
-import com.x1.frans.order.query.dto.FranchiseOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
-import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
+import com.x1.frans.order.query.dto.*;
 import com.x1.frans.order.query.service.support.OrderDetailCalculator;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
 import lombok.RequiredArgsConstructor;
@@ -57,4 +55,19 @@ public class FranchiseOrderQueryServiceImpl implements FranchiseOrderQueryServic
         return detail;
     }
 
+    @Override
+    public List<OrderTemplateListResponseDto> getTemplatesByUser(Long userId) {
+        return franchiseOrderQueryMapper.findTemplatesByUserId(userId);
+    }
+
+    @Override
+    public OrderTemplateDetailResponseDto getTemplateDetail(Long userId, Long templateId) {
+        OrderTemplateDetailResponseDto detail = franchiseOrderQueryMapper.findTemplateDetail(templateId, userId);
+        if (detail == null) {
+            throw new OrderTemplateNotFoundException("조회 권한이 없거나 존재하지 않는 템플릿입니다.");
+        }
+        List<ProductInTemplateDto> products = franchiseOrderQueryMapper.findProductsByTemplateId(templateId);
+        detail.getProducts().addAll(products);
+        return detail;
+    }
 }

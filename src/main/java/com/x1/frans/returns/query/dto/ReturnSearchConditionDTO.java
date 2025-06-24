@@ -18,7 +18,7 @@ public class ReturnSearchConditionDTO {
     private String code;
     private String name;
     private String product;
-    private ReturnStatus status;
+    private List<ReturnStatus> statusList;
     private LocalDate startDate;   // yyyy-MM-dd
     private LocalDate endDate;
     private int page;
