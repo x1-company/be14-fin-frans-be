@@ -50,6 +50,10 @@ public class FranchiseOrderQueryController {
     }
 
     @GetMapping({"/templates"})
+    @Operation(
+            summary = "주문 템플릿 목록 조회",
+            description = "주문 템플릿 목록을 조회합니다."
+    )
     public List<OrderTemplateListResponseDto> getTemplates(
             @AuthenticationPrincipal CustomUserDetails user
     ) {
@@ -57,6 +61,10 @@ public class FranchiseOrderQueryController {
     }
 
     @GetMapping("/templates/{templateId}")
+    @Operation(
+            summary = "주문 템플릿 상세 조회",
+            description = "주문 템플릿을 상세 조회합니다."
+    )
     public OrderTemplateDetailResponseDto getTemplateDetail(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long templateId) {
