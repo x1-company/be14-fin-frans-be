@@ -56,20 +56,56 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
 
-        // 부서 체크
         HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
                 .orElseThrow(() -> new InvalidDepartmentException("부서 정보를 찾을 수 없습니다."));
         if (!SALES_ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
             throw new InvalidDepartmentException("영업팀 소속만 구매 요청을 할 수 있습니다.");
         }
 
-        // isRequested가 null이면 true로 세팅
         boolean isRequested = command.getIsRequested() == null ? true : command.getIsRequested();
-
-        // 상태 결정
         PurchaseRequestStatus status = isRequested ? PurchaseRequestStatus.REQUEST_PENDING : PurchaseRequestStatus.DRAFT;
 
-        // 상품 가격 * 수량 합산
+        // 기존 임시저장 삭제 또는 업데이트 처리
+        if (command.getDraftId() != null) {
+            PurchaseRequestEntity draft = purchaseRequestMapper.findById(command.getDraftId())
+                    .orElseThrow(() -> new PurchaseRequestNotFoundException("기존 임시저장을 찾을 수 없습니다."));
+
+            // 등록이면 기존 임시저장 삭제
+            if (isRequested) {
+                purchaseRequestProductMapper.deleteByPurchaseRequest(draft);
+                purchaseRequestMapper.delete(draft);
+            } else {
+                // 임시저장 → 다시 임시저장 저장일 경우 업데이트 처리
+                draft.updateMainInfo(command.getTitle(), command.getDescription(), command.getRequestedDeliveryDate());
+                draft.setIsRequested(false);
+                draft.setStatus(PurchaseRequestStatus.DRAFT);
+                draft.setUpdatedAt(LocalDateTime.now());
+
+                // 자재 전부 삭제 후 재등록
+                purchaseRequestProductMapper.deleteByPurchaseRequest(draft);
+                int idx = 1;
+                BigDecimal totalAmount = BigDecimal.ZERO;
+                for (PurchaseRequestProductCreateCommand p : command.getProducts()) {
+                    ProductEntity product = productRepository.findById(p.getProductId())
+                            .orElseThrow(() -> new ProductNotFoundException("상품이 존재하지 않습니다: " + p.getProductId()));
+
+                    totalAmount = totalAmount.add(product.getPurchasePrice().multiply(BigDecimal.valueOf(p.getQuantity())));
+
+                    PurchaseRequestProductEntity productEntity = PurchaseRequestProductEntity.builder()
+                            .no(idx++)
+                            .quantity(p.getQuantity())
+                            .remarks(p.getRemarks())
+                            .productId(p.getProductId())
+                            .purchaseRequest(draft)
+                            .build();
+                    purchaseRequestProductMapper.save(productEntity);
+                }
+                draft.setTotalAmount(totalAmount);
+                return draft.getId();
+            }
+        }
+
+        // 새 구매요청 등록
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (PurchaseRequestProductCreateCommand p : command.getProducts()) {
             ProductEntity product = productRepository.findById(p.getProductId())
@@ -77,7 +113,6 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
             totalAmount = totalAmount.add(product.getPurchasePrice().multiply(BigDecimal.valueOf(p.getQuantity())));
         }
 
-        // 구매요청 생성
         PurchaseRequestEntity entity = PurchaseRequestEntity.builder()
                 .code(generateNextPurchaseRequestCode())
                 .title(command.getTitle())
