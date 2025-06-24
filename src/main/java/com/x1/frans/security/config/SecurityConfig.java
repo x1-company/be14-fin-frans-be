@@ -124,6 +124,8 @@ public class SecurityConfig {
                         // ADMIN 전용 API 보호
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
+                        // 배포용 health 체크
+                        .requestMatchers("/health").permitAll()
 
                         // Swagger 관련 리소스 전부 허용
                         .requestMatchers(
