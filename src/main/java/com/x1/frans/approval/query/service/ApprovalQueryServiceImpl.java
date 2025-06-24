@@ -1,11 +1,12 @@
 package com.x1.frans.approval.query.service;
 
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
-import com.x1.frans.approval.query.dto.ApprovalReceivedListDTO;
+import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
-import com.x1.frans.approval.query.dto.ApprovalListDTO;
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
+import com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnContentDTO;
+import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderContentDTO;
+import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
 import jakarta.transaction.Transactional;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -141,25 +143,33 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Transactional
     @Override
-    public List<ApprovalContentDTO> getApprovalDetailContent(Long userId, long approvalId) {
+    public ApprovalContentDTO getApprovalDetailContent(Long userId, long approvalId) {
 
-        // ORDER, RETURN, PURCHASE_ORDER
+        // category 구함
         String category = approvalQueryMapper.findCategoryByApprovalId(approvalId);
 
-        List<ApprovalContentDTO> contentList =  switch (category) {
+        ApprovalContentDTO content = switch (category) {
             case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId, userId);
             case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId, userId);
             case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId, userId);
             default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
         };
 
+        // totalAmount 쿼리
+        BigDecimal totalAmount = switch (category) {
+            case "ORDER" -> approvalQueryMapper.findTotalOrderAmountByApprovalId(approvalId);
+            case "RETURN" -> approvalQueryMapper.findTotalReturnAmountByApprovalId(approvalId);
+            case "PURCHASE_ORDER" -> approvalQueryMapper.findTotalPurchaseOrderAmountByApprovalId(approvalId);
+            default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
+        };
 
         // 읽음 처리
         approvalLineCommandRepository.markAsChecked(approvalId, userId);
 
+        // set
+        content.setTotalAmount(totalAmount);
 
-        return contentList;
-
+        return content;
     }
 
     @Override
@@ -208,6 +218,30 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalListCooperateMyCompletedAll(userId);
     }
 
+    @Override
+    public ApprovalDraftDTO getApprovalDraft(long approvalId) {
+        ApprovalDraftDTO draft = approvalQueryMapper.selectApprovalDraft(approvalId);
+        List<ApprovalDraftLineDTO> lines = approvalQueryMapper.selectApprovalDraftLines(approvalId);
+        List<ApprovalFileDTO> files = approvalQueryMapper.selectApprovalDraftFiles(approvalId);
+
+        String categoryType = approvalQueryMapper.selectApprovalCategoryType(approvalId);
+
+        List<Long> documentIds;
+        switch (categoryType) {
+            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);  // order_approval
+            case "RETURN" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsReturn(approvalId);
+            case "PURCHASE_ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsPurchase(approvalId);
+            default -> throw new IllegalArgumentException("Unknown categoryType");
+        }
+
+        ApprovalDocumentDTO docDto = new ApprovalDocumentDTO(categoryType, documentIds);
+        draft.setApprovalDocuments(docDto);
+        draft.setLines(lines);
+        draft.setFiles(files);
+        draft.setCategoryType(categoryType);
+
+        return draft;
+    }
 
     @Override
     public List<ApprovalReceivedListDTO> getApprovalListReceivedInProgress(long userId) {

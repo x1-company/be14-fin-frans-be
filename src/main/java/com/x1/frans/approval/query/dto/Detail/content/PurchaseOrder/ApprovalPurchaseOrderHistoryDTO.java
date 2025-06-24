@@ -34,5 +34,8 @@ public class ApprovalPurchaseOrderHistoryDTO implements ApprovalHistoryDTO {
     @Schema(description = "단가")
     private BigDecimal purchasePrice;
 
+    @Schema(description = "금액")
+    private BigDecimal amount;
+
 
 }

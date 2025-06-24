@@ -6,6 +6,7 @@ import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApprovalOrderReturnContentDTO implements ApprovalContentDTO {
+public class ApprovalOrderReturnContentDTO extends ApprovalContentDTO{
 
     @Schema(description = "결재 ID")
     private Long approvalId;
@@ -26,6 +27,8 @@ public class ApprovalOrderReturnContentDTO implements ApprovalContentDTO {
 
     @Schema(description = "내용")
     private String remarks;
+
+    private String categoryType;
 
     @Schema(description = "결재 상태")
     private String status;
@@ -47,6 +50,9 @@ public class ApprovalOrderReturnContentDTO implements ApprovalContentDTO {
 
     @Schema(description = "첨부파일")
     private List<ApprovalFileDTO> files;
+
+    @Schema(description = "총 금액")
+    private BigDecimal totalAmount;
 
 
 }
