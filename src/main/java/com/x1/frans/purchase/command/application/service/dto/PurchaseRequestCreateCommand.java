@@ -7,6 +7,7 @@ import java.util.List;
 
 @Getter
 public class PurchaseRequestCreateCommand {
+    private Long draftId;
     private String title;
     private String description;
     private LocalDate requestedDeliveryDate;

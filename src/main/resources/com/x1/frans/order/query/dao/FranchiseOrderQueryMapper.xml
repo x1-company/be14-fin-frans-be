@@ -172,5 +172,42 @@
         WHERE o.id = #{orderId}
     </select>
 
+    <!-- 주문 템플릿 목록 조회 -->
+    <select id="findTemplatesByUserId" resultType="com.x1.frans.order.query.dto.OrderTemplateListResponseDto">
+        SELECT
+               id
+             , name
+             , description
+             , seq
+          FROM order_template
+         WHERE user_id = #{userId}
+         ORDER BY seq ASC
+    </select>
+
+    <!-- 주문 템플릿 상세 정보 조회 -->
+    <select id="findTemplateDetail" resultType="com.x1.frans.order.query.dto.OrderTemplateDetailResponseDto">
+        SELECT seq
+          FROM order_template
+         WHERE id = #{templateId}
+           AND user_id = #{userId}
+    </select>
+
+    <!-- 주문 템플릿 자재 목록 조회 -->
+    <select id="findProductsByTemplateId" resultType="com.x1.frans.order.query.dto.ProductInTemplateDto">
+        SELECT
+               p.code
+             , p.name
+             , p.purchase_price AS salePrice
+             , p.purchase_unit AS purchaseUnit
+             , p.spec
+             , s.name AS supplierName
+             , otd.quantity
+          FROM order_template_detail otd
+          JOIN product p ON otd.product_id = p.id
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE otd.order_template_id = #{templateId}
+         ORDER BY otd.seq ASC
+    </select>
+
 
 </mapper>
