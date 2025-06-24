@@ -5,6 +5,7 @@ import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
 import com.x1.frans.approval.command.domain.repository.ApprovalCommandRepository;
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
 import com.x1.frans.approval.common.ApprovalLineType;
+import com.x1.frans.exception.AccessDeniedException;
 import com.x1.frans.exception.AllMessagesAlreadyReadException;
 import com.x1.frans.exception.ApprovalNotFoundException;
 import com.x1.frans.exception.NoDeletableMessagesException;
@@ -67,6 +68,10 @@ public class NotificationService {
      *  3. 문자열을 사용해서 Emitter ID 생성 및 저장소 접근
     * */
     public SseEmitter subscribe(Long userId, String lastEventId) {
+        if (userId == null || userCommandRepository.findById(userId).isEmpty()) {
+            throw new AccessDeniedException("SSE 연결은 인증된 사용자만 가능합니다.");
+        }
+
         String userIdStr = toUserIdStr(userId);
 
         String emitterId = generateEmitterId(userIdStr);
@@ -230,7 +235,7 @@ public class NotificationService {
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
 
-    @Scheduled(fixedRate = 30000) // 30초마다
+    @Scheduled(cron = "0 * * * * *")
     public void sendHeartbeat() {
         // 모든 연결된 클라이언트에게 heartbeat 전송
         emitterRepository.findAllEmitterStartWithByUserId("*").forEach((emitterId, emitter) -> {

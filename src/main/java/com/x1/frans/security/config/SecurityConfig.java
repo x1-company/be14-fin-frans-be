@@ -12,6 +12,7 @@ import com.x1.frans.security.handler.CustomAuthenticationFailureHandler;
 import com.x1.frans.security.util.JwtUtil;
 import com.x1.frans.user.query.service.UserQueryService;
 import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -164,11 +165,26 @@ public class SecurityConfig {
         http.addFilter(getAuthenticationFilter(authenticationManager()));
 
         http.exceptionHandling(exception ->
-                exception.authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler));
+                exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String uri = request.getRequestURI();
+                            if (uri != null && uri.startsWith("/api/notification/subscribe")) {
+                                if (!response.isCommitted()) {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.setContentType("text/plain;charset=UTF-8");
+                                    response.getWriter().write("Unauthorized SSE connection");
+                                }
+                            } else {
+                                authenticationEntryPoint.commence(request, response, authException);
+                            }
+                        })
+                        .accessDeniedHandler(accessDeniedHandler)
+        );
 
         return http.build();
     }
+
+
 
     private Filter getAuthenticationFilter(AuthenticationManager authenticationManager) {
         AuthenticationFilter filter = new AuthenticationFilter(authenticationManager, jwtUtil,
