@@ -5,12 +5,10 @@ import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.domain.repository.FranchiseCommandRepository;
 import com.x1.frans.order.command.application.dto.FranchiseOrderCreateRequestDto;
 import com.x1.frans.order.command.application.dto.OrderMaterialRequestDto;
-import com.x1.frans.order.command.domain.aggregate.Order;
-import com.x1.frans.order.command.domain.aggregate.ProductOrder;
-import com.x1.frans.order.command.domain.aggregate.StoreOrderDeadline;
-import com.x1.frans.order.command.domain.repository.OrderCommandRepository;
-import com.x1.frans.order.command.domain.repository.ProductOrderRepository;
-import com.x1.frans.order.command.domain.repository.StoreOrderDeadlineRepository;
+import com.x1.frans.order.command.application.dto.OrderTemplateDetailDTO;
+import com.x1.frans.order.command.application.dto.OrderTemplateRequestDTO;
+import com.x1.frans.order.command.domain.aggregate.*;
+import com.x1.frans.order.command.domain.repository.*;
 import com.x1.frans.order.command.domain.vo.OrderStatus;
 import com.x1.frans.order.common.OrderAuthorizationService;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
@@ -25,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +36,8 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
     private final UserCommandRepository userCommandRepository;
     private final ProductOrderRepository productOrderRepository;
     private final ProductRepository productRepository;
+    private final OrderTemplateRepository orderTemplateRepository;
+    private final OrderTemplateDetailRepository orderTemplateDetailRepository;
 
     @Override
     @Transactional
@@ -119,5 +120,101 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
         orderCommandRepository.save(order);
     }
 
+    @Transactional
+    @Override
+    public void createTemplate(Long userId, OrderTemplateRequestDTO dto) {
+        // 1. 템플릿 생성 (초기 상태)
+        OrderTemplate template = OrderTemplate.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .seq(dto.getSeq())
+                .userId(userId)
+                .build();
 
+        // 2. 상세 항목 반복 추가
+        for (OrderTemplateDetailDTO detailDTO : dto.getDetails()) {
+            OrderTemplateDetail detail = OrderTemplateDetail.builder()
+                    .productId(detailDTO.getProductId())
+                    .quantity(detailDTO.getQuantity())
+                    .seq(detailDTO.getSeq())
+                    .build();
+
+            // 연관관계 세팅
+            template.addDetail(detail); // detail.setOrderTemplate(template) 포함됨
+        }
+
+        // 3. 저장 (cascade = ALL)
+        orderTemplateRepository.save(template);
+    }
+
+    @Transactional
+    @Override
+    public void deleteTemplate(Long userId, String templateId) {
+        long id;
+        try {
+            id = Long.parseLong(templateId);
+        } catch (NumberFormatException e) {
+            throw new InvalidRequestException("유효한 템플릿 id가 아닙니다.");
+        }
+
+        // 1. 템플릿 조회 (id 와 userId 모두 조건)
+        Optional<OrderTemplate> optTemplate = orderTemplateRepository.findById(id);
+
+        if (optTemplate.isEmpty()) {
+            throw new InvalidRequestException("존재하지 않는 템플릿입니다.");
+        }
+
+        OrderTemplate template = optTemplate.get();
+
+        // 2. userId 체크
+        if (!template.getUserId().equals(userId)) {
+            throw new InvalidRequestException("해당 템플릿을 삭제할 권한이 없습니다.");
+        }
+
+        // 3. 삭제
+        orderTemplateRepository.delete(template);
+    }
+
+    @Transactional
+    @Override
+    public void updateTemplate(Long userId, String templateId, OrderTemplateRequestDTO dto) {
+        long id;
+        try {
+            id = Long.parseLong(templateId);
+        } catch (NumberFormatException e) {
+            throw new InvalidRequestException("유효한 템플릿 id가 아닙니다.");
+        }
+
+        // 1. 기존 템플릿 조회 + userId 확인
+        OrderTemplate template = orderTemplateRepository.findById(id)
+                .orElseThrow(() -> new InvalidRequestException("존재하지 않는 템플릿입니다."));
+
+        if (!template.getUserId().equals(userId)) {
+            throw new InvalidRequestException("해당 템플릿을 수정할 권한이 없습니다.");
+        }
+
+        // 2. 템플릿 정보 수정
+        template = OrderTemplate.builder()
+                .id(template.getId()) // 기존 ID 유지
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .seq(dto.getSeq())
+                .userId(userId)
+                .details(new ArrayList<>()) // 새로 채울 details
+                .build();
+
+        // 3. 상세 항목 재등록
+        for (OrderTemplateDetailDTO detailDTO : dto.getDetails()) {
+            OrderTemplateDetail detail = OrderTemplateDetail.builder()
+                    .productId(detailDTO.getProductId())
+                    .quantity(detailDTO.getQuantity())
+                    .seq(detailDTO.getSeq())
+                    .build();
+
+            template.addDetail(detail); // 연관관계 세팅
+        }
+
+        // 4. 저장 (details는 orphanRemoval + cascade 덕에 자동 정리됨)
+        orderTemplateRepository.save(template);
+    }
 }
