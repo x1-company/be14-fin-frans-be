@@ -235,7 +235,7 @@ public class NotificationService {
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(fixedRate = 30000) // 30초
     public void sendHeartbeat() {
         // 모든 연결된 클라이언트에게 heartbeat 전송
         emitterRepository.findAllEmitterStartWithByUserId("*").forEach((emitterId, emitter) -> {
