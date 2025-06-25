@@ -25,4 +25,6 @@ public class FranchiseProductOrderQueryDTO {
     private String productAttributeName;
     private String productGroupName;
     private String productTypeName;
+    private Integer year;
+    private Integer month;
 }
