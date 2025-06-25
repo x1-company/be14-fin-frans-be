@@ -10,6 +10,7 @@ import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
@@ -73,13 +74,13 @@ public interface ApprovalQueryMapper  {
     String findCategoryByApprovalId(@Param("approvalId") long approvalId);
 
     // 발주 조회
-    List<ApprovalContentDTO> findPurchaseOrderContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+    ApprovalContentDTO findPurchaseOrderContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
 
     // 반품 조회
-    List<ApprovalContentDTO> findReturnContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+    ApprovalContentDTO findReturnContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
 
     // 주문 조회
-    List<ApprovalContentDTO> findOrderContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
+    ApprovalContentDTO findOrderContent(@Param("approvalId") long approvalId,@Param("userId") Long userId);
 
 
 
@@ -121,4 +122,31 @@ public interface ApprovalQueryMapper  {
     List<ApprovalReceivedListDTO> getApprovalListReceivedApproved(long userId);
 
     List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId);
+
+    // 수정관련 조회
+    ApprovalDraftDTO selectApprovalDraft(long approvalId);
+
+    List<ApprovalDraftLineDTO> selectApprovalDraftLines(long approvalId);
+
+    List<ApprovalFileDTO> selectApprovalDraftFiles(long approvalId);
+
+    List<Long> selectApprovalDocumentIds(long approvalId);
+
+    List<Long> selectApprovalDocumentIdsReturn(long approvalId);
+
+    List<Long> selectApprovalDocumentIdsPurchase(long approvalId);
+
+    String selectApprovalCategoryType(long approvalId);
+
+    BigDecimal findTotalOrderAmountByApprovalId(long approvalId);
+
+    BigDecimal findTotalPurchaseOrderAmountByApprovalId(long approvalId);
+
+    BigDecimal findTotalReturnAmountByApprovalId(long approvalId);
+
+    List<ApprovalDocumentDTO> selectApprovalDocumentMetaOrder(long approvalId);
+
+    List<ApprovalDocumentDTO> selectApprovalDocumentMetaReturn(long approvalId);
+
+    List<ApprovalDocumentDTO> selectApprovalDocumentMetaPurchase(long approvalId);
 }

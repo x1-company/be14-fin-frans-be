@@ -58,4 +58,5 @@ public class UserEntity {
 
     @Column(name = "profile_url")
     private String profileUrl;
+
 }

@@ -67,7 +67,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         int degree = 1;
          degree = approvalCommandRepository.findMaxDegreeByCode(newCode) + 1;
 
-
+        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+        }
         // 결재 엔티티 생성
         ApprovalEntity approval = new ApprovalEntity();
         approval.setTitle(request.getTitle());
@@ -86,6 +88,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         // 결재 문서
         ApprovalDocumentDTO doc = request.getApprovalDocuments();
 
+        if (doc.getDocumentIds() == null || doc.getDocumentIds().isEmpty()) {
+            throw new IllegalArgumentException("결재 문서는 최소 1개 이상 등록해야 합니다.");
+        }
         switch (doc.getCategoryType()) {
             case ORDER -> {
                 List<OrderApprovalEntity> orderDocs = doc.getDocumentIds().stream()
