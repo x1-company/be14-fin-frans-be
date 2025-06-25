@@ -103,6 +103,7 @@ public class NotificationService {
                     .name(EVENT_NAME)
                     .data(data)
             );
+            log.info("[알림 전송 성공] emitterId={}, eventId={}", emitterId, eventId);
         } catch (IOException exception) {
             log.warn("SSE 전송 실패 (IOException) - emitterId={}, eventId={}, exceptionType={}, message={}",
                     emitterId, eventId, exception.getClass().getName(), exception.getMessage(), exception);
@@ -137,7 +138,7 @@ public class NotificationService {
         String receiverIdStr = String.valueOf(receiver.getId());
         String eventId = generateEmitterId(receiverIdStr); // UUID 기반으로 변경
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
-
+        log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
         emitters.forEach((key, emitter) -> {
             emitterRepository.saveEventCache(key, notification);
             sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
