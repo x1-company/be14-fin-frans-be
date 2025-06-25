@@ -75,4 +75,9 @@ public class ReturnEntity {
         this.status = ReturnStatus.WAITING_FOR_RECEIPT;
     }
 
+    public void updateRejectedReason(String reason) {
+        this.rejectedReason = reason;
+    }
+
+
 }
