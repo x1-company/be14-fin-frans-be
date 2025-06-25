@@ -44,6 +44,7 @@ public class JwtUtil {
         claims.put("userProfileUrl", userDetails.getProfileUrl());
         claims.put("userType", userType.name());
         claims.put("userName", userDetails.getName());
+        claims.put("userEmail", userDetails.getEmail());
 
         switch (userType) {
             case HQ -> {

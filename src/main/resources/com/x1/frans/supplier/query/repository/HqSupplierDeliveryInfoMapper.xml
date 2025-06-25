@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.x1.frans.supplier.query.repository.HqSupplierDeliveryInfoMapper">
+
+    <!-- 납품서 목록 조회 -->
+    <resultMap id="HqSupplierDeliveryInfoDTOMap" type="com.x1.frans.supplier.query.dto.HqSupplierDeliveryInfoDTO">
+        <id property="id" column="delivery_info_id"/>
+        <result property="code" column="code"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deliveryCompanyName" column="delivery_company_name"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="purchaseOrderId" column="purchase_order_id"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <collection property="details" ofType="com.x1.frans.supplier.query.dto.DeliveryDetailDTO">
+            <id property="id" column="detail_id"/>
+            <result property="quantity" column="detail_quantity"/>
+            <result property="totalAmount" column="detail_total_amount"/>
+            <result property="productId" column="product_id"/>
+            <result property="deliveryInfoId" column="delivery_info_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="findDeliveryInfos" resultMap="HqSupplierDeliveryInfoDTOMap" parameterType="map">
+        SELECT
+        di.id AS delivery_info_id,
+        di.code,
+        di.year,
+        di.month,
+        di.day,
+        di.total_amount,
+        di.created_at,
+        di.updated_at,
+        di.delivery_company_name,
+        di.vehicle_number,
+        di.tracking_number,
+        di.supplier_id,
+        di.purchase_order_id,
+        dd.id AS detail_id,
+        dd.quantity AS detail_quantity,
+        dd.total_amount AS detail_total_amount,
+        dd.product_id,
+        dd.delivery_info_id AS delivery_info_id
+        FROM delivery_info di
+        LEFT JOIN delivery_detail dd ON di.id = dd.delivery_info_id
+        <where>
+            <if test="supplierId != null">
+                di.supplier_id = #{supplierId}
+            </if>
+            <if test="year != null">
+                AND di.year = #{year}
+            </if>
+            <if test="month != null">
+                AND di.month = #{month}
+            </if>
+            <if test="day != null">
+                AND di.day = #{day}
+            </if>
+        </where>
+        ORDER BY di.created_at DESC, di.id, dd.id
+    </select>
+
+    <!-- 발주 목록(납품 등록 필요/완료) -->
+    <select id="getRequestedPurchaseOrders" resultType="com.x1.frans.supplier.query.dto.HqRequestedDeliveryInfoDTO">
+        SELECT
+        a.id AS purchaseOrderId,
+        a.code AS purchaseOrderCode,
+        a.total_amount AS totalAmount,
+        a.requested_delivery_date AS requestedDeliveryDate,
+        c.processed_at AS processedAt,
+        d.id AS deliveryInfoId,
+        d.day AS deliveredDay,
+        d.month AS deliveredMonth,
+        d.year AS deliveredYear,
+        a.supplier_id AS supplierId
+        FROM purchase_order a
+        JOIN purchase_order_approval b ON a.id = b.purchase_order_id
+        JOIN approval c ON b.approval_id = c.id
+        AND b.approval_degree = c.degree
+        LEFT JOIN delivery_info d ON a.id = d.purchase_order_id
+        <where>
+            c.status = 'APPROVED'
+            <if test="supplierId != null">
+                AND a.supplier_id = #{supplierId}
+            </if>
+            <if test="startYearMonth != null and endYearMonth != null">
+                <![CDATA[
+                AND a.requested_delivery_date >= STR_TO_DATE(CONCAT(#{startYearMonth}, '01'), '%Y%m%d')
+                AND a.requested_delivery_date < STR_TO_DATE(CONCAT(#{endYearMonth}, '01'), '%Y%m%d') + INTERVAL 1 MONTH
+                ]]>
+            </if>
+            <if test="type == 'requested'">
+                AND d.id IS NULL
+            </if>
+            <if test="type == 'completed'">
+                AND d.id IS NOT NULL
+            </if>
+        </where>
+    </select>
+
+    <!-- 발주 상세(납품 정보 포함) -->
+    <resultMap id="hqDeliveryInfoDetailMap" type="com.x1.frans.supplier.query.dto.HqDeliveryInfoDetailsDTO">
+        <id property="purchaseOrderId" column="purchaseOrderId"/>
+        <result property="purchaseOrderCode" column="purchaseOrderCode"/>
+        <result property="totalAmount" column="totalAmount"/>
+        <result property="requestedDeliveryDate" column="requestedDeliveryDate"/>
+        <result property="deliveryCompanyName" column="deliveryCompanyName"/>
+        <result property="vehicleNumber" column="vehicleNumber"/>
+        <result property="trackingNumber" column="trackingNumber"/>
+        <result property="expectedDate" column="expectedDate"/>
+        <result property="deliveryInfoId" column="deliveryInfoId"/>
+        <result property="supplierId" column="supplierId"/>
+        <collection property="productList" ofType="com.x1.frans.supplier.query.dto.PurchaseOrderProductDTO">
+            <result property="productId" column="productId"/>
+            <result property="productName" column="productName"/>
+            <result property="quantity" column="quantity"/>
+            <result property="purchasePrice" column="purchasePrice"/>
+            <result property="purchaseUnit" column="purchaseUnit"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPurchaseOrderDetail" resultMap="hqDeliveryInfoDetailMap">
+        SELECT
+        a.id AS purchaseOrderId,
+        a.code AS purchaseOrderCode,
+        a.total_amount AS totalAmount,
+        a.requested_delivery_date AS requestedDeliveryDate,
+        b.quantity,
+        c.name AS productName,
+        c.purchase_price AS purchasePrice,
+        c.purchase_unit AS purchaseUnit,
+        c.id AS productId,
+        d.delivery_company_name AS deliveryCompanyName,
+        d.vehicle_number AS vehicleNumber,
+        d.tracking_number AS trackingNumber,
+        d.expected_date AS expectedDate,
+        d.id AS deliveryInfoId,
+        a.supplier_id AS supplierId
+        FROM purchase_order a
+        LEFT JOIN purchase_order_product b ON a.id = b.purchase_order_id
+        LEFT JOIN product c ON b.product_id = c.id
+        LEFT JOIN delivery_info d ON a.id = d.purchase_order_id
+        WHERE a.id = #{purchaseOrderId}
+    </select>
+
+</mapper>

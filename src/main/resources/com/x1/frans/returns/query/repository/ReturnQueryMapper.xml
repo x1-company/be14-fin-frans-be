@@ -5,13 +5,13 @@
 <mapper namespace="com.x1.frans.returns.query.repository.ReturnQueryMapper">
     <select id="findDeliveredOrdersWithinLastWeek" resultType="com.x1.frans.returns.query.dto.ShippedOrderDTO">
         SELECT
-               o.`id`
+            o.`id`
              , o.`code`
              , d.`delivered_at`
              , o.`total_amount`
              , o.`status`
         FROM `orders` o
-        JOIN `delivery` d ON o.`delivery_id` = d.`id`
+                 JOIN `delivery` d ON o.`delivery_id` = d.`id`
         WHERE o.`franchise_id` = #{franchiseId}
           AND o.`user_id` = #{userId}
           AND o.`status` = 'DELIVERED'
@@ -20,25 +20,25 @@
 
     <select id="findProductListByOrdrId" resultType="com.x1.frans.returns.query.dto.ProductOrderDTO">
         SELECT
-              po.`id` AS id
-            , po.`product_id`
-            , po.`order_id`
-            , po.`quantity`
-            , o.`code` AS orderCode
-            , p.`code` AS productCode
-            , p.`name` AS productName
-            , p.`sale_price`
-            , p.`unit`
-            , p.`spec`
-            , pg.`name` AS productGroupName
-            , pt.`name` AS productTypeName
-            , pa.`name` AS productAttributeName
+            po.`id` AS id
+             , po.`product_id`
+             , po.`order_id`
+             , po.`quantity`
+             , o.`code` AS orderCode
+             , p.`code` AS productCode
+             , p.`name` AS productName
+             , p.`sale_price`
+             , p.`unit`
+             , p.`spec`
+             , pg.`name` AS productGroupName
+             , pt.`name` AS productTypeName
+             , pa.`name` AS productAttributeName
         FROM `product_order` po
-        JOIN `orders` o ON po.`order_id` = o.`id`
-        JOIN `product` p ON po.`product_id` = p.`id`
-        LEFT JOIN `product_group` pg ON p.`product_group_id` = pg.`id`
-        LEFT JOIN `product_type` pt ON p.`product_type_id` = pt.`id`
-        LEFT JOIN `product_attribute` pa ON p.`product_attribute_id` = pa.`id`
+                 JOIN `orders` o ON po.`order_id` = o.`id`
+                 JOIN `product` p ON po.`product_id` = p.`id`
+                 LEFT JOIN `product_group` pg ON p.`product_group_id` = pg.`id`
+                 LEFT JOIN `product_type` pt ON p.`product_type_id` = pt.`id`
+                 LEFT JOIN `product_attribute` pa ON p.`product_attribute_id` = pa.`id`
         WHERE o.`franchise_id` = #{franchiseId}
           AND o.`user_id` = #{userId}
           AND po.`order_id` = #{orderId}
@@ -57,25 +57,25 @@
     <select id="searchReturns" resultMap="ReturnListMap"
             parameterType="com.x1.frans.returns.query.dto.ReturnSearchConditionDTO">
         SELECT
-                r.id
-                , r.code
-                , CONCAT(
-                        (SELECT p2.name
-                         FROM return_detail rd2
-                         JOIN product p2 ON rd2.product_id = p2.id
-                         WHERE rd2.return_id = r.id
-                         ORDER BY rd2.id
-                         LIMIT 1),
-                        ' 외 ',
-                        (SELECT COUNT(*) - 1
-                         FROM return_detail rd3
-                         WHERE rd3.return_id = r.id)
-                        , '건'
-                    ) AS product_summary
-                , r.status
-                , r.created_at
-                , r.total_amount
-                , f.name AS franchise_name
+        r.id
+        , r.code
+        , CONCAT(
+        (SELECT p2.name
+        FROM return_detail rd2
+        JOIN product p2 ON rd2.product_id = p2.id
+        WHERE rd2.return_id = r.id
+        ORDER BY rd2.id
+        LIMIT 1),
+        ' 외 ',
+        (SELECT COUNT(*) - 1
+        FROM return_detail rd3
+        WHERE rd3.return_id = r.id)
+        , '건'
+        ) AS product_summary
+        , r.status
+        , r.created_at
+        , r.total_amount
+        , f.name AS franchise_name
         FROM `return` r
         JOIN franchise f ON r.franchise_id = f.id
         <where>
@@ -114,8 +114,11 @@
                 )
             </if>
 
-            <if test="status != null">
-                AND r.status LIKE CONCAT('%', #{status}, '%')
+            <if test="statusList != null and statusList.size > 0">
+                AND r.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="startDate != null and endDate != null">
@@ -164,8 +167,11 @@
                 )
             </if>
 
-            <if test="status != null">
-                AND r.status LIKE CONCAT('%', #{status}, '%')
+            <if test="statusList != null and statusList.size > 0">
+                AND r.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="startDate != null and endDate != null">
@@ -185,7 +191,7 @@
     <select id="findHqReturnDetailById" resultType="com.x1.frans.returns.query.dto.HqReturnDetailDTO">
         SELECT
         -- 가맹점 정보
-               f.name            AS franchiseName
+            f.name            AS franchiseName
              , f.code            AS franchiseCode
              , f.business_number AS businessNumber
              , u.name            AS ceoName
@@ -197,9 +203,9 @@
 
         -- 반품 정보
              , r.code            AS returnCode
-             , r.created_at
+             , r.created_at      AS createdAt
              , r.status
-             , r.total_amount
+             , r.total_amount    AS totalAmount
              , r.description
              , CASE WHEN r.status = 'REJECTED' THEN r.rejected_reason ELSE NULL END AS rejectedReason
 
@@ -231,18 +237,18 @@
 
         WHERE r.id = #{returnId}
           AND EXISTS (
-              SELECT 1
-              FROM hq_user_detail h
-              WHERE h.department_id = f.department_id
-              AND h.user_id = #{userId}
-              )
+            SELECT 1
+            FROM hq_user_detail h
+            WHERE h.department_id = f.department_id
+          AND h.user_id = #{userId}
+            )
     </select>
 
     <!-- 가맹점주 반품 정보 상세 조회 -->
     <select id="findReturnDetailById" resultType="com.x1.frans.returns.query.dto.ReturnDetailDTO">
         SELECT
         -- 가맹점 정보
-            f.name            AS franchiseName
+               f.name            AS franchiseName
              , f.code            AS franchiseCode
              , f.business_number AS businessNumber
              , u.name            AS ceoName
@@ -254,9 +260,9 @@
 
         -- 반품 정보
              , r.code            AS returnCode
-             , r.created_at
+             , r.created_at      AS createdAt
              , r.status
-             , r.total_amount
+             , r.total_amount    AS totalAmount
              , r.description
              , CASE WHEN r.status = 'REJECTED' THEN r.rejected_reason ELSE NULL END AS rejectedReason
 
@@ -268,12 +274,12 @@
              , DATE(d.delivered_at) AS deliveredAt
 
         FROM `return` r
-        JOIN franchise f ON r.franchise_id = f.id
-        JOIN user u ON f.owner_id = u.id
-        LEFT JOIN delivery d ON r.delivery_id = d.id
+            JOIN franchise f ON r.franchise_id = f.id
+            JOIN user u ON f.owner_id = u.id
+            LEFT JOIN delivery d ON r.delivery_id = d.id
 
         WHERE r.id = #{returnId}
-        AND f.`owner_id` = #{userId}
+          AND f.`owner_id` = #{userId}
 
     </select>
 
@@ -281,7 +287,7 @@
     <select id="findReturnProductsById" resultType="com.x1.frans.returns.query.dto.ReturnProductDTO">
         SELECT
              -- 반품 상세 정보
-               rd.id               AS returnDetailId
+            rd.id               AS returnDetailId
              , rd.status           AS returnStatus
              , rd.return_type      AS returnType
              , rd.quantity         AS returnQuantity
@@ -300,7 +306,7 @@
              , p.sale_price        AS salePrice
 
         FROM return_detail rd
-        JOIN product p ON rd.product_id = p.id
+                 JOIN product p ON rd.product_id = p.id
         WHERE rd.return_id = #{returnId}
     </select>
 
@@ -317,18 +323,16 @@
     <!-- 검토완료된 반품 목록 조회 -->
     <select id="findReturnReviewCompletedById" resultType="com.x1.frans.returns.query.dto.HqReturnReviewCompltedDTO">
         SELECT
-               r. id
-             , r.code
-             , f.name
+            r.code
              , r.status
              , r.created_at AS createdAt
              , r.total_amount AS totalAmount
              , r.description
-          FROM `return` r
-          JOIN franchise f ON f.id = r.franchise_id
-          JOIN user u ON u.id = f.manager_id
-         WHERE u.id = #{userId}
-           AND r.status = 'REVIEW_COMPLETED'
-         ORDER BY r.created_at
+        FROM `return` r
+                 JOIN franchise f ON f.id = r.franchise_id
+                 JOIN user u ON u.id = f.manager_id
+        WHERE u.id = #{userId}
+          AND r.status = 'REVIEW_COMPLETED'
+        ORDER BY r.created_at
     </select>
 </mapper>
