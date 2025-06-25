@@ -237,6 +237,12 @@
          ORDER BY o.created_at
     </select>
 
-
+<!--  주문 마감 시간 조히-->
+    <select id="findOrderDeadline" resultType="com.x1.frans.order.query.dto.OrderDeadlineResponseDto">
+        SELECT TIME_FORMAT(order_deadline_at, '%H:%i') AS orderDeadlineAt
+          FROM store_order_deadline
+         ORDER BY id DESC
+         LIMIT 1
+    </select>
 
 </mapper>

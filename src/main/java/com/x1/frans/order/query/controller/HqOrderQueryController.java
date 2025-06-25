@@ -1,9 +1,6 @@
 package com.x1.frans.order.query.controller;
 
-import com.x1.frans.order.query.dto.HqOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderReviewCompletedListDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
+import com.x1.frans.order.query.dto.*;
 import com.x1.frans.order.query.service.HqOrderQueryService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,4 +63,16 @@ public class HqOrderQueryController {
 
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/deadline")
+    public ResponseEntity<OrderDeadlineResponseDto> getOrderDeadline(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUserId();  // 예: 추후 HQ 소속 체크 등에 사용할 수 있음
+
+        OrderDeadlineResponseDto dto = orderQueryService.getOrderDeadline(userId);
+
+        return ResponseEntity.ok(dto);
+    }
+
 }
