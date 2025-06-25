@@ -65,4 +65,13 @@ public class PurchaseOrderQueryController {
     ) {
         return purchaseOrderQueryService.getOrderByCode(code, pageable);
     }
+
+    @GetMapping("/title")
+    @Operation(summary = "발주 제목으로 목록 조회", description = "발주 제목에 포함된 내용으로 목록을 조회한다.")
+    public Page<PurchaseOrderSimpleDto> getOrderByTitle(
+            @RequestParam("title") String title,
+            Pageable pageable
+    ) {
+        return purchaseOrderQueryService.getOrderByTitle(title, pageable);
+    }
 }

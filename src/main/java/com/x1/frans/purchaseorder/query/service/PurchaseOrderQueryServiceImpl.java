@@ -79,4 +79,13 @@ public class PurchaseOrderQueryServiceImpl implements PurchaseOrderQueryService 
         int total = purchaseOrderQueryMapper.countOrderByCode(code);
         return new PageImpl<>(content, pageable, total);
     }
+
+    @Override
+    public Page<PurchaseOrderSimpleDto> getOrderByTitle(String title, Pageable pageable) {
+        int offset = (int) pageable.getOffset();
+        int limit = pageable.getPageSize();
+        List<PurchaseOrderSimpleDto> content = purchaseOrderQueryMapper.selectOrderByTitle(title, limit, offset);
+        int total = purchaseOrderQueryMapper.countOrderByTitle(title);
+        return new PageImpl<>(content, pageable, total);
+    }
 }

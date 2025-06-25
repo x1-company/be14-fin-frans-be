@@ -26,4 +26,7 @@ public interface PurchaseOrderQueryService {
 
     // 발주 번호로 조회
     Page<PurchaseOrderSimpleDto> getOrderByCode(String code, Pageable pageable);
+
+    // 발주 제목으로 조회
+    Page<PurchaseOrderSimpleDto> getOrderByTitle(String title, Pageable pageable);
 }

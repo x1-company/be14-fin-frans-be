@@ -212,6 +212,24 @@
         </if>
     </select>
 
+    <!-- 제목으로 발주 목록 조회 -->
+    <select id="selectOrderByTitle" resultMap="purchaseOrderSimpleResultMap">
+        SELECT
+        po.id,
+        po.code,
+        po.title,
+        po.total_amount,
+        po.status,
+        po.created_at,
+        po.requested_delivery_date
+        FROM purchase_order po
+        WHERE po.title LIKE CONCAT('%', #{title}, '%')
+        ORDER BY po.created_at DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
     <select id="countOrderByStatus" resultType="int">
         SELECT COUNT(*)
         FROM purchase_order
@@ -237,6 +255,13 @@
         SELECT COUNT(*)
         FROM purchase_order
         WHERE code LIKE CONCAT('%', #{code}, '%')
+    </select>
+
+    <!-- 발주 제목 조회 결과 총 개수 -->
+    <select id="countOrderByTitle" resultType="int">
+        SELECT COUNT(*)
+        FROM purchase_order
+        WHERE title LIKE CONCAT('%', #{title}, '%')
     </select>
 
 </mapper>
