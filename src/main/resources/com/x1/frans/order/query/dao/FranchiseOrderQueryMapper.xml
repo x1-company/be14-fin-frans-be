@@ -199,6 +199,7 @@
              , p.name
              , p.purchase_price AS salePrice
              , p.purchase_unit AS purchaseUnit
+             , p.unit AS unit
              , p.spec
              , s.name AS supplierName
              , otd.quantity
