@@ -237,9 +237,8 @@ public class NotificationService {
 
     @Scheduled(fixedRate = 30000) // 30초
     public void sendHeartbeat() {
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId("*");
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(""); // ★
         log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
-
         emitters.forEach((emitterId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
@@ -249,7 +248,6 @@ public class NotificationService {
                 log.info("[HEARTBEAT] 전송 성공: {}", emitterId);
             } catch (IOException e) {
                 log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
-                // 연결이 끊긴 emitter는 repository에서 제거
                 emitterRepository.deleteById(emitterId);
             }
         });
