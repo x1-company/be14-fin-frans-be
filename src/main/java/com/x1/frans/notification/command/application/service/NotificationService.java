@@ -237,15 +237,20 @@ public class NotificationService {
 
     @Scheduled(fixedRate = 30000) // 30초
     public void sendHeartbeat() {
-        // 모든 연결된 클라이언트에게 heartbeat 전송
-        emitterRepository.findAllEmitterStartWithByUserId("*").forEach((emitterId, emitter) -> {
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId("*");
+        log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
+
+        emitters.forEach((emitterId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
                         .id("heartbeat-" + System.currentTimeMillis())
                         .name("heartbeat")
                         .data("ping"));
+                log.info("[HEARTBEAT] 전송 성공: {}", emitterId);
             } catch (IOException e) {
-                log.warn("Heartbeat 전송 실패: {}", emitterId);
+                log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
+                // 연결이 끊긴 emitter는 repository에서 제거
+                emitterRepository.deleteById(emitterId);
             }
         });
     }
