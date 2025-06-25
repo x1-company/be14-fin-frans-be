@@ -9,6 +9,7 @@ import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurc
 import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
+import com.x1.frans.exception.ApprovalNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,21 +221,39 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Override
     public ApprovalDraftDTO getApprovalDraft(long approvalId) {
+        // 기본 임시저장 데이터 조회
         ApprovalDraftDTO draft = approvalQueryMapper.selectApprovalDraft(approvalId);
+
+        // Null 체크 (없으면 예외 던지기)
+        if (draft == null) {
+            throw new ApprovalNotFoundException("임시저장 상태의 결재문서를 찾을 수 없습니다. (approvalId: " + approvalId + ")");
+        }
+
+        //  결재선, 파일 조회
         List<ApprovalDraftLineDTO> lines = approvalQueryMapper.selectApprovalDraftLines(approvalId);
         List<ApprovalFileDTO> files = approvalQueryMapper.selectApprovalDraftFiles(approvalId);
 
+        // categoryType 조회
         String categoryType = approvalQueryMapper.selectApprovalCategoryType(approvalId);
 
+        // documentIds 조회 (categoryType별)
         List<Long> documentIds;
         switch (categoryType) {
-            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);  // order_approval
+            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);
             case "RETURN" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsReturn(approvalId);
             case "PURCHASE_ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsPurchase(approvalId);
-            default -> throw new IllegalArgumentException("Unknown categoryType");
+            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
         }
 
-        ApprovalDocumentDTO docDto = new ApprovalDocumentDTO(categoryType, documentIds);
+        //  ApprovalDocumentDTO 조회
+        List<ApprovalDocumentDTO> docDto;
+        switch (categoryType) {
+            case "ORDER" -> docDto = approvalQueryMapper.selectApprovalDocumentMetaOrder(approvalId);
+            case "RETURN" -> docDto = approvalQueryMapper.selectApprovalDocumentMetaReturn(approvalId);
+            case "PURCHASE_ORDER" -> docDto = approvalQueryMapper.selectApprovalDocumentMetaPurchase(approvalId);
+            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
+        }
+        // 최종 세팅
         draft.setApprovalDocuments(docDto);
         draft.setLines(lines);
         draft.setFiles(files);

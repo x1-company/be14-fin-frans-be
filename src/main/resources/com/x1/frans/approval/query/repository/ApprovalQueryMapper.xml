@@ -1291,5 +1291,49 @@
     </select>
 
 
+<!--    documentDTO 추가된 사항 -->
+    <select id="selectApprovalDocumentMetaOrder" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
+        SELECT
+            o.id AS documentId,
+            o.code AS documentNo,
+            f.name AS franchiseName,
+            o.created_at AS createdAt,
+            o.total_amount AS amount
+        FROM order_approval oa
+                 JOIN `orders` o ON oa.orders_id = o.id
+                 LEFT JOIN franchise f ON o.franchise_id = f.id
+        WHERE oa.approval_id = #{approvalId}
+    </select>
+
+    <select id="selectApprovalDocumentMetaReturn" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
+        SELECT
+            r.id AS documentId,
+            r.code AS documentNo,
+            f.name AS franchiseName,
+            r.created_at AS createdAt,
+            r.description AS reason,
+            r.total_amount AS amount
+        FROM return_approval ra
+                 JOIN `return` r ON ra.return_id = r.id
+                 LEFT JOIN franchise f ON r.franchise_id = f.id
+    </select>
+
+    <select id="selectApprovalDocumentMetaPurchase" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
+        SELECT
+            po.id AS documentId,
+            po.code AS documentNo,
+            s.name AS supplierName,
+            po.created_at AS createdAt,
+            po.total_amount AS amount
+        FROM purchase_order_approval poa
+                 JOIN purchase_order po ON poa.purchase_order_id = po.id
+                 LEFT JOIN supplier s ON po.supplier_id = s.id
+        WHERE poa.approval_id = #{approvalId}
+    </select>
+
+
+
+
+
 
 </mapper>

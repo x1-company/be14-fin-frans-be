@@ -37,7 +37,7 @@ public class ApprovalDraftDTO {
     private String categoryType;
 
     @Schema(description = "문서 유형")
-    private ApprovalDocumentDTO approvalDocuments;
+    private List<ApprovalDocumentDTO> approvalDocuments;
 
     @Schema(description = "결재선 정보")
     private List<ApprovalDraftLineDTO> lines;

@@ -143,4 +143,10 @@ public interface ApprovalQueryMapper  {
     BigDecimal findTotalPurchaseOrderAmountByApprovalId(long approvalId);
 
     BigDecimal findTotalReturnAmountByApprovalId(long approvalId);
+
+    List<ApprovalDocumentDTO> selectApprovalDocumentMetaOrder(long approvalId);
+
+    List<ApprovalDocumentDTO> selectApprovalDocumentMetaReturn(long approvalId);
+
+    List<ApprovalDocumentDTO> selectApprovalDocumentMetaPurchase(long approvalId);
 }
