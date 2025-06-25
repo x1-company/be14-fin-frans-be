@@ -75,6 +75,7 @@ public class NotificationService {
         String userIdStr = toUserIdStr(userId);
 
         String emitterId = generateEmitterId(userIdStr);
+        log.info("[SSE SUBSCRIBE] userId={}, userIdStr={}, emitterId={}", userId, userIdStr, emitterId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         emitter.onCompletion(() -> safeDeleteEmitter(emitterId));
@@ -140,6 +141,7 @@ public class NotificationService {
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
         log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
         emitters.forEach((key, emitter) -> {
+            log.info("[알림 PUSH] emitterId={}", key);
             emitterRepository.saveEventCache(key, notification);
             sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
         });
