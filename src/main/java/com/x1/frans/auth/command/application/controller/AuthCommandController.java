@@ -75,11 +75,11 @@ public class AuthCommandController {
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 // TODO: 배포 시 변경 필요 (security.AuthenticationFilter와 동일하게)
                 .httpOnly(true)
-//                .secure(true) // HTTPS
+                .secure(true) // HTTPS
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
-//                .sameSite("None") // HTTPS
+//                .sameSite("Lax")
+                .sameSite("None") // HTTPS
                 .build();
 
         response.setHeader("Set-Cookie", deleteCookie.toString());
