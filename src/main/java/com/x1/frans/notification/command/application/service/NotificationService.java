@@ -227,11 +227,9 @@ public class NotificationService {
     }
 
     public void clearEmittersAndCache(UserEntity user) {
-        String userIdStr = user.getEmail();
-
+        String userIdStr = String.valueOf(user.getId());
         emitterRepository.deleteAllEmitterStartWithId(userIdStr);
         emitterRepository.deleteAllEventCacheStartWithId(userIdStr);
-
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
 
