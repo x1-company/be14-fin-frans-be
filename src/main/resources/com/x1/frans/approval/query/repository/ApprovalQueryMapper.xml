@@ -839,6 +839,7 @@
         SELECT
                o.id AS orderId
              , po.id AS historyId
+             , p.code
              , p.name AS productName
              , p.spec
              , p.purchase_unit AS purchaseUnit
@@ -864,13 +865,17 @@
              , a.title
              , a.remarks
              , 'ORDER' AS categoryType
+             , dept.name AS deptName
              , a.status
              , a.created_at
+             , a.processed_at As processedAt
              , u.name AS drafter_name
              , l.user_name
              , l.approval_type AS user_type
         FROM approval a
                  LEFT JOIN user u ON a.user_id = u.id
+                 JOIN hq_user_detail hud ON hud.user_id = u.id
+                 JOIN department dept ON dept.id = hud.department_id
                  LEFT JOIN (
                             SELECT
                                 al.approval_id,
@@ -907,6 +912,7 @@
         SELECT
                r.id AS returnId
              , rd.id AS historyId
+             , p.code
              , p.name AS productName
              , p.spec
              , p.purchase_unit AS purchaseUnit
@@ -932,6 +938,8 @@
              , a.title
              , a.remarks
              , 'RETURN' AS categoryType
+             , dept.name AS deptName
+             , a.processed_at As processedAt
              , a.status
              , a.created_at
              , u.name AS drafter_name
@@ -939,6 +947,8 @@
              , l.approval_type AS user_type
           FROM approval a
           LEFT JOIN user u ON a.user_id = u.id
+          JOIN hq_user_detail hud ON hud.user_id = u.id
+          JOIN department dept ON dept.id = hud.department_id
           LEFT JOIN (
                       SELECT
                              al.approval_id
@@ -980,14 +990,17 @@
              , a.title
              , a.remarks
              , 'PURCHASE_ORDER' AS categoryType
+             , dept.name AS deptName
              , a.status
+             , a.processed_at As processedAt
              , a.created_at
              , u.name AS drafter_name
              , l.user_name
              , l.approval_type AS user_type
           FROM approval a
-          LEFT JOIN user u
-            ON a.user_id = u.id
+          LEFT JOIN user u ON a.user_id = u.id
+              JOIN hq_user_detail hud ON hud.user_id = u.id
+              JOIN department dept ON dept.id = hud.department_id
           LEFT JOIN (
                         SELECT
                                al.approval_id
@@ -1017,6 +1030,7 @@
         SELECT
             po.id AS purchaseOrderId
              , pop.id AS historyId
+             , p.code
              , p.name AS productName
              , p.spec
              , p.purchase_unit AS purchaseUnit
@@ -1048,6 +1062,7 @@
         SELECT
                a.id
              , u.name
+             , u.sign_url AS url
           FROM approval a
           JOIN user u ON a.user_id = u.id
          WHERE a.id = #{approvalId}
@@ -1067,6 +1082,7 @@
              , al.is_checked AS isChecked
              , al.checked_at AS checkedAt
              , al.opinion
+             , u.sign_url AS url
           FROM approval_line al
           LEFT JOIN user u
             ON al.user_id = u.id
@@ -1195,6 +1211,7 @@
             a.id AS approvalId,
             a.code,
             a.title,
+            a.remarks
             a.status,
             a.is_requested AS isRequested,
             a.user_id AS id

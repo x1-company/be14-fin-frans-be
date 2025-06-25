@@ -25,6 +25,9 @@ public class ApprovalDraftDTO {
     @Schema(description = "결재 제목")
     private String title;
 
+    @Schema(description = "결재 내용")
+    private String remarks;
+
     @Schema(description = "결재 상태(결재완료, 결재반려, 결재중, 임시저장)")
     private String status;
 
