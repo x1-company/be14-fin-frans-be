@@ -1,9 +1,6 @@
 package com.x1.frans.order.query.dao;
 
-import com.x1.frans.order.query.dto.HqOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderReviewCompletedListDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
+import com.x1.frans.order.query.dto.*;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,4 +20,6 @@ public interface HqOrderQueryMapper {
     List<ProductDetailDTO> findProductsByOrderId(@Param("orderId") Long orderId);
 
     List<OrderReviewCompletedListDto> findOrderReviewCompleted(Long userId);
+
+    OrderDeadlineResponseDto findOrderDeadline();
 }
