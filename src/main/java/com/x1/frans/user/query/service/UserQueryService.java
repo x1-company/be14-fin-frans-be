@@ -1,9 +1,6 @@
 package com.x1.frans.user.query.service;
 
-import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
-import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
-import com.x1.frans.user.query.dto.SearchHqUserDTO;
-import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
+import com.x1.frans.user.query.dto.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -25,4 +22,6 @@ public interface UserQueryService extends UserDetailsService {
     HqUserDepartmentDTO getDepartmentInfo(Long userId);
 
     List<Long> getAccessibleFranchiseIdsForUser(Long userId);
+
+    MyInfoDTO getMyInfo(Long userId);
 }

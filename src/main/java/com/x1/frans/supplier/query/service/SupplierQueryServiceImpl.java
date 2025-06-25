@@ -1,12 +1,9 @@
 package com.x1.frans.supplier.query.service;
 
-import com.x1.frans.supplier.query.dto.SupplierDetailDTO;
-import com.x1.frans.supplier.query.dto.SupplierListDTO;
+import com.x1.frans.supplier.query.dto.MyInfoDTO;
 import com.x1.frans.supplier.query.repository.SupplierQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class SupplierQueryServiceImpl implements SupplierQueryService {
@@ -19,17 +16,7 @@ public class SupplierQueryServiceImpl implements SupplierQueryService {
     }
 
     @Override
-    public String findLatestCodeByCodePrefix(String codePrefix) {
-        return supplierQueryMapper.findLatestCodeByCodePrefix(codePrefix);
-    }
-
-    @Override
-    public List<SupplierListDTO> getAllSuppliers() {
-        return supplierQueryMapper.findSupplierList();
-    }
-
-    @Override
-    public SupplierDetailDTO getSupplierDetail(long supplierId) {
-        return supplierQueryMapper.getSupplierDetail(supplierId);
+    public MyInfoDTO getMyInfo(Long userId) {
+        return supplierQueryMapper.getMyInfo(userId);
     }
 }
