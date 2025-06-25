@@ -35,4 +35,12 @@ public interface PurchaseOrderQueryMapper {
             @Param("offset") Integer offset
     );
     int countOrderByStatus(@Param("status") String status);
+
+    // 코드로 발주 목록 조회
+    List<PurchaseOrderSimpleDto> selectOrderByCode(
+            @Param("code") String code,
+            @Param("limit") Integer limit,
+            @Param("offset") Integer offset
+    );
+    int countOrderByCode(@Param("code") String code);
 }
