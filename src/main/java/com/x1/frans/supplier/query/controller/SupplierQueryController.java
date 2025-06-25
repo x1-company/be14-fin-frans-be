@@ -1,48 +1,38 @@
 package com.x1.frans.supplier.query.controller;
 
-import com.x1.frans.supplier.query.dto.SupplierDetailDTO;
-import com.x1.frans.supplier.query.dto.SupplierListDTO;
+import com.x1.frans.security.CustomUserDetails;
+import com.x1.frans.supplier.query.dto.MyInfoDTO;
 import com.x1.frans.supplier.query.service.SupplierQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "🐔 공급처", description = "공급처 관련 API")
 @RestController
-@RequestMapping("/api/hq/suppliers")
-@Slf4j
+@RequestMapping("/api/supplier")
 public class SupplierQueryController {
 
-    public final SupplierQueryService supplierQueryService;
+    private final SupplierQueryService supplierQueryService;
 
     @Autowired
     public SupplierQueryController(SupplierQueryService supplierQueryService) {
         this.supplierQueryService = supplierQueryService;
     }
 
-    @Operation(summary = "공급처 목록 조회", description = "공급처 리스트를 이름순으로 조회한다.")
-    @GetMapping("/list")
-    public ResponseEntity<List<SupplierListDTO>> supplierList() {
+    @GetMapping("/me")
+    @Operation(
+            summary = "내 정보 조회",
+            description = "내 정보를 조회합니다."
+    )
+    public ResponseEntity<MyInfoDTO> getMyInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        List<SupplierListDTO> list = supplierQueryService.getAllSuppliers();
+        MyInfoDTO myInfo = supplierQueryService.getMyInfo(customUserDetails.getUserId());
 
-        return ResponseEntity.ok(list);
-
-    }
-
-    @Operation(summary = "공급처 상세 조회", description = "공급처 상세 조회합니다.")
-    @GetMapping("/detail/{supplierId}")
-    public ResponseEntity<SupplierDetailDTO> detail(@PathVariable("supplierId") long supplierId) {
-
-        SupplierDetailDTO detail = supplierQueryService.getSupplierDetail(supplierId);
-
-        return ResponseEntity.ok(detail);
+        return ResponseEntity.ok(myInfo);
     }
 }

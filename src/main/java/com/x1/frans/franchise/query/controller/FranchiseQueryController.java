@@ -2,6 +2,7 @@ package com.x1.frans.franchise.query.controller;
 
 import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
+import com.x1.frans.franchise.query.dto.MyInfoDTO;
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
 import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.user.query.service.UserQueryService;
@@ -54,4 +55,17 @@ public class FranchiseQueryController {
 
         return ResponseEntity.ok(detail);
     }
+
+    @Operation(
+            summary = "내 정보 조회",
+            description = "내 정보를 조회합니다."
+    )
+    @GetMapping("/me")
+    public ResponseEntity<MyInfoDTO> getMyInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        MyInfoDTO myInfo = franchiseQueryService.getMyInfo(customUserDetails.getUserId());
+
+        return ResponseEntity.ok(myInfo);
+    }
+
 }
