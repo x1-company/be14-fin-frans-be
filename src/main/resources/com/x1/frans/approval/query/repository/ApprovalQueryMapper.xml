@@ -1211,6 +1211,7 @@
             a.id AS approvalId,
             a.code,
             a.title,
+            a.remarks
             a.status,
             a.is_requested AS isRequested,
             a.user_id AS id
