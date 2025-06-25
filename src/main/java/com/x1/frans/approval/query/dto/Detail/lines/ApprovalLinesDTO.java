@@ -17,6 +17,8 @@ public class ApprovalLinesDTO {
     @Schema(description = "기안자명")
     private String drafterName;
 
+    private String url;
+
     @Schema(description = "결재선 정보")
     private List<ApprovalLineDTO> line;
 

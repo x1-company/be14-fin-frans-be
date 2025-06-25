@@ -45,4 +45,6 @@ public class ApprovalLineDTO {
 
     @Schema(description = "의견")
     private String opinion;
+
+    private String url;
 }

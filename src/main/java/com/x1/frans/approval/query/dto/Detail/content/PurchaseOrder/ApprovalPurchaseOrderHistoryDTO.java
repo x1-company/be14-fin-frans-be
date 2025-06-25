@@ -19,6 +19,9 @@ public class ApprovalPurchaseOrderHistoryDTO implements ApprovalHistoryDTO {
     @Schema(description = "결재 이력 ID")
     private Long historyId;
 
+    @Schema(description = "자재번호")
+    private String code;
+
     @Schema(description = "자재명")
     private String productName;
 
