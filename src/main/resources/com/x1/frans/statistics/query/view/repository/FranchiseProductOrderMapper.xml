@@ -5,6 +5,81 @@
 
 <mapper namespace="com.x1.frans.statistics.query.view.repository.FranchiseProductOrderMapper">
 
+    <select id="existsFranchiseByManagerId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM franchise WHERE manager_id = #{managerId}
+        )
+    </select>
+
+    <select id="existsFranchiseByDepartmentId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM franchise WHERE department_id = #{departmentId}
+        )
+    </select>
+
+    <!-- 3. 매니저별 월별 통계 -->
+    <select id="selectStatsByManager" resultType="com.x1.frans.statistics.query.view.dto.FranchiseProductOrderQueryDTO">
+        SELECT
+            a.year,
+            a.month,
+        a.`order_quantity` AS `orderQuantity`,
+        a.`product_id` AS `productId`,
+        b.`code` AS `productCode`,
+        b.`name` AS `productName`,
+        b.`purchase_price` AS `productPurchasePrice`,
+        b.`sale_price` AS `productSalePrice`,
+        b.`purchase_unit` AS `productPurchaseUnit`,
+        b.`unit` AS `productUnit`,
+        b.`spec` AS `productSpec`,
+        c.`name` AS `productAttributeName`,
+        d.`name` AS `productGroupName`,
+        e.`name` AS `productTypeName`
+        FROM `franchise_product_order_stat` a
+        JOIN `franchise` f ON a.franchise_id = f.id
+        LEFT JOIN `product` b ON a.product_id = b.id
+        LEFT JOIN `product_attribute` c ON b.product_attribute_id = c.id
+        LEFT JOIN `product_group` d ON b.product_group_id = d.id
+        LEFT JOIN `product_type` e ON b.product_type_id = e.id
+        WHERE f.manager_id = #{managerId}
+        <if test="year != null">
+            AND a.`year` = #{year}
+        </if>
+        <if test="month != null">
+            AND a.`month` = #{month}
+        </if>
+    </select>
+
+
+    <!-- 매니저별 특정 가맹점 월별 통계 -->
+    <select id="selectStatsByManagerByFranchiseId" resultType="com.x1.frans.statistics.query.view.dto.FranchiseProductOrderQueryDTO">
+        SELECT
+            a.year,
+            a.month,
+        a.`order_quantity` AS `orderQuantity`,
+        a.`product_id` AS `productId`,
+        b.`code` AS `productCode`,
+        b.`name` AS `productName`,
+        b.`purchase_price` AS `productPurchasePrice`,
+        b.`sale_price` AS `productSalePrice`,
+        b.`purchase_unit` AS `productPurchaseUnit`,
+        b.`unit` AS `productUnit`,
+        b.`spec` AS `productSpec`,
+        c.`name` AS `productAttributeName`,
+        d.`name` AS `productGroupName`,
+        e.`name` AS `productTypeName`
+        FROM `franchise_product_order_stat` a
+        JOIN `franchise` f ON a.franchise_id = f.id
+        LEFT JOIN `product` b ON a.product_id = b.id
+        LEFT JOIN `product_attribute` c ON b.product_attribute_id = c.id
+        LEFT JOIN `product_group` d ON b.product_group_id = d.id
+        LEFT JOIN `product_type` e ON b.product_type_id = e.id
+        WHERE f.manager_id = #{userId}
+        AND f.id = #{franchiseId}
+    </select>
+
+
+
+
     <select id="getStats" resultType="com.x1.frans.statistics.query.view.dto.FranchiseProductOrderQueryDTO">
         SELECT
                a.`order_quantity` AS `orderQuantity`

@@ -1,5 +1,6 @@
 package com.x1.frans.statistics.query.view.controller;
 
+import com.x1.frans.security.CustomUserDetails;
 import com.x1.frans.statistics.query.view.dto.FranchiseProductOrderQueryDTO;
 import com.x1.frans.statistics.query.view.service.FranchiseProductOrderQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,7 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,4 +42,33 @@ public class FranchiseProductOrderQueryController {
 
         return ResponseEntity.ok(stats);
     }
+
+    @Operation(
+            summary = "담당 가맹점 월 자재별 주문량 통계 조회",
+            description = "자신이 담당하는 가맹점들의 월 자재별 주문량 통계를 조회한다.")
+    @GetMapping("/manager")
+    public ResponseEntity<List<FranchiseProductOrderQueryDTO>> getManagerStats (
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam Integer year,
+            @RequestParam Integer month
+    ) {
+        Long userId = customUserDetails.getUserId();
+
+        List<FranchiseProductOrderQueryDTO> stats
+                = franchiseProductOrderQueryService.getMonthlyStatsByManager(userId, year, month);
+
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/manager/{franchiseId}")
+    public ResponseEntity<List<FranchiseProductOrderQueryDTO>> getManagerStatsByFranchiseId(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long franchiseId  // ← year, month 제거
+    ) {
+        Long userId = customUserDetails.getUserId();
+        List<FranchiseProductOrderQueryDTO> stats =
+                franchiseProductOrderQueryService.getMonthlyStatsByManagerByFranchiseId(userId, franchiseId);  // ← year, month 제거
+        return ResponseEntity.ok(stats);
+    }
+
 }
