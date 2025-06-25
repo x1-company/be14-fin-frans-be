@@ -80,6 +80,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
 
         PurchaseOrderEntity order = PurchaseOrderEntity.builder()
                 .code(generateOrderCode())
+                .title(dto.getTitle())
                 .supplier(supplier)
                 .user(user)
                 .status(PurchaseOrderStatus.DRAFT)
@@ -103,8 +104,8 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             // 구매요청 정보 및 상태
             PurchaseRequestEntity purchaseRequest = purchaseRequestMapper.findById(p.getPurchaseRequestId())
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
-            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
-                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기 요청 상태부터 발주할 수 있습니다.");
             }
 
             // 구매요청에 자재가 포함되어 있는지 체크
@@ -157,6 +158,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             throw new CannotChangeToDraftExceptioin("저장(요청) 상태에서는 다시 임시저장 상태로 변경할 수 없습니다.");
         }
 
+        order.setTitle(dto.getTitle());
         order.setRequestedDeliveryDate(dto.getRequestedDeliveryDate());
         order.setUpdatedAt(LocalDateTime.now());
 
@@ -186,8 +188,8 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
 
 
-            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
-                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기요청 상태부터 발주할 수 있습니다.");
             }
 
             if (!purchaseRequestProductMapper.existsByPurchaseRequestIdAndProductId(p.getPurchaseRequestId(), p.getProductId())) {
@@ -306,6 +308,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
 
         PurchaseOrderEntity order = PurchaseOrderEntity.builder()
                 .code(generateOrderCode())
+                .title(dto.getTitle())
                 .supplier(supplier)
                 .user(user)
                 .status(PurchaseOrderStatus.REQUEST_PENDING)
@@ -329,8 +332,8 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
 
             PurchaseRequestEntity purchaseRequest = purchaseRequestMapper.findById(p.getPurchaseRequestId())
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
-            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
-                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기 요청부터 발주할 수 있습니다.");
             }
             // 구매요청-자재 매핑 검증
             if (!purchaseRequestProductMapper.existsByPurchaseRequestIdAndProductId(

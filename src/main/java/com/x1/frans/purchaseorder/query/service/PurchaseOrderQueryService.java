@@ -1,27 +1,23 @@
 package com.x1.frans.purchaseorder.query.service;
 
-import com.x1.frans.purchaseorder.query.dto.PurchaseOrderRequestPendingListDto;
-import com.x1.frans.purchaseorder.query.dto.PurchaseOrderDraftListDto;
-import com.x1.frans.purchaseorder.query.repository.PurchaseOrderQueryMapper;
-import org.springframework.stereotype.Service;
+import com.x1.frans.purchaseorder.enums.PurchaseOrderStatus;
+import com.x1.frans.purchaseorder.query.dto.PurchaseOrderDetailDto;
+import com.x1.frans.purchaseorder.query.dto.PurchaseOrderSimpleDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+public interface PurchaseOrderQueryService {
+    // 1. 임시저장 목록 조회
+    Page<PurchaseOrderSimpleDto> getDraftOrder(Pageable pageable);
 
-@Service
-public class PurchaseOrderQueryService {
-    private final PurchaseOrderQueryMapper mapper;
+    // 2. 임시저장 상세 조회
+    PurchaseOrderDetailDto getDraftOrderDetail(Long id);
 
-    public PurchaseOrderQueryService(PurchaseOrderQueryMapper mapper) {
-        this.mapper = mapper;
-    }
+    // 3. 발주 목록 조회
+    Page<PurchaseOrderSimpleDto> getOrder(Long supplierId, Pageable pageable);
 
-    public List<PurchaseOrderDraftListDto> getDraftList() {
-        List<PurchaseOrderDraftListDto> result = mapper.selectDraftOrders();
-        return result;
-    }
+    // 4. 발주 상세 조회
+    PurchaseOrderDetailDto getOrderDetail(Long id);
 
-
-    public List<PurchaseOrderRequestPendingListDto> getRequestPending(Long userId) {
-        return mapper.getRequestPending(userId);
-    }
-}
+    // 5. 발주 상태로 조회
+    Page<PurchaseOrderSimpleDto> getOrderByStatus(PurchaseOrderStatus status, Pageable pageable);}

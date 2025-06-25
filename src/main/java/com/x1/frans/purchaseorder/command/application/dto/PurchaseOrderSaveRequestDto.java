@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PurchaseOrderSaveRequestDto {
+    private String title;
     private Long supplierId;
     private LocalDate requestedDeliveryDate;
     private List<PurchaseOrderProductCreateDto> products;
