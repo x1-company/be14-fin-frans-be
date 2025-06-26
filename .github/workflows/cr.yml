@@ -46,12 +46,12 @@ jobs:
               password: \${RDS_PASSWORD}
             
             hikari:
-              maximum-pool-size: 20
+              maximum-pool-size: 50
               minimum-idle: 5
               idle-timeout: 600000
               max-lifetime: 1800000
               connection-timeout: 60000
-              leak-detection-threshold: 60000
+              leak-detection-threshold: 10000
               connection-test-query: SELECT 1
               validation-timeout: 5000
               keepalive-time: 30000
