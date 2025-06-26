@@ -255,6 +255,7 @@ public class NotificationService {
         });
     }
 
+    @Transactional
     public void createOrderStatusNotification(Long orderId, OrderStatus status, Long receiverId) {
 
         UserEntity receiver = userCommandRepository.findById(receiverId)
@@ -263,8 +264,7 @@ public class NotificationService {
         NotificationTarget target = new NotificationTarget(
                 NotificationDomainType.ORDER,
                 orderId,
-
-                "status=" + status.name()
+                "/franchise?tab=주문관리&orderId=" + orderId
         );
 
         NotificationType notificationType = NotificationType.ORDER_RESPONSE;
@@ -273,6 +273,7 @@ public class NotificationService {
 
         log.info("주문 상태 변경 알림 생성 및 발송: orderId={}, status={}, receiverId={}", orderId, status, receiverId);
     }
+
 
     @Transactional
     public void createApprovalLineNotification(Long approvalId, Long receiverId, NotificationTarget target) {
