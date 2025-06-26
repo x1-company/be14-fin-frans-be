@@ -11,7 +11,7 @@ import com.x1.frans.franchise.command.domain.repository.FranchiseCommandReposito
 import com.x1.frans.franchise.query.service.FranchiseQueryService;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
 import com.x1.frans.supplier.command.domain.repository.SupplierCommandRepository;
-import com.x1.frans.supplier.query.service.SupplierQueryService;
+import com.x1.frans.supplier.query.service.SupplierHqQueryService;
 import com.x1.frans.user.command.aggregate.HqUserDetailEntity;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.HqUserDetailCommandRepository;
@@ -47,7 +47,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final EmailService emailService;
     private final FranchiseQueryService franchiseQueryService;
     private final SupplierCommandRepository supplierCommandRepository;
-    private final SupplierQueryService supplierQueryService;
+    private final SupplierHqQueryService supplierQueryService;
     private final AmazonS3Service amazonS3Service;
 
     /**

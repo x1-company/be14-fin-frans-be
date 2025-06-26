@@ -49,6 +49,9 @@ public class FranchiseReturnProductQueryDTO {
     @Schema(description = "자재 id")
     private Long productId;
 
+    @Schema(description = "자재명")
+    private String productName;
+
     @Schema(description = "가맹점 id")
     private Long franchiseId;
 }

@@ -4,8 +4,8 @@ import com.x1.frans.exception.*;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
 import com.x1.frans.purchase.command.domain.aggregate.PurchaseRequestEntity;
-import com.x1.frans.purchase.command.domain.repository.PurchaseRequestProductRepository;
-import com.x1.frans.purchase.command.domain.repository.PurchaseRequestRepository;
+import com.x1.frans.purchase.command.domain.repository.PurchaseRequestProductMapper;
+import com.x1.frans.purchase.command.domain.repository.PurchaseRequestMapper;
 import com.x1.frans.purchase.enums.PurchaseRequestStatus;
 import com.x1.frans.purchaseorder.command.application.dto.*;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
@@ -33,8 +33,8 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
 
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final ProductRepository productRepository;
-    private final PurchaseRequestRepository purchaseRequestRepository;
-    private final PurchaseRequestProductRepository purchaseRequestProductRepository;
+    private final PurchaseRequestMapper purchaseRequestMapper;
+    private final PurchaseRequestProductMapper purchaseRequestProductMapper;
     private final UserCommandRepository userCommandRepository;
     private final HqUserDetailCommandRepository hqUserDetailCommandRepository;
     private final SupplierCommandRepository supplierCommandRepository;
@@ -43,15 +43,15 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
     public PurchaseOrderCommandServiceImpl(
             PurchaseOrderRepository purchaseOrderRepository,
             ProductRepository productRepository,
-            PurchaseRequestRepository purchaseRequestRepository,
-            PurchaseRequestProductRepository purchaseRequestProductRepository,
+            PurchaseRequestMapper purchaseRequestMapper,
+            PurchaseRequestProductMapper purchaseRequestProductMapper,
             UserCommandRepository userCommandRepository,
             HqUserDetailCommandRepository hqUserDetailCommandRepository,
             SupplierCommandRepository supplierCommandRepository) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.productRepository = productRepository;
-        this.purchaseRequestRepository = purchaseRequestRepository;
-        this.purchaseRequestProductRepository = purchaseRequestProductRepository;
+        this.purchaseRequestMapper = purchaseRequestMapper;
+        this.purchaseRequestProductMapper = purchaseRequestProductMapper;
         this.userCommandRepository = userCommandRepository;
         this.hqUserDetailCommandRepository = hqUserDetailCommandRepository;
         this.supplierCommandRepository = supplierCommandRepository;
@@ -80,6 +80,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
 
         PurchaseOrderEntity order = PurchaseOrderEntity.builder()
                 .code(generateOrderCode())
+                .title(dto.getTitle())
                 .supplier(supplier)
                 .user(user)
                 .status(PurchaseOrderStatus.DRAFT)
@@ -101,14 +102,14 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
                 throw new ProductSupplierMisMatchException("자재 공급처와 발주 공급처가 다릅니다.");
             }
             // 구매요청 정보 및 상태
-            PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(p.getPurchaseRequestId())
+            PurchaseRequestEntity purchaseRequest = purchaseRequestMapper.findById(p.getPurchaseRequestId())
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
-            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
-                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기 요청 상태부터 발주할 수 있습니다.");
             }
 
             // 구매요청에 자재가 포함되어 있는지 체크
-            boolean exists = purchaseRequestProductRepository.existsByPurchaseRequestIdAndProductId(
+            boolean exists = purchaseRequestProductMapper.existsByPurchaseRequestIdAndProductId(
                     p.getPurchaseRequestId(), p.getProductId());
             if (!exists) {
                 throw new InvalidPurchaseRequestProductException("해당 구매요청에 해당 자재가 존재하지 않습니다.");
@@ -157,6 +158,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             throw new CannotChangeToDraftExceptioin("저장(요청) 상태에서는 다시 임시저장 상태로 변경할 수 없습니다.");
         }
 
+        order.setTitle(dto.getTitle());
         order.setRequestedDeliveryDate(dto.getRequestedDeliveryDate());
         order.setUpdatedAt(LocalDateTime.now());
 
@@ -182,15 +184,15 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
                 throw new ProductSupplierMisMatchException("자재 공급처와 발주 공급처가 다릅니다.");
             }
 
-            PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(p.getPurchaseRequestId())
+            PurchaseRequestEntity purchaseRequest = purchaseRequestMapper.findById(p.getPurchaseRequestId())
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
 
 
-            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
-                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기요청 상태부터 발주할 수 있습니다.");
             }
 
-            if (!purchaseRequestProductRepository.existsByPurchaseRequestIdAndProductId(p.getPurchaseRequestId(), p.getProductId())) {
+            if (!purchaseRequestProductMapper.existsByPurchaseRequestIdAndProductId(p.getPurchaseRequestId(), p.getProductId())) {
                 throw new InvalidPurchaseRequestProductException("구매요청에 해당 자재가 포함되어 있지 않습니다.");
             }
 
@@ -306,6 +308,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
 
         PurchaseOrderEntity order = PurchaseOrderEntity.builder()
                 .code(generateOrderCode())
+                .title(dto.getTitle())
                 .supplier(supplier)
                 .user(user)
                 .status(PurchaseOrderStatus.REQUEST_PENDING)
@@ -327,13 +330,13 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
                 throw new ProductSupplierMisMatchException("자재 공급처와 발주 공급처가 다릅니다.");
             }
 
-            PurchaseRequestEntity purchaseRequest = purchaseRequestRepository.findById(p.getPurchaseRequestId())
+            PurchaseRequestEntity purchaseRequest = purchaseRequestMapper.findById(p.getPurchaseRequestId())
                     .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
-            if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
-                throw new InvalidPurchaseRequestStatusException("승인 완료된 구매요청만 발주할 수 있습니다.");
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기 요청부터 발주할 수 있습니다.");
             }
             // 구매요청-자재 매핑 검증
-            if (!purchaseRequestProductRepository.existsByPurchaseRequestIdAndProductId(
+            if (!purchaseRequestProductMapper.existsByPurchaseRequestIdAndProductId(
                     p.getPurchaseRequestId(), p.getProductId())) {
                 throw new InvalidPurchaseRequestProductException("구매요청에 해당 자재가 포함되어 있지 않습니다.");
             }

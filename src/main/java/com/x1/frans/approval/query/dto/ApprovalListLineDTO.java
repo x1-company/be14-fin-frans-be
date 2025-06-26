@@ -5,6 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class ApprovalListLineDTO {
+
+    @Schema(description = "결재자 ID")
+    private Long id;
+
     @Schema(description = "결재자명")
     private String approverName;
 

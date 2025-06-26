@@ -28,6 +28,8 @@ public class NotificationDTO {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime readAt;
 
+        private String url;
+
         public static Response createResponse(Notification notification) {
             return Response.builder()
                     .id(notification.getId())
@@ -36,6 +38,7 @@ public class NotificationDTO {
                     .type(notification.getNotificationType().name())
                     .createdAt(notification.getCreatedAt())
                     .readAt(notification.getReadAt())
+                    .url(notification.getTarget() != null ? notification.getTarget().getAdditionalInfo() : null)
                     .build();
         }
     }

@@ -1,9 +1,7 @@
 package com.x1.frans.approval.query.service;
 
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
+import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
-import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 
 import java.util.List;
@@ -53,7 +51,7 @@ public interface ApprovalQueryService {
 
     List<ApprovalListDTO> getApprovalListNotifications(long userId);
 
-    List<ApprovalContentDTO> getApprovalDetailContent(Long userId,long approvalId);
+    ApprovalContentDTO getApprovalDetailContent(Long userId,long approvalId);
 
     ApprovalLinesDTO getApprovalDetailLines(long approvalId);
   
@@ -75,4 +73,11 @@ public interface ApprovalQueryService {
 
     List<ApprovalListDTO> getApprovalListCooperateMyCompletedAll(long userId);
 
+    List<ApprovalReceivedListDTO> getApprovalListReceivedInProgress(long userId);
+
+    List<ApprovalReceivedListDTO> getApprovalListReceivedApproved(long userId);
+
+    List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId);
+
+    ApprovalDraftDTO getApprovalDraft(long approvalId);
 }

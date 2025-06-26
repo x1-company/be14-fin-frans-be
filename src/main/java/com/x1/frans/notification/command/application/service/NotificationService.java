@@ -1,6 +1,13 @@
 package com.x1.frans.notification.command.application.service;
 
+import com.x1.frans.approval.command.domain.aggregate.ApprovalEntity;
+import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
+import com.x1.frans.approval.command.domain.repository.ApprovalCommandRepository;
+import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
+import com.x1.frans.approval.common.ApprovalLineType;
+import com.x1.frans.exception.AccessDeniedException;
 import com.x1.frans.exception.AllMessagesAlreadyReadException;
+import com.x1.frans.exception.ApprovalNotFoundException;
 import com.x1.frans.exception.NoDeletableMessagesException;
 import com.x1.frans.exception.NoPermissionOrNoneExist;
 import com.x1.frans.exception.UnreadMessagesCannotBeDeletedException;
@@ -20,16 +27,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationService {
 
     // SSE 연결 지속 시간 설정(성능 테스트 후 리팩토링 예정)
@@ -41,14 +50,8 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final UserCommandRepository userCommandRepository;
-
-    @Autowired
-    public NotificationService(EmitterRepository emitterRepository, NotificationRepository notificationRepository,
-                               UserCommandRepository userCommandRepository) {
-        this.emitterRepository = emitterRepository;
-        this.notificationRepository = notificationRepository;
-        this.userCommandRepository = userCommandRepository;
-    }
+    private final ApprovalLineCommandRepository approvalLineCommandRepository;
+    private final ApprovalCommandRepository approvalCommandRepository;
 
     private String generateEmitterId(String userIdStr) {
         return userIdStr + "_" + UUID.randomUUID();
@@ -65,9 +68,14 @@ public class NotificationService {
      *  3. 문자열을 사용해서 Emitter ID 생성 및 저장소 접근
     * */
     public SseEmitter subscribe(Long userId, String lastEventId) {
+        if (userId == null || userCommandRepository.findById(userId).isEmpty()) {
+            throw new AccessDeniedException("SSE 연결은 인증된 사용자만 가능합니다.");
+        }
+
         String userIdStr = toUserIdStr(userId);
 
         String emitterId = generateEmitterId(userIdStr);
+        log.info("[SSE SUBSCRIBE] userId={}, userIdStr={}, emitterId={}", userId, userIdStr, emitterId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         emitter.onCompletion(() -> safeDeleteEmitter(emitterId));
@@ -96,6 +104,7 @@ public class NotificationService {
                     .name(EVENT_NAME)
                     .data(data)
             );
+            log.info("[알림 전송 성공] emitterId={}, eventId={}", emitterId, eventId);
         } catch (IOException exception) {
             log.warn("SSE 전송 실패 (IOException) - emitterId={}, eventId={}, exceptionType={}, message={}",
                     emitterId, eventId, exception.getClass().getName(), exception.getMessage(), exception);
@@ -122,6 +131,7 @@ public class NotificationService {
 
     // 메서드 파라미터 구성방식 수정
     // 변경 전: 낱개 인자로 직접 받았음. 변경 후: NotificationTarget 객체를 직접 인자로 받음
+    @Transactional
     public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
         Notification notification = notificationRepository.save(
                 createNotification(receiver, notificationType, target)
@@ -130,8 +140,9 @@ public class NotificationService {
         String receiverIdStr = String.valueOf(receiver.getId());
         String eventId = generateEmitterId(receiverIdStr); // UUID 기반으로 변경
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
-
+        log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
         emitters.forEach((key, emitter) -> {
+            log.info("[알림 PUSH] emitterId={}", key);
             emitterRepository.saveEventCache(key, notification);
             sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
         });
@@ -144,7 +155,7 @@ public class NotificationService {
         return Notification.builder()
                 .receiver(receiver)
                 .notificationType(notificationType)
-                .content(content)
+                .content(notificationType.getMessage())
                 .target(target)
                 .isRead(false)
                 .createdAt(LocalDateTime.now())
@@ -195,6 +206,12 @@ public class NotificationService {
         }
 
         notificationRepository.deleteAll(readNotifications);
+
+        // 이벤트 캐시에서도 모두 삭제
+        String userIdStr = String.valueOf(user.getId());
+        for (Notification n : readNotifications) {
+            emitterRepository.deleteEventCacheByNotificationId(userIdStr, n.getId());
+        }
     }
 
     @Transactional
@@ -207,15 +224,35 @@ public class NotificationService {
         }
 
         notificationRepository.delete(notification);
+
+        // 이벤트 캐시에서도 해당 알림 삭제
+        String userIdStr = String.valueOf(user.getId());
+        emitterRepository.deleteEventCacheByNotificationId(userIdStr, id);
     }
 
     public void clearEmittersAndCache(UserEntity user) {
-        String userIdStr = user.getEmail();
-
+        String userIdStr = String.valueOf(user.getId());
         emitterRepository.deleteAllEmitterStartWithId(userIdStr);
         emitterRepository.deleteAllEventCacheStartWithId(userIdStr);
-
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
+    }
+
+    @Scheduled(fixedRate = 30000) // 30초
+    public void sendHeartbeat() {
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(""); // ★
+        log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
+        emitters.forEach((emitterId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .id("heartbeat-" + System.currentTimeMillis())
+                        .name("heartbeat")
+                        .data("ping"));
+                log.info("[HEARTBEAT] 전송 성공: {}", emitterId);
+            } catch (IOException e) {
+                log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
+                emitterRepository.deleteById(emitterId);
+            }
+        });
     }
 
     public void createOrderStatusNotification(Long orderId, OrderStatus status, Long receiverId) {
@@ -237,7 +274,36 @@ public class NotificationService {
         log.info("주문 상태 변경 알림 생성 및 발송: orderId={}, status={}, receiverId={}", orderId, status, receiverId);
     }
 
-    public void createAbnormalOrderRequestNotification(Long orderId, Long receiverId) {
-        
+    @Transactional
+    public void createApprovalLineNotification(Long approvalId, Long receiverId, NotificationTarget target) {
+
+        List<ApprovalLineEntity> approvalLines = approvalLineCommandRepository.findByApprovalId(approvalId);
+
+        approvalLines.stream()
+                .filter(line ->
+                        (line.getApprovalType() == ApprovalLineType.APPROVER || line.getApprovalType()
+                                                == ApprovalLineType.COOPERATOR)
+                        && line.getUser().getId().equals(receiverId))
+                .findFirst()
+                .ifPresent(line -> {
+                    UserEntity receiver = line.getUser();
+
+                    send(receiver, NotificationType.APPROVAL_REQUEST, target);
+                });
+
     }
+
+    @Transactional
+    public void createApprovalRejectedNotification(Long approvalId, Long receiverId, NotificationTarget target) {
+
+        ApprovalEntity approvalEntity = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("해당 결재를 찾을 수 없습니다."));
+
+        UserEntity drafter = approvalEntity.getUser();
+
+        send(drafter, NotificationType.APPROVAL_REJECTED, target);
+
+        log.info("결재 반려 알림 전송: approvalId={}, drafterId={}", approvalId, drafter.getId());
+    }
+
 }

@@ -1,17 +1,21 @@
 package com.x1.frans.approval.query.service;
 
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
+import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
-import com.x1.frans.approval.query.dto.ApprovalListDTO;
+import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
+import com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnContentDTO;
+import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderContentDTO;
+import com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
+import com.x1.frans.exception.ApprovalNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -140,25 +144,33 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
     @Transactional
     @Override
-    public List<ApprovalContentDTO> getApprovalDetailContent(Long userId, long approvalId) {
+    public ApprovalContentDTO getApprovalDetailContent(Long userId, long approvalId) {
 
-        // ORDER, RETURN, PURCHASE_ORDER
+        // category 구함
         String category = approvalQueryMapper.findCategoryByApprovalId(approvalId);
 
-        List<ApprovalContentDTO> contentList =  switch (category) {
+        ApprovalContentDTO content = switch (category) {
             case "ORDER" -> approvalQueryMapper.findOrderContent(approvalId, userId);
             case "RETURN" -> approvalQueryMapper.findReturnContent(approvalId, userId);
             case "PURCHASE_ORDER" -> approvalQueryMapper.findPurchaseOrderContent(approvalId, userId);
             default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
         };
 
+        // totalAmount 쿼리
+        BigDecimal totalAmount = switch (category) {
+            case "ORDER" -> approvalQueryMapper.findTotalOrderAmountByApprovalId(approvalId);
+            case "RETURN" -> approvalQueryMapper.findTotalReturnAmountByApprovalId(approvalId);
+            case "PURCHASE_ORDER" -> approvalQueryMapper.findTotalPurchaseOrderAmountByApprovalId(approvalId);
+            default -> throw new IllegalArgumentException("결재 유형을 판단할 수 없습니다.");
+        };
 
         // 읽음 처리
         approvalLineCommandRepository.markAsChecked(approvalId, userId);
 
+        // set
+        content.setTotalAmount(totalAmount);
 
-        return contentList;
-
+        return content;
     }
 
     @Override
@@ -207,6 +219,63 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         return approvalQueryMapper.getApprovalListCooperateMyCompletedAll(userId);
     }
 
+    @Override
+    public ApprovalDraftDTO getApprovalDraft(long approvalId) {
+        // 기본 임시저장 데이터 조회
+        ApprovalDraftDTO draft = approvalQueryMapper.selectApprovalDraft(approvalId);
+
+        // Null 체크 (없으면 예외 던지기)
+        if (draft == null) {
+            throw new ApprovalNotFoundException("임시저장 상태의 결재문서를 찾을 수 없습니다. (approvalId: " + approvalId + ")");
+        }
+
+        //  결재선, 파일 조회
+        List<ApprovalDraftLineDTO> lines = approvalQueryMapper.selectApprovalDraftLines(approvalId);
+        List<ApprovalFileDTO> files = approvalQueryMapper.selectApprovalDraftFiles(approvalId);
+
+        // categoryType 조회
+        String categoryType = approvalQueryMapper.selectApprovalCategoryType(approvalId);
+
+        // documentIds 조회 (categoryType별)
+        List<Long> documentIds;
+        switch (categoryType) {
+            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);
+            case "RETURN" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsReturn(approvalId);
+            case "PURCHASE_ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsPurchase(approvalId);
+            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
+        }
+
+        //  ApprovalDocumentDTO 조회
+        List<ApprovalDocumentDTO> docDto;
+        switch (categoryType) {
+            case "ORDER" -> docDto = approvalQueryMapper.selectApprovalDocumentMetaOrder(approvalId);
+            case "RETURN" -> docDto = approvalQueryMapper.selectApprovalDocumentMetaReturn(approvalId);
+            case "PURCHASE_ORDER" -> docDto = approvalQueryMapper.selectApprovalDocumentMetaPurchase(approvalId);
+            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
+        }
+        // 최종 세팅
+        draft.setApprovalDocuments(docDto);
+        draft.setLines(lines);
+        draft.setFiles(files);
+        draft.setCategoryType(categoryType);
+
+        return draft;
+    }
+
+    @Override
+    public List<ApprovalReceivedListDTO> getApprovalListReceivedInProgress(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedInProgress(userId);
+    }
+
+    @Override
+    public List<ApprovalReceivedListDTO> getApprovalListReceivedApproved(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedApproved(userId);
+    }
+
+    @Override
+    public List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId) {
+        return approvalQueryMapper.getApprovalListReceivedRejected(userId);
+    }
 }
 
 

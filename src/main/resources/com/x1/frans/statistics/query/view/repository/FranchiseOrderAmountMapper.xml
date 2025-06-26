@@ -50,7 +50,34 @@
           FROM franchise_order_amount_stat s
           JOIN franchise f ON s.franchise_id = f.id
          WHERE f.manager_id = #{managerId}
+        <if test="year != null">
+            AND s.year = #{year}
+        </if>
+        <if test="month != null">
+            AND s.month = #{month}
+        </if>
     </select>
+
+    <!-- 매니저별 특정 가맹점 월별 통계 -->
+    <select id="selectStatsByManagerByFranchiseId" resultMap="FranchiseOrderAmountQueryDTOMap">
+        SELECT
+        s.id,
+        f.id AS franchise_id,
+        f.name AS franchise_name,
+        s.year,
+        s.month,
+        s.order_amount,
+        s.created_at,
+        s.updated_at,
+        s.is_deleted,
+        s.deleted_reason,
+        s.deleted_at
+        FROM franchise_order_amount_stat s
+        JOIN franchise f ON s.franchise_id = f.id
+        WHERE f.manager_id = #{userId}
+        AND f.id = #{franchiseId}
+    </select>
+
 
     <!-- 4. 부서별 월별 통계 -->
     <select id="selectStatsByDepartment" resultMap="FranchiseOrderAmountQueryDTOMap">

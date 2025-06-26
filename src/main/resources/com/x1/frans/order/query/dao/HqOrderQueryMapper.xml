@@ -39,8 +39,11 @@
             <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <if test="status != null and status.trim() != ''">
-                AND o.status = #{status}
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="userId != null">
@@ -56,11 +59,11 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND EXISTS (
+                   AND EXISTS (
                 SELECT 1 FROM product_order po2
-                JOIN product p2 ON po2.product_id = p2.id
-                WHERE po2.order_id = o.id
-                AND p2.name LIKE CONCAT('%', #{product}, '%')
+                  JOIN product p2 ON po2.product_id = p2.id
+                 WHERE po2.order_id = o.id
+                   AND p2.name LIKE CONCAT('%', #{product}, '%')
                 )
             </if>
 
@@ -84,8 +87,11 @@
             <!-- 접수 대기, 접수 취소 상태는 볼 수 없음 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
 
-            <if test="status != null and status.trim() != ''">
-                AND o.status = #{status}
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
 
             <if test="userId != null">
@@ -101,11 +107,11 @@
             </if>
 
             <if test="product != null and product != ''">
-                AND EXISTS (
+                   AND EXISTS (
                 SELECT 1 FROM product_order po
-                JOIN product p ON po.product_id = p.id
-                WHERE po.order_id = o.id
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                  JOIN product p ON po.product_id = p.id
+                 WHERE po.order_id = o.id
+                   AND p.name LIKE CONCAT('%', #{product}, '%')
                 )
             </if>
 
@@ -215,10 +221,12 @@
 <!--  검토완료된 주문 목록 조회  -->
     <select id="findOrderReviewCompleted" resultType="com.x1.frans.order.query.dto.OrderReviewCompletedListDto">
         SELECT
-                o.code
-              , o.status
-              , o.created_at AS createdAt
-              , o.total_amount AS totalAmount
+               o.id
+             , o.code
+             , o.status
+             , o.created_at AS createdAt
+             , o.total_amount AS totalAmount
+             , f.name AS franchiseName
           FROM orders o
           JOIN franchise f
             ON o.franchise_id = f.id
@@ -229,6 +237,12 @@
          ORDER BY o.created_at
     </select>
 
-
+<!--  주문 마감 시간 조히-->
+    <select id="findOrderDeadline" resultType="com.x1.frans.order.query.dto.OrderDeadlineResponseDto">
+        SELECT TIME_FORMAT(order_deadline_at, '%H:%i') AS orderDeadlineAt
+          FROM store_order_deadline
+         ORDER BY id DESC
+         LIMIT 1
+    </select>
 
 </mapper>

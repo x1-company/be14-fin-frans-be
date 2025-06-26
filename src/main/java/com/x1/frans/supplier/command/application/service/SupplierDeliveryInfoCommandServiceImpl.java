@@ -5,10 +5,9 @@ import com.x1.frans.exception.NotFoundDeliveryInfoException;
 import com.x1.frans.exception.ProductNotFoundException;
 import com.x1.frans.exception.PurchaseRequestNotFoundException;
 import com.x1.frans.exception.SupplierNotFoundException;
-import com.x1.frans.exception.enums.EmptyDeliveryItemException;
+import com.x1.frans.exception.EmptyDeliveryItemException;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
-import com.x1.frans.product.command.domain.repository.SupplierRepository;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
 import com.x1.frans.purchaseorder.command.domain.repository.PurchaseOrderRepository;
 import com.x1.frans.supplier.command.application.dto.DeliveryInfoCreateRequestDTO;
@@ -17,6 +16,7 @@ import com.x1.frans.supplier.command.application.dto.DeliveryInfoModifyDTO.Deliv
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryDetail;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierDeliveryInfo;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
+import com.x1.frans.supplier.command.domain.repository.SupplierCommandRepository;
 import com.x1.frans.supplier.command.domain.repository.SupplierDeliveryDetailCommandRepository;
 import com.x1.frans.supplier.command.domain.repository.SupplierDeliveryInfoCommandRepository;
 import com.x1.frans.supplier.query.repository.SupplierDeliveryInfoQueryMapper;
@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryInfoCommandService {
 
-    private final SupplierRepository supplierRepository;
+    private final SupplierCommandRepository supplierCommandRepository;
     private final ProductRepository productRepository;
 
     private final SupplierDeliveryDetailCommandRepository supplierDeliveryDetailRepository;
@@ -50,7 +50,7 @@ public class SupplierDeliveryInfoCommandServiceImpl implements SupplierDeliveryI
     @Transactional
     public Long createDeliveryInfo(Long supplierId, String supplierCode, DeliveryInfoCreateRequestDTO requestDTO) {
 
-        SupplierEntity supplier = supplierRepository.findById(supplierId)
+        SupplierEntity supplier = supplierCommandRepository.findById(supplierId)
                 .orElseThrow(() -> new SupplierNotFoundException("존재하지 않는 공급처입니다."));
 
         PurchaseOrderEntity purchaseOrder = purchaseOrderRepository.findById(requestDTO.getPurchaseOrderId())

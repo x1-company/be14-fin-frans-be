@@ -28,6 +28,9 @@ public class PurchaseOrderEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String code;
 
+    @Column(nullable = false, length = 50)
+    private String title;
+
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
@@ -56,6 +59,6 @@ public class PurchaseOrderEntity {
     private LocalDate requestedDeliveryDate;
 
     @Builder.Default
-    @OneToMany(mappedBy = "purchaseOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "purchaseOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseOrderProductEntity> purchaseOrderProducts = new ArrayList<>();
 }

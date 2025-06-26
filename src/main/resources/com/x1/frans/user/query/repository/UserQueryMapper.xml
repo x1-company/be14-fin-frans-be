@@ -190,4 +190,40 @@
          WHERE department_id = #{departmentId}
     </select>
 
+    <select id="findHqUserIdsByParentDepartmentIds" resultType="long">
+        SELECT
+               a.id
+          FROM user a
+          JOIN hq_user_detail b ON a.id = b.user_id
+          JOIN department d ON b.department_id = d.id
+         WHERE d.parent_id IN
+        <foreach item="id" collection="parentIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND a.is_deleted = FALSE
+    </select>
+
+    <select id="getMyInfo" resultType="com.x1.frans.user.query.dto.MyInfoDTO">
+        SELECT
+               a.`id`
+             , a.`code`
+             , a.`name`
+             , a.`phone`
+             , a.`email`
+             , a.`profile_url` AS `profileUrl`
+
+             -- HQ
+             , c.`id` AS `departmentId`
+             , c.`name` AS `departmentName`
+             , d.`id` AS `dutyId`
+             , d.`name` AS `dutyName`
+             , e.`id` AS `positionId`
+             , e.`name` AS `positionName`
+        FROM `user` a
+                 LEFT JOIN `hq_user_detail` b ON a.`id` = b.`user_id`
+                 LEFT JOIN `department` c ON b.`department_id` = c.`id`
+                 LEFT JOIN `duty` d ON b.`duty_id` = d.id
+                 LEFT JOIN `position` e ON b.`position_id` = e.id
+        WHERE a.`id` = #{userId}
+    </select>
 </mapper>

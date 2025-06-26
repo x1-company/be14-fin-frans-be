@@ -12,9 +12,11 @@ import com.x1.frans.security.handler.CustomAuthenticationFailureHandler;
 import com.x1.frans.security.util.JwtUtil;
 import com.x1.frans.user.query.service.UserQueryService;
 import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -75,7 +77,8 @@ public class SecurityConfig {
 
         // TODO: 배포 시 변경 필요
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // 개발 중 origin
+        config.addAllowedOriginPattern("https://frans.co.kr");
+        config.addAllowedOriginPattern("http://localhost:5173"); // 개발 중 origin
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // 쿠키, 인증정보 허용
@@ -115,9 +118,14 @@ public class SecurityConfig {
 
                 // TODO: 개발용 설정. 배포 시 변경 필요
                 authorize
+                        // 배포용 health 체크
+                        .requestMatchers("/health").permitAll()
+
+                        // OPTIONS 요청 허용 (CORS preflight용)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // ADMIN 전용 API 보호
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
 
                         // Swagger 관련 리소스 전부 허용
                         .requestMatchers(
@@ -159,11 +167,26 @@ public class SecurityConfig {
         http.addFilter(getAuthenticationFilter(authenticationManager()));
 
         http.exceptionHandling(exception ->
-                exception.authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler));
+                exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String uri = request.getRequestURI();
+                            if (uri != null && uri.startsWith("/api/notification/subscribe")) {
+                                if (!response.isCommitted()) {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.setContentType("text/plain;charset=UTF-8");
+                                    response.getWriter().write("Unauthorized SSE connection");
+                                }
+                            } else {
+                                authenticationEntryPoint.commence(request, response, authException);
+                            }
+                        })
+                        .accessDeniedHandler(accessDeniedHandler)
+        );
 
         return http.build();
     }
+
+
 
     private Filter getAuthenticationFilter(AuthenticationManager authenticationManager) {
         AuthenticationFilter filter = new AuthenticationFilter(authenticationManager, jwtUtil,

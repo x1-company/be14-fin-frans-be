@@ -37,15 +37,27 @@
                  WHERE owner_id = #{ownerId}
                 )
             </if>
+
             <if test="code != null and code != ''">
                 AND o.code LIKE CONCAT('%', #{code}, '%')
             </if>
+
             <if test="product != null and product != ''">
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                   AND EXISTS (
+                SELECT 1 FROM product_order po2
+                  JOIN product p2 ON po2.product_id = p2.id
+                 WHERE po2.order_id = o.id
+                   AND p2.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
-            <if test="status != null and status != ''">
-                AND o.status LIKE CONCAT('%', #{status}, '%')
+
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
+
             <if test="startDate != null and endDate != null">
                 AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
             </if>
@@ -70,15 +82,27 @@
                  WHERE owner_id = #{ownerId}
                 )
             </if>
+
             <if test="code != null and code != ''">
                 AND o.code LIKE CONCAT('%', #{code}, '%')
             </if>
+
             <if test="product != null and product != ''">
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                   AND EXISTS (
+                SELECT 1 FROM product_order po2
+                  JOIN product p2 ON po2.product_id = p2.id
+                 WHERE po2.order_id = o.id
+                   AND p2.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
-            <if test="status != null and status != ''">
-                AND o.status LIKE CONCAT('%', #{status}, '%')
+
+            <if test="statusList != null and statusList.size > 0">
+                AND o.status IN
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
             </if>
+
             <if test="startDate != null and endDate != null">
                 AND DATE(o.created_at) BETWEEN #{startDate} AND #{endDate}
             </if>
@@ -146,6 +170,44 @@
         JOIN product_type pt ON pt.id = p.product_type_id
         JOIN product_attribute pa ON pa.id = p.product_attribute_id
         WHERE o.id = #{orderId}
+    </select>
+
+    <!-- 주문 템플릿 목록 조회 -->
+    <select id="findTemplatesByUserId" resultType="com.x1.frans.order.query.dto.OrderTemplateListResponseDto">
+        SELECT
+               id
+             , name
+             , description
+             , seq
+          FROM order_template
+         WHERE user_id = #{userId}
+         ORDER BY seq ASC
+    </select>
+
+    <!-- 주문 템플릿 상세 정보 조회 -->
+    <select id="findTemplateDetail" resultType="com.x1.frans.order.query.dto.OrderTemplateDetailResponseDto">
+        SELECT seq
+          FROM order_template
+         WHERE id = #{templateId}
+           AND user_id = #{userId}
+    </select>
+
+    <!-- 주문 템플릿 자재 목록 조회 -->
+    <select id="findProductsByTemplateId" resultType="com.x1.frans.order.query.dto.ProductInTemplateDto">
+        SELECT
+               p.code
+             , p.name
+             , p.purchase_price AS salePrice
+             , p.purchase_unit AS purchaseUnit
+             , p.unit AS unit
+             , p.spec
+             , s.name AS supplierName
+             , otd.quantity
+          FROM order_template_detail otd
+          JOIN product p ON otd.product_id = p.id
+          JOIN supplier s ON p.supplier_id = s.id
+         WHERE otd.order_template_id = #{templateId}
+         ORDER BY otd.seq ASC
     </select>
 
 

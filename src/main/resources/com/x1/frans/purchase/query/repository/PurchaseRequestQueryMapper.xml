@@ -8,76 +8,167 @@
         <id property="id" column="id"/>
         <result property="code" column="code"/>
         <result property="title" column="title"/>
-        <result property="status" column="status"/>
         <result property="requestedDeliveryDate" column="requested_delivery_date"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+        <result property="userName" column="user_name"/>
     </resultMap>
 
     <resultMap id="purchaseRequestProductResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto">
-        <id property="id" column="product_id"/>
+        <id property="id" column="prp_id"/>
         <result property="no" column="no"/>
         <result property="quantity" column="quantity"/>
         <result property="remarks" column="remarks"/>
         <result property="productId" column="product_id"/>
+        <result property="productCode" column="product_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="purchasePrice" column="purchase_price"/>
+        <result property="purchaseUnit" column="purchase_unit"/>
+        <result property="productTypeName" column="product_type_name"/>
+        <result property="productGroupName" column="product_group_name"/>
+        <result property="productAttributeName" column="product_attribute_name"/>
     </resultMap>
 
     <resultMap id="purchaseRequestDetailResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestDetailDto">
-        <id property="id" column="id"/>
+        <id property="id" column="pr_id"/>
         <result property="code" column="code"/>
         <result property="title" column="title"/>
-        <result property="status" column="status"/>
+        <result property="description" column="description"/>
         <result property="requestedDeliveryDate" column="requested_delivery_date"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
-        <collection property="products" ofType="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto"
-                    resultMap="purchaseRequestProductResultMap"/>
+        <result property="userName" column="user_name"/>
+        <result property="userEmail" column="user_email"/>
+        <collection property="products" ofType="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto" resultMap="purchaseRequestProductResultMap"/>
     </resultMap>
 
-    <!-- 목록 조회 쿼리들 -->
     <select id="selectByStatus" resultMap="purchaseRequestSimpleResultMap">
-        SELECT * FROM purchase_request
-        WHERE status = #{status}
-        ORDER BY created_at DESC
+        SELECT pr.*,
+               u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.status = #{status}
+        ORDER BY pr.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
 
     <select id="selectByTitle" resultMap="purchaseRequestSimpleResultMap">
-        SELECT * FROM purchase_request
-        WHERE title LIKE CONCAT('%', #{title}, '%')
-        ORDER BY created_at DESC
+        SELECT pr.*,
+               u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.title LIKE CONCAT('%', #{title}, '%')
+        ORDER BY pr.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
 
     <select id="selectByCode" resultMap="purchaseRequestSimpleResultMap">
-        SELECT * FROM purchase_request
-        WHERE code LIKE CONCAT('%', #{code}, '%')
-        ORDER BY created_at DESC
+        SELECT pr.*,
+               u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.code LIKE CONCAT('%', #{code}, '%')
+        ORDER BY pr.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
 
-    <!-- 상세 조회 -->
+    <select id="selectDrafts" resultMap="purchaseRequestSimpleResultMap">
+        SELECT pr.*,
+               u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.is_requested = false AND pr.status = '임시저장'
+        ORDER BY pr.created_at DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="selectAllRequests" resultMap="purchaseRequestSimpleResultMap">
+        SELECT pr.*,
+               u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.status != '임시저장'
+        ORDER BY pr.created_at DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countAllRequests" resultType="int">
+        SELECT COUNT(*) FROM purchase_request WHERE status != '임시저장'
+    </select>
+
     <select id="selectDetailById" resultMap="purchaseRequestDetailResultMap">
-        SELECT * FROM purchase_request
-        WHERE id = #{id}
+        SELECT pr.*,
+               u.name AS user_name,
+               u.email AS user_email
+        FROM purchase_request pr
+                 JOIN user u ON pr.user_id = u.id
+        WHERE pr.id = #{id}
+    </select>
+
+    <select id="selectDraftDetailById" resultMap="purchaseRequestDetailResultMap">
+        SELECT
+            pr.id AS pr_id,
+            pr.code,
+            pr.title,
+            pr.description,
+            pr.requested_delivery_date,
+            pr.total_amount,
+            pr.created_at,
+            pr.updated_at,
+            u.name AS user_name,
+            u.email AS user_email,
+            prp.id AS prp_id,
+            prp.no,
+            prp.quantity,
+            prp.remarks,
+            prp.product_id,
+            p.code AS product_code,
+            p.name AS product_name,
+            p.purchase_price,
+            p.purchase_unit,
+            pt.name AS product_type_name,
+            pg.name AS product_group_name,
+            pa.name AS product_attribute_name
+        FROM purchase_request pr
+                 JOIN user u ON pr.user_id = u.id
+                 LEFT JOIN purchase_request_product prp ON pr.id = prp.purchase_request_id
+                 LEFT JOIN product p ON prp.product_id = p.id
+                 LEFT JOIN product_type pt ON p.product_type_id = pt.id
+                 LEFT JOIN product_group pg ON p.product_group_id = pg.id
+                 LEFT JOIN product_attribute pa ON p.product_attribute_id = pa.id
+        WHERE pr.id = #{id}
+          AND pr.is_requested = false
+          AND pr.status = '임시저장'
+        ORDER BY prp.no ASC
     </select>
 
     <select id="selectProductsByRequestId" resultMap="purchaseRequestProductResultMap">
-        SELECT id AS product_id, no, quantity, remarks, product_id
-        FROM purchase_request_product
-        WHERE purchase_request_id = #{requestId}
-        ORDER BY no ASC
+        SELECT prp.id, prp.no, prp.quantity, prp.remarks, prp.product_id,
+               p.code AS product_code, p.name AS product_name, p.purchase_price, p.purchase_unit,
+               pt.name AS product_type_name,
+               pg.name AS product_group_name,
+               pa.name AS product_attribute_name
+        FROM purchase_request_product prp
+                 JOIN product p ON prp.product_id = p.id
+                 LEFT JOIN product_type pt ON p.product_type_id = pt.id
+                 LEFT JOIN product_group pg ON p.product_group_id = pg.id
+                 LEFT JOIN product_attribute pa ON p.product_attribute_id = pa.id
+        WHERE prp.purchase_request_id = #{requestId}
+        ORDER BY prp.no ASC
     </select>
 
-    <!-- count 쿼리들 -->
     <select id="countByStatus" resultType="int">
         SELECT COUNT(*) FROM purchase_request WHERE status = #{status}
     </select>
@@ -88,6 +179,11 @@
 
     <select id="countByCode" resultType="int">
         SELECT COUNT(*) FROM purchase_request WHERE code LIKE CONCAT('%', #{code}, '%')
+    </select>
+
+    <select id="countDrafts" resultType="int">
+        SELECT COUNT(*) FROM purchase_request
+        WHERE is_requested = false AND status = '임시저장'
     </select>
 
 </mapper>

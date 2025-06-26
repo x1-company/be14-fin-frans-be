@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,7 +15,7 @@ public class OrderSearchConditionDto {
     private Long ownerId;
     private String code;
     private String product;
-    private String status;
+    private List<String> statusList;
     private String startDate;   // yyyy-MM-dd
     private String endDate;
     private int page;

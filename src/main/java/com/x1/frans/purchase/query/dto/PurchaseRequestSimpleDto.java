@@ -16,17 +16,18 @@ public class PurchaseRequestSimpleDto {
     private Long id;
     private String code;
     private String title;
-    private String status;
+//    private String status;
     private LocalDate requestedDeliveryDate;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String userName;
 
     public PurchaseRequestSimpleDto(PurchaseRequestEntity entity) {
         this.id = entity.getId();
         this.code = entity.getCode();
         this.title = entity.getTitle();
-        this.status = entity.getStatus().getLabel();
+//        this.status = entity.getStatus().getLabel();
         this.requestedDeliveryDate = entity.getRequestedDeliveryDate();
         this.totalAmount = entity.getTotalAmount();
         this.createdAt = entity.getCreatedAt();

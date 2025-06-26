@@ -18,18 +18,22 @@ public class PurchaseRequestDetailDto {
     private Long id;
     private String code;
     private String title;
-    private String status;
+    private String description;
+//    private String status;
     private LocalDate requestedDeliveryDate;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<PurchaseRequestProductSimpleDto> products;
+    private String userName;
+    private String userEmail;
 
     public PurchaseRequestDetailDto(PurchaseRequestEntity entity) {
         this.id = entity.getId();
         this.code = entity.getCode();
         this.title = entity.getTitle();
-        this.status = entity.getStatus().getLabel();
+        this.description = entity.getDescription();
+//        this.status = entity.getStatus().getLabel();
         this.requestedDeliveryDate = entity.getRequestedDeliveryDate();
         this.totalAmount = entity.getTotalAmount();
         this.createdAt = entity.getCreatedAt();

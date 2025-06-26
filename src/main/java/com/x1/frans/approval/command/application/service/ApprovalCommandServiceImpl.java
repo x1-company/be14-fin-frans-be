@@ -10,6 +10,9 @@ import com.x1.frans.approval.query.repository.ApprovalCategoryQueryMapper;
 import com.x1.frans.approval.query.repository.ApprovalQueryMapper;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
 import com.x1.frans.exception.*;
+import com.x1.frans.notification.command.application.service.ApprovalRequestNotificationSender;
+import com.x1.frans.notification.command.domain.model.NotificationDomainType;
+import com.x1.frans.notification.command.domain.model.NotificationTarget;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.x1.frans.exception.enums.ErrorCode.USER_SIGNATURE_NOT_FOUND;
 import static java.util.stream.Collectors.toList;
 
 
@@ -45,6 +49,10 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
     private final ApprovalLineTemplateDetailCommandRepository approvalLineTemplateDetailCommandRepository;
     private final ApprovalQueryMapper approvalQueryMapper;
     private final ApprovalCategoryQueryMapper approvalCategoryQueryMapper;
+    private final ApprovalRequestNotificationSender approvalRequestNotificationSender;
+
+//    private final DepartmentNotificationHelper departmentNotificationHelper;
+
 
     @Transactional
     @Override
@@ -52,7 +60,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         // 사용자 조회
         UserEntity user = userCommandRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("기안자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserSignatureNotFoundException("기안자 정보를 찾을 수 없습니다."));
 
         // 결재 코드 생성
         String newCode = generateApprovalCode();
@@ -60,7 +68,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         int degree = 1;
          degree = approvalCommandRepository.findMaxDegreeByCode(newCode) + 1;
 
-
+        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+        }
         // 결재 엔티티 생성
         ApprovalEntity approval = new ApprovalEntity();
         approval.setTitle(request.getTitle());
@@ -79,6 +89,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         // 결재 문서
         ApprovalDocumentDTO doc = request.getApprovalDocuments();
 
+        if (doc.getDocumentIds() == null || doc.getDocumentIds().isEmpty()) {
+            throw new IllegalArgumentException("결재 문서는 최소 1개 이상 등록해야 합니다.");
+        }
         switch (doc.getCategoryType()) {
             case ORDER -> {
                 List<OrderApprovalEntity> orderDocs = doc.getDocumentIds().stream()
@@ -148,6 +161,27 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         approvalLineCommandRepository.saveAll(allLines);
 
+        if (request.getIsRequest()) {
+            NotificationTarget target = new NotificationTarget(
+                    NotificationDomainType.APPROVAL,
+                    approval.getId(),
+                    "/approval/" + approval.getId()
+            );
+
+            // 1. 결재자/협조자에게 알림 전송
+            for (ApprovalLineEntity line : approvalLines) {
+                if (line.getApprovalType() == ApprovalLineType.APPROVER
+                        || line.getApprovalType() == ApprovalLineType.COOPERATOR) {
+                    approvalRequestNotificationSender.notifyApprovalRequested(
+                            approval.getId(),
+                            line.getUser().getId(),
+                            target
+                    );
+                }
+            }
+        }
+
+
 
         // 첨부파일
         List<ApprovalFileEntity> fileEntities = request.getFiles()== null ? List.of() :
@@ -199,9 +233,19 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
                 .orElseThrow(() -> new ApprovalNotFoundException("결재를 찾을 수 없습니다."));
 
+        // 사용자 조회
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserSignatureNotFoundException("결재자 정보를 찾을 수 없습니다."));
+
+
         // 현재 사용자의 결재선 찾기
         ApprovalLineEntity currentLine = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
+
+
+        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+        }
 
         if (!currentLine.getStatus().equals(ApprovalLineStatus.WAITING)) {
             throw new ApprovalActionFailedException("결재선이 대기 상태가 아닙니다.");
@@ -269,6 +313,15 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         ApprovalLineEntity line = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
 
+        // 사용자 조회
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserSignatureNotFoundException("결재자 정보를 찾을 수 없습니다."));
+
+
+        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+        }
+
         if (!line.getStatus().equals(ApprovalLineStatus.WAITING)) {
             throw new ApprovalActionFailedException("결재선이 대기 상태가 아닙니다.");
         }
@@ -286,6 +339,14 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             // 결재 상태 반려 처리
             approval.setStatus(ApprovalStatus.REJECTED);
             approvalCommandRepository.save(approval);
+
+        NotificationTarget target = new NotificationTarget(
+                NotificationDomainType.APPROVAL,
+                approval.getId(),
+                "/approval/" + approval.getId()
+        );
+
+        approvalRequestNotificationSender.notifyApprovalRejected(approval.getId(), approval.getUser().getId(), target);
 
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }

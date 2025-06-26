@@ -16,19 +16,25 @@ public class ApprovalOrderReturnHistoryDTO implements ApprovalHistoryDTO {
     @Schema(description = "결재 이력 ID")
     private Long historyId;
 
+    @Schema(description = "자재번호")
+    private String code;
+
     @Schema(description = "자재명")
     private String productName;
 
+    @Schema(description = "단위 ")
+    private String purchaseUnit;
+
     @Schema(description = "규격")
     private String spec;
-
-    @Schema(description = "단위")
-    private String purchaseUnit;
 
     @Schema(description = "수량")
     private Integer quantity;
 
     @Schema(description = "단가")
     private BigDecimal salePrice;
+
+    @Schema(description = "금액")
+    private BigDecimal amount;
 
 }
