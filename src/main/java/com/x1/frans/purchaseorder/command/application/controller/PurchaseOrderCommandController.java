@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/hq/purchaseOrder")
+@RequestMapping("/api/hq/purchaseorder")
 @RequiredArgsConstructor
 @Tag(name = "📝 발주", description = "PurchaseOrder")
 public class PurchaseOrderCommandController {

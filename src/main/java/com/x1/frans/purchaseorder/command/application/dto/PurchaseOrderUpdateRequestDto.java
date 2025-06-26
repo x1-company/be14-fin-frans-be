@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PurchaseOrderUpdateRequestDto {
+    private String title;
     private LocalDate requestedDeliveryDate;
     private List<PurchaseOrderProductUpdateDto> products;
 }

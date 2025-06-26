@@ -33,7 +33,7 @@ public class PurchaseRequestQueryController {
 
     @GetMapping("/status")
     @Operation(summary = "구매 요청 목록을 구매 상태로 조회",
-            description = "구매 요청 목록을 구매 상태: [요청 취소] [요청 대기] [검토 중] [승인] [반려]로 조회한다. ")
+            description = "구매 요청 목록을 구요매 상태: [요청 취소] [청 대기] [검토 중] [승인] [반려]로 조회한다. ")
     public Page<PurchaseRequestSimpleDto> getRequestsByStatus(
             @RequestParam("status") PurchaseRequestStatus status,
             Pageable pageable
