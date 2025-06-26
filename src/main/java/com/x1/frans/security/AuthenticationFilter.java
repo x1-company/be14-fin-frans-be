@@ -81,6 +81,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
+        
+        // 테스트용 쿠키 추가
+        response.addHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Set-Cookie", "testcookie=testvalue; Path=/; HttpOnly; Secure; SameSite=None; Domain=frans.co.kr; Max-Age=300");
+
+        System.out.println("Set-Cookie 등록됨 여부: " + response.containsHeader("Set-Cookie"));
+        System.out.println("응답 커밋 여부: " + response.isCommitted());
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("needChangePassword", userDetails.getIsTempPassword());
@@ -90,5 +97,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json; charset=utf-8");
         new ObjectMapper().writeValue(response.getWriter(), responseBody);
+
+        System.out.println("Set-Cookie 등록됨 여부: " + response.containsHeader("Set-Cookie"));
+        System.out.println("응답 커밋 여부: " + response.isCommitted());
     }
 }
