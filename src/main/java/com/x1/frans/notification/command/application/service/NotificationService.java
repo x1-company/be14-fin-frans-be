@@ -5,6 +5,7 @@ import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
 import com.x1.frans.approval.command.domain.repository.ApprovalCommandRepository;
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
 import com.x1.frans.approval.common.ApprovalLineType;
+import com.x1.frans.exception.AccessDeniedException;
 import com.x1.frans.exception.AllMessagesAlreadyReadException;
 import com.x1.frans.exception.ApprovalNotFoundException;
 import com.x1.frans.exception.NoDeletableMessagesException;
@@ -67,9 +68,14 @@ public class NotificationService {
      *  3. 문자열을 사용해서 Emitter ID 생성 및 저장소 접근
     * */
     public SseEmitter subscribe(Long userId, String lastEventId) {
+        if (userId == null || userCommandRepository.findById(userId).isEmpty()) {
+            throw new AccessDeniedException("SSE 연결은 인증된 사용자만 가능합니다.");
+        }
+
         String userIdStr = toUserIdStr(userId);
 
         String emitterId = generateEmitterId(userIdStr);
+        log.info("[SSE SUBSCRIBE] userId={}, userIdStr={}, emitterId={}", userId, userIdStr, emitterId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         emitter.onCompletion(() -> safeDeleteEmitter(emitterId));
@@ -98,6 +104,7 @@ public class NotificationService {
                     .name(EVENT_NAME)
                     .data(data)
             );
+            log.info("[알림 전송 성공] emitterId={}, eventId={}", emitterId, eventId);
         } catch (IOException exception) {
             log.warn("SSE 전송 실패 (IOException) - emitterId={}, eventId={}, exceptionType={}, message={}",
                     emitterId, eventId, exception.getClass().getName(), exception.getMessage(), exception);
@@ -124,6 +131,7 @@ public class NotificationService {
 
     // 메서드 파라미터 구성방식 수정
     // 변경 전: 낱개 인자로 직접 받았음. 변경 후: NotificationTarget 객체를 직접 인자로 받음
+    @Transactional
     public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
         Notification notification = notificationRepository.save(
                 createNotification(receiver, notificationType, target)
@@ -132,8 +140,9 @@ public class NotificationService {
         String receiverIdStr = String.valueOf(receiver.getId());
         String eventId = generateEmitterId(receiverIdStr); // UUID 기반으로 변경
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
-
+        log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
         emitters.forEach((key, emitter) -> {
+            log.info("[알림 PUSH] emitterId={}", key);
             emitterRepository.saveEventCache(key, notification);
             sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
         });
@@ -222,25 +231,26 @@ public class NotificationService {
     }
 
     public void clearEmittersAndCache(UserEntity user) {
-        String userIdStr = user.getEmail();
-
+        String userIdStr = String.valueOf(user.getId());
         emitterRepository.deleteAllEmitterStartWithId(userIdStr);
         emitterRepository.deleteAllEventCacheStartWithId(userIdStr);
-
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
 
-    @Scheduled(fixedRate = 30000) // 30초마다
+    @Scheduled(fixedRate = 30000) // 30초
     public void sendHeartbeat() {
-        // 모든 연결된 클라이언트에게 heartbeat 전송
-        emitterRepository.findAllEmitterStartWithByUserId("*").forEach((emitterId, emitter) -> {
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(""); // ★
+        log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
+        emitters.forEach((emitterId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
                         .id("heartbeat-" + System.currentTimeMillis())
                         .name("heartbeat")
                         .data("ping"));
+                log.info("[HEARTBEAT] 전송 성공: {}", emitterId);
             } catch (IOException e) {
-                log.warn("Heartbeat 전송 실패: {}", emitterId);
+                log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
+                emitterRepository.deleteById(emitterId);
             }
         });
     }

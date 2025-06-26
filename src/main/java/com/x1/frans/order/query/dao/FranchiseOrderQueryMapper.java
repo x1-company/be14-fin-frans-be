@@ -1,8 +1,6 @@
 package com.x1.frans.order.query.dao;
 
-import com.x1.frans.order.query.dto.FranchiseOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSummaryResponseDto;
+import com.x1.frans.order.query.dto.*;
 import com.x1.frans.product.query.dto.ProductDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -20,6 +18,13 @@ public interface FranchiseOrderQueryMapper {
     FranchiseOrderDetailDto findFranchiseOrderDetailById(@Param("orderId") Long orderId, @Param("userId") Long userId);
 
     List<ProductDetailDTO> findProductsByOrderId(@Param("orderId") Long orderId);
+
+    // 주문 템플릿 조회
+    List<OrderTemplateListResponseDto> findTemplatesByUserId(@Param("userId") Long userId);
+
+    OrderTemplateDetailResponseDto findTemplateDetail(@Param("templateId") Long templateId, @Param("userId") Long userId);
+
+    List<ProductInTemplateDto> findProductsByTemplateId(@Param("templateId") Long templateId);
 
 
 }

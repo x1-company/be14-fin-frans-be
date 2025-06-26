@@ -30,4 +30,6 @@ public interface UserQueryMapper {
     List<Long> findFranchiseIdsByDepartmentId(Long departmentId);
 
     List<Long> findHqUserIdsByParentDepartmentIds(@Param("parentIds") List<Long> parentIds);
+
+    MyInfoDTO getMyInfo(@Param("userId") Long userId);
 }

@@ -44,6 +44,18 @@ jobs:
               url: jdbc:mariadb://\${RDS_HOSTNAME}:\${RDS_PORT}/\${RDS_DB_NAME}
               username: \${RDS_USERNAME}
               password: \${RDS_PASSWORD}
+            
+            hikari:
+              maximum-pool-size: 50
+              minimum-idle: 5
+              idle-timeout: 600000
+              max-lifetime: 1800000
+              connection-timeout: 60000
+              leak-detection-threshold: 10000
+              connection-test-query: SELECT 1
+              validation-timeout: 5000
+              keepalive-time: 30000
+              register-mbeans: true
 
             jpa:
               generate-ddl: false
@@ -61,6 +73,11 @@ jobs:
               properties:
                 mail.smtp.auth: true
                 mail.smtp.starttls.enable: true
+          
+            redis:
+            host: ${REDIS_HOST}
+            port: ${REDIS_PORT}
+            timeout: 2000
           
             cloud:
               aws:
@@ -80,7 +97,7 @@ jobs:
             access-expiration-time: 15
             refresh-expiration-time: 14
             secret: \${TOKEN_SECRET}
-            
+        
           EOL
 
       - name: Set Yaml
@@ -102,6 +119,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
           TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
 
       - name: Build with Gradle
         run: ./gradlew clean build --info

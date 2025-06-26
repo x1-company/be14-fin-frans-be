@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 @Getter
 public class ApprovalLineDTO {
 
+    @Schema(description = "결재선 ID")
+    private Long approvalLineId;
+
     @Schema(description = "결재자 ID")
     private Long id;
 
@@ -42,4 +45,6 @@ public class ApprovalLineDTO {
 
     @Schema(description = "의견")
     private String opinion;
+
+    private String url;
 }

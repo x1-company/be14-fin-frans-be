@@ -1,6 +1,7 @@
 package com.x1.frans.order.command.application.controller;
 
 import com.x1.frans.order.command.application.dto.FranchiseOrderCreateRequestDto;
+import com.x1.frans.order.command.application.dto.OrderTemplateRequestDTO;
 import com.x1.frans.order.command.application.service.FranchiseOrderCommandService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +43,51 @@ public class FranchiseOrderCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         franchiseOrderCommandService.cancelOrder(orderId, userDetails.getUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/template")
+    @Operation(
+            summary = "주문 템플릿 등록",
+            description = "가맹점주가 주문 템플릿을 등록합니다."
+    )
+    public ResponseEntity<Void> createTemplate(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody OrderTemplateRequestDTO orderTemplateRequestDTO
+    ) {
+
+        franchiseOrderCommandService.createTemplate(userDetails.getUserId(), orderTemplateRequestDTO);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/template/{templateId}")
+    @Operation(
+            summary = "주문 템플릿 삭제",
+            description = "가맹점주가 주문 템플릿을 삭제합니다."
+    )
+    public ResponseEntity<Void> deleteTemplate(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String templateId) {
+
+        franchiseOrderCommandService.deleteTemplate(userDetails.getUserId(), templateId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/template/{templateId}")
+    @Operation(
+            summary = "주문 템플릿 수정",
+            description = "가맹점주가 주문 템플릿을 수정합니다."
+    )
+    public ResponseEntity<Void> updateTemplate(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String templateId,
+            @RequestBody OrderTemplateRequestDTO orderTemplateRequestDTO) {
+
+        franchiseOrderCommandService.updateTemplate(userDetails.getUserId(), templateId,
+                orderTemplateRequestDTO);
+
         return ResponseEntity.ok().build();
     }
 }

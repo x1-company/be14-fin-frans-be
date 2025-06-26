@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "📊 통계", description = "통계 관련 API")
@@ -32,12 +34,30 @@ public class FranchiseOrderAmountQueryController {
             description = "자신이 담당하는 가맹점들의 월 주문 금액 통계를 조회한다.")
     @GetMapping("/manager")
     public ResponseEntity<List<FranchiseOrderAmountQueryDTO>> getManagerStats (
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam Integer year,
+            @RequestParam Integer month
     ) {
         Long userId = customUserDetails.getUserId();
 
-        List<FranchiseOrderAmountQueryDTO> stats = franchiseOrderAmountQueryService.getMonthlyStatsByManager(userId);
+        List<FranchiseOrderAmountQueryDTO> stats
+                = franchiseOrderAmountQueryService.getMonthlyStatsByManager(userId, year, month);
 
+        return ResponseEntity.ok(stats);
+    }
+
+    @Operation(
+            summary = "담당 가맹점의 월별 주문 금액 통계 조회",
+            description = "자신이 담당하는 가맹점의 월별 주문 금액 통계를 조회한다.")
+    @GetMapping("/manager/{franchiseId}")
+    public ResponseEntity<List<FranchiseOrderAmountQueryDTO>> getManagerStatsByFranchiseId (
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long franchiseId
+    ) {
+        Long userId = customUserDetails.getUserId();
+
+        List<FranchiseOrderAmountQueryDTO> stats
+                = franchiseOrderAmountQueryService.getMonthlyStatsByManagerByFranchiseId(userId, franchiseId);
         return ResponseEntity.ok(stats);
     }
 

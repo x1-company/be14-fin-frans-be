@@ -131,7 +131,13 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         // 현재 날짜 (YYYYMMDD 형식)
         String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        String franchisePrefix = franchise.getCode();
+        String code = franchise.getCode();
+
+        String firstThree = code.substring(0, 3);
+        String lastFour = code.substring(code.length() - 4);
+
+        String franchisePrefix = firstThree + lastFour;
+
         int franchiseReturnCount = returnRepository.countByReturnCodePrefix(franchisePrefix);
 
         // 일련번호 생성 (0001부터 시작)

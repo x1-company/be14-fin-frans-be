@@ -1,10 +1,7 @@
 package com.x1.frans.user.query.controller;
 
 import com.x1.frans.security.CustomUserDetails;
-import com.x1.frans.user.query.dto.HqUserDepartmentDTO;
-import com.x1.frans.user.query.dto.SearchFranchiseUserDTO;
-import com.x1.frans.user.query.dto.SearchHqUserDTO;
-import com.x1.frans.user.query.dto.SearchSupplierUserDTO;
+import com.x1.frans.user.query.dto.*;
 import com.x1.frans.user.query.service.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -75,5 +72,17 @@ public class UserQueryController {
         List<SearchSupplierUserDTO> supplierUsers = userQueryService.findSupplierUser(name);
 
         return ResponseEntity.ok().body(supplierUsers);
+    }
+
+    @GetMapping("/me")
+    @Operation(
+            summary = "내 정보 조회",
+            description = "내 정보를 조회합니다."
+    )
+    public ResponseEntity<MyInfoDTO> getMyInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        MyInfoDTO myInfo = userQueryService.getMyInfo(customUserDetails.getUserId());
+
+        return ResponseEntity.ok(myInfo);
     }
 }

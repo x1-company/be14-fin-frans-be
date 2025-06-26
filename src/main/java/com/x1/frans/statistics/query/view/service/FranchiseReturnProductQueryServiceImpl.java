@@ -18,14 +18,24 @@ public class FranchiseReturnProductQueryServiceImpl implements FranchiseReturnPr
     }
 
     @Override
-    public List<FranchiseReturnProductQueryDTO> getMonthlyStatsByManager(Long userId) {
+    public List<FranchiseReturnProductQueryDTO> getMonthlyStatsByManager(Long userId, Integer year, Integer month) {
 
         boolean hasFranchises = franchiseReturnProductMapper.existsFranchiseByManagerId(userId);
         if (!hasFranchises) {
             return List.of();
         }
 
-        return franchiseReturnProductMapper.selectStatsByManager(userId);
+        return franchiseReturnProductMapper.selectStatsByManager(userId, year, month);
+    }
+
+    @Override
+    public List<FranchiseReturnProductQueryDTO> getMonthlyStatsByManagerByFranchiseId(Long userId, Long franchiseId) {
+        boolean hasFranchises = franchiseReturnProductMapper.existsFranchiseByManagerId(userId);
+        if (!hasFranchises) {
+            return List.of();
+        }
+
+        return franchiseReturnProductMapper.selectStatsByManagerByFranchiseId(userId, franchiseId);
     }
 
     @Override
@@ -39,6 +49,7 @@ public class FranchiseReturnProductQueryServiceImpl implements FranchiseReturnPr
 
         return franchiseReturnProductMapper.selectStatsByDepartment(deptId);
     }
+
 
     @Override
     public List<FranchiseReturnProductQueryDTO> getMonthlyStatsForAllByDuty(Long userId, Long deptId, Long dutyId) {

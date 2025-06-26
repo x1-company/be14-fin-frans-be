@@ -53,4 +53,9 @@ public class HqOrderQueryServiceImpl implements HqOrderQueryService {
     public List<OrderReviewCompletedListDto> getOrderReviewCompleted(Long userId) {
         return orderQueryMapper.findOrderReviewCompleted(userId);
     }
+
+    @Override
+    public OrderDeadlineResponseDto getOrderDeadline(Long userId) {
+        return orderQueryMapper.findOrderDeadline();
+    }
 }

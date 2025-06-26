@@ -56,6 +56,7 @@
           JOIN position pos
             ON pos.id = hud.position_id
          WHERE u.id = #{userId}
+         ORDER BY a.created_at DESC
     </select>
 
     <select id="getApprovalListDraft" resultMap="getApprovalListMap">
@@ -836,12 +837,15 @@
     <select id="findOrderHistoryByApprovalId"
             resultType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO">
         SELECT
-               o.id AS historyId
+               o.id AS orderId
+             , po.id AS historyId
+             , p.code
              , p.name AS productName
              , p.spec
              , p.purchase_unit AS purchaseUnit
              , po.quantity
              , p.sale_price AS salePrice
+             , (p.sale_price * po.quantity) AS amount
           FROM order_approval oa
           JOIN orders o
             ON oa.orders_id = o.id
@@ -860,13 +864,18 @@
              , a.code
              , a.title
              , a.remarks
+             , 'ORDER' AS categoryType
+             , dept.name AS deptName
              , a.status
              , a.created_at
+             , a.processed_at As processedAt
              , u.name AS drafter_name
              , l.user_name
              , l.approval_type AS user_type
         FROM approval a
                  LEFT JOIN user u ON a.user_id = u.id
+                 JOIN hq_user_detail hud ON hud.user_id = u.id
+                 JOIN department dept ON dept.id = hud.department_id
                  LEFT JOIN (
                             SELECT
                                 al.approval_id,
@@ -901,12 +910,15 @@
     <select id="findReturnHistoryByApprovalId"
             resultType="com.x1.frans.approval.query.dto.Detail.content.OrderReturn.ApprovalOrderReturnHistoryDTO">
         SELECT
-               r.id AS historyId
+               r.id AS returnId
+             , rd.id AS historyId
+             , p.code
              , p.name AS productName
              , p.spec
              , p.purchase_unit AS purchaseUnit
              , rd.quantity
              , p.sale_price AS salePrice
+             , (p.sale_price * rd.quantity) AS amount
           FROM return_approval ra
           JOIN `return` r
             ON ra.return_id = r.id
@@ -925,6 +937,9 @@
              , a.code
              , a.title
              , a.remarks
+             , 'RETURN' AS categoryType
+             , dept.name AS deptName
+             , a.processed_at As processedAt
              , a.status
              , a.created_at
              , u.name AS drafter_name
@@ -932,6 +947,8 @@
              , l.approval_type AS user_type
           FROM approval a
           LEFT JOIN user u ON a.user_id = u.id
+          JOIN hq_user_detail hud ON hud.user_id = u.id
+          JOIN department dept ON dept.id = hud.department_id
           LEFT JOIN (
                       SELECT
                              al.approval_id
@@ -972,14 +989,18 @@
              , a.code
              , a.title
              , a.remarks
+             , 'PURCHASE_ORDER' AS categoryType
+             , dept.name AS deptName
              , a.status
+             , a.processed_at As processedAt
              , a.created_at
              , u.name AS drafter_name
              , l.user_name
              , l.approval_type AS user_type
           FROM approval a
-          LEFT JOIN user u
-            ON a.user_id = u.id
+          LEFT JOIN user u ON a.user_id = u.id
+              JOIN hq_user_detail hud ON hud.user_id = u.id
+              JOIN department dept ON dept.id = hud.department_id
           LEFT JOIN (
                         SELECT
                                al.approval_id
@@ -1007,12 +1028,15 @@
     <!-- 발주 이력 -->
     <select id="findPurchaseOrderHistoryByApprovalId" resultType="com.x1.frans.approval.query.dto.Detail.content.PurchaseOrder.ApprovalPurchaseOrderHistoryDTO">
         SELECT
-               po.id AS historyId
+            po.id AS purchaseOrderId
+             , pop.id AS historyId
+             , p.code
              , p.name AS productName
              , p.spec
              , p.purchase_unit AS purchaseUnit
              , pop.quantity
              , p.purchase_price AS purchasePrice
+             , (p.purchase_price * pop.quantity) AS amount
           FROM purchase_order_approval poa
           JOIN purchase_order po
             ON po.id = poa.purchase_order_id
@@ -1038,6 +1062,7 @@
         SELECT
                a.id
              , u.name
+             , u.sign_url AS url
           FROM approval a
           JOIN user u ON a.user_id = u.id
          WHERE a.id = #{approvalId}
@@ -1045,7 +1070,8 @@
 <!--    결재선 상세 조회-->
     <select id="findApprovalDetailLine" parameterType="map" resultType="com.x1.frans.approval.query.dto.Detail.lines.ApprovalLineDTO">
         SELECT
-               al.id AS id
+               al.id AS approvalLineId
+             , u.id AS id
              , u.name AS userName
              , al.approval_type AS type
              , dept.name AS departmentName
@@ -1056,6 +1082,7 @@
              , al.is_checked AS isChecked
              , al.checked_at AS checkedAt
              , al.opinion
+             , u.sign_url AS url
           FROM approval_line al
           LEFT JOIN user u
             ON al.user_id = u.id
@@ -1176,5 +1203,154 @@
            AND a.status = 'REJECTED'
          ORDER BY a.created_at
     </select>
+
+
+    <!--    임시저장 관련 -->
+    <select id="selectApprovalDraft" resultType="com.x1.frans.approval.query.dto.ApprovalDraftDTO">
+        SELECT
+            a.id AS approvalId,
+            a.code,
+            a.title,
+            a.remarks
+            a.status,
+            a.is_requested AS isRequested,
+            a.user_id AS id
+        FROM approval a
+        WHERE a.id = #{approvalId}
+          AND a.status = 'DRAFT'
+    </select>
+
+    <select id="selectApprovalDraftLines" resultType="com.x1.frans.approval.query.dto.ApprovalDraftLineDTO">
+        SELECT
+            u.id AS id,
+            u.name AS approverName,
+            d.name AS deptName,
+            p.name AS positionName,
+            l.seq,
+            l.approval_type AS type
+        FROM approval_line l
+                 JOIN user u ON l.user_id = u.id
+                 LEFT JOIN hq_user_detail hud ON u.id = hud.user_id
+                 LEFT JOIN department d ON hud.department_id = d.id
+                 LEFT JOIN position p ON hud.position_id = p.id
+        WHERE l.approval_id = #{approvalId}
+        ORDER BY l.seq ASC
+    </select>
+
+    <select id="selectApprovalDraftFiles" resultType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO">
+        SELECT
+            f.name,
+            f.url
+        FROM approval_file f
+        WHERE f.approval_id = #{approvalId}
+    </select>
+
+    <select id="selectApprovalDocumentIds" resultType="long">
+        SELECT
+            oa.orders_id
+        FROM order_approval oa
+        WHERE oa.approval_id = #{approvalId}
+    </select>
+
+    <select id="selectApprovalDocumentIdsReturn" resultType="long">
+        SELECT
+            ra.return_id
+        FROM return_approval ra
+        WHERE ra.approval_id = #{approvalId}
+    </select>
+
+    <select id="selectApprovalDocumentIdsPurchase" resultType="long">
+        SELECT
+            poa.purchase_order_id
+        FROM purchase_order_approval poa
+        WHERE poa.approval_id = #{approvalId}
+    </select>
+
+    <select id="selectApprovalCategoryType" resultType="string">
+        SELECT 'ORDER' FROM order_approval WHERE approval_id = #{approvalId}
+        UNION
+        SELECT 'RETURN' FROM return_approval WHERE approval_id = #{approvalId}
+        UNION
+        SELECT 'PURCHASE_ORDER' FROM purchase_order_approval WHERE approval_id = #{approvalId}
+    </select>
+<!--    총 금액-->
+    <!-- 주문 총 금액 -->
+    <select id="findTotalOrderAmountByApprovalId" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE(SUM(p.sale_price * po.quantity), 0)
+        FROM order_approval oa
+                 JOIN orders o ON oa.orders_id = o.id
+                 JOIN product_order po ON po.order_id = o.id
+                 JOIN product p ON p.id = po.product_id
+        WHERE oa.approval_id = #{approvalId}
+    </select>
+
+    <!-- 반품 총 금액 -->
+    <select id="findTotalReturnAmountByApprovalId" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE(SUM(p.sale_price * rd.quantity), 0)
+        FROM return_approval ra
+                 JOIN `return` r ON ra.return_id = r.id
+                 JOIN return_detail rd ON rd.return_id = r.id
+                 JOIN product p ON p.id = rd.product_id
+        WHERE ra.approval_id = #{approvalId}
+    </select>
+
+    <!-- 발주 총 금액 -->
+    <select id="findTotalPurchaseOrderAmountByApprovalId" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE(SUM(p.purchase_price * pop.quantity), 0)
+        FROM purchase_order_approval poa
+                 JOIN purchase_order po ON po.id = poa.purchase_order_id
+                 JOIN purchase_order_product pop ON pop.purchase_order_id = po.id
+                 JOIN product p ON p.id = pop.product_id
+        WHERE poa.approval_id = #{approvalId}
+    </select>
+
+
+<!--    documentDTO 추가된 사항 -->
+    <select id="selectApprovalDocumentMetaOrder" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
+        SELECT
+            o.id AS documentId,
+            o.code AS documentNo,
+            f.name AS franchiseName,
+            o.created_at AS createdAt,
+            o.total_amount AS amount
+        FROM order_approval oa
+                 JOIN `orders` o ON oa.orders_id = o.id
+                 LEFT JOIN franchise f ON o.franchise_id = f.id
+        WHERE oa.approval_id = #{approvalId}
+    </select>
+
+    <select id="selectApprovalDocumentMetaReturn" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
+        SELECT
+            r.id AS documentId,
+            r.code AS documentNo,
+            f.name AS franchiseName,
+            r.created_at AS createdAt,
+            r.description AS reason,
+            r.total_amount AS amount
+        FROM return_approval ra
+                 JOIN `return` r ON ra.return_id = r.id
+                 LEFT JOIN franchise f ON r.franchise_id = f.id
+    </select>
+
+    <select id="selectApprovalDocumentMetaPurchase" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
+        SELECT
+            po.id AS documentId,
+            po.code AS documentNo,
+            s.name AS supplierName,
+            po.created_at AS createdAt,
+            po.total_amount AS amount
+        FROM purchase_order_approval poa
+                 JOIN purchase_order po ON poa.purchase_order_id = po.id
+                 LEFT JOIN supplier s ON po.supplier_id = s.id
+        WHERE poa.approval_id = #{approvalId}
+    </select>
+
+
+
+
+
 
 </mapper>

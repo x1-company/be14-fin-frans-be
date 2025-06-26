@@ -1,9 +1,6 @@
 package com.x1.frans.order.query.service;
 
-import com.x1.frans.order.query.dto.HqOrderDetailDto;
-import com.x1.frans.order.query.dto.OrderReviewCompletedListDto;
-import com.x1.frans.order.query.dto.OrderSearchConditionDto;
-import com.x1.frans.order.query.dto.OrderSearchPageResponseDto;
+import com.x1.frans.order.query.dto.*;
 
 import java.util.List;
 
@@ -13,4 +10,6 @@ public interface HqOrderQueryService {
     HqOrderDetailDto getOrderDetail(Long orderId, Long userId);
 
     List<OrderReviewCompletedListDto> getOrderReviewCompleted(Long userId);
+
+    OrderDeadlineResponseDto getOrderDeadline(Long userId);
 }

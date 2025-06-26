@@ -22,4 +22,23 @@ public class FranchiseProductOrderQueryServiceImpl implements FranchiseProductOr
 
         return franchiseProductOrderMapper.getStats(franchiseId, year, month);
     }
+
+    @Override
+    public List<FranchiseProductOrderQueryDTO> getMonthlyStatsByManager(Long userId, Integer year, Integer month) {
+        boolean hasFranchises = franchiseProductOrderMapper.existsFranchiseByManagerId(userId);
+        if (!hasFranchises) {
+            return List.of();
+        }
+        return franchiseProductOrderMapper.selectStatsByManager(userId, year, month);  // ← userId 그대로 전달
+    }
+
+    @Override
+    public List<FranchiseProductOrderQueryDTO> getMonthlyStatsByManagerByFranchiseId(Long userId, Long franchiseId) {  // ← year, month 제거
+        boolean hasFranchises = franchiseProductOrderMapper.existsFranchiseByManagerId(userId);
+        if (!hasFranchises) {
+            return List.of();
+        }
+        return franchiseProductOrderMapper.selectStatsByManagerByFranchiseId(userId, franchiseId);  // ← year, month 제거
+    }
+
 }

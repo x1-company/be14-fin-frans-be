@@ -16,6 +16,7 @@
         <result property="deletedReason" column="deleted_reason"/>
         <result property="deletedAt" column="deleted_at"/>
         <result property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
         <result property="franchiseName" column="franchise_name"/>
         <result property="franchiseId" column="franchise_id"/>
     </resultMap>
@@ -48,12 +49,41 @@
                s.deleted_reason,
                s.deleted_at,
                s.product_id,
+               p.name AS product_name,
                s.franchise_id
           FROM franchise_return_product_stat s
           JOIN franchise f ON s.franchise_id = f.id
+          JOIN product p ON s.product_id = p.id
          WHERE f.manager_id = #{managerId}
+        <if test="year != null">
+            AND s.year = #{year}
+        </if>
+        <if test="month != null">
+            AND s.month = #{month}
+        </if>
     </select>
 
+    <select id="selectStatsByManagerByFranchiseId" resultMap="FranchiseReturnProductQueryDTOMap">
+        SELECT
+               s.id,
+               f.name AS franchise_name,
+               s.year,
+               s.month,
+               s.return_quantity,
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at,
+               s.product_id,
+               p.name AS product_name,
+               s.franchise_id
+          FROM franchise_return_product_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+          JOIN product p ON s.product_id = p.id
+         WHERE f.manager_id = #{userId}
+           AND f.id = #{franchiseId}
+    </select>
     <!-- 4. 부서별 월별 반품 통계 -->
     <select id="selectStatsByDepartment" resultMap="FranchiseReturnProductQueryDTOMap">
         SELECT
@@ -68,10 +98,12 @@
                s.deleted_reason,
                s.deleted_at,
                s.product_id,
+               p.name AS product_name,
                s.franchise_id
           FROM franchise_return_product_stat s
           JOIN franchise f ON s.franchise_id = f.id
-         WHERE f.department_id = #{departmentId}
+          JOIN product p ON s.product_id = p.id
+        WHERE f.department_id = #{departmentId}
     </select>
 
     <!-- 5. 전체 반품 통계 조회 (권한 체크는 서비스 단에서 처리됨) -->
@@ -88,9 +120,11 @@
                s.deleted_reason,
                s.deleted_at,
                s.product_id,
+               p.name AS product_name,
                s.franchise_id
           FROM franchise_return_product_stat s
           JOIN franchise f ON s.franchise_id = f.id
+          JOIN product p ON s.product_id = p.id
     </select>
 
     <!-- 6. 직책 이름 조회 -->

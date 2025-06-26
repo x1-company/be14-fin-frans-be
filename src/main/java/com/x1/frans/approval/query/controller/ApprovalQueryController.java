@@ -1,11 +1,8 @@
 package com.x1.frans.approval.query.controller;
 
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDTO;
-import com.x1.frans.approval.query.dto.ApprovalLineTemplateDetailDTO;
-import com.x1.frans.approval.query.dto.ApprovalReceivedListDTO;
+import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
-import com.x1.frans.approval.query.dto.ApprovalListDTO;
 import com.x1.frans.approval.query.service.ApprovalQueryService;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -282,11 +279,11 @@ public class ApprovalQueryController {
 
     @Operation(summary = "결재 상세 조회 - 결재 본문", description = "결재 상세본문 조회한다.")
     @GetMapping("/detail/{approvalId}/content")
-    public ResponseEntity<List<ApprovalContentDTO>> getApprovalDetailContent(@AuthenticationPrincipal CustomUserDetails user,
+    public ResponseEntity<ApprovalContentDTO> getApprovalDetailContent(@AuthenticationPrincipal CustomUserDetails user,
                                                                              @PathVariable long approvalId) {
 
         long userId = user.getUserId();
-        List<ApprovalContentDTO> list = approvalQueryService.getApprovalDetailContent(userId,approvalId);
+        ApprovalContentDTO list = approvalQueryService.getApprovalDetailContent(userId,approvalId);
 
         return ResponseEntity.ok(list);
     }
@@ -345,6 +342,14 @@ public class ApprovalQueryController {
 
         long userId = user.getUserId();
         List<ApprovalReceivedListDTO> list = approvalQueryService.getApprovalListReceivedRejected(userId);
+
+        return ResponseEntity.ok(list);
+    }
+    @Operation(summary = "임시저장한 문서 상세조회", description = "임시저장한 문서 상세조회 할 수 있다.")
+    @GetMapping("/draft/{approvalId}")
+    public ResponseEntity<ApprovalDraftDTO> getApprovalDraft(@PathVariable long approvalId) {
+
+        ApprovalDraftDTO list = approvalQueryService.getApprovalDraft(approvalId);
 
         return ResponseEntity.ok(list);
     }

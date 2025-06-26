@@ -31,4 +31,5 @@
             WHERE approval_id = #{approvalId}
         )
     </update>
+
 </mapper>
