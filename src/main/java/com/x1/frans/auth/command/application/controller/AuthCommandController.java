@@ -80,6 +80,7 @@ public class AuthCommandController {
                 .maxAge(0)
 //                .sameSite("Lax")
                 .sameSite("None") // HTTPS
+                .domain("frans.co.kr")
                 .build();
 
         response.setHeader("Set-Cookie", deleteCookie.toString());

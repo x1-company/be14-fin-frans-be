@@ -77,6 +77,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .maxAge(expirationMillis / 1000)
 //                .sameSite("Lax")
                 .sameSite("None") // HTTPS
+                .domain("frans.co.kr")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
