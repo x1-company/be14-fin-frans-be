@@ -59,7 +59,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
         String userCode = userDetails.getUsername();
-        long expirationMillis = tokenProperties.getRefreshExpirationTime();
+        long expirationMillis = tokenProperties.getRefreshExpirationTime() * 24L * 60 * 60 * 1000;
 
         String accessToken = jwtUtil.generateAccessToken(userDetails);
 
