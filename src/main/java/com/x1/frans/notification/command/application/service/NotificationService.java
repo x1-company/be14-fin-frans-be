@@ -75,6 +75,7 @@ public class NotificationService {
         String userIdStr = toUserIdStr(userId);
 
         String emitterId = generateEmitterId(userIdStr);
+        log.info("[SSE SUBSCRIBE] userId={}, userIdStr={}, emitterId={}", userId, userIdStr, emitterId);
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         emitter.onCompletion(() -> safeDeleteEmitter(emitterId));
@@ -130,6 +131,7 @@ public class NotificationService {
 
     // 메서드 파라미터 구성방식 수정
     // 변경 전: 낱개 인자로 직접 받았음. 변경 후: NotificationTarget 객체를 직접 인자로 받음
+    @Transactional
     public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
         Notification notification = notificationRepository.save(
                 createNotification(receiver, notificationType, target)
@@ -140,6 +142,7 @@ public class NotificationService {
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
         log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
         emitters.forEach((key, emitter) -> {
+            log.info("[알림 PUSH] emitterId={}", key);
             emitterRepository.saveEventCache(key, notification);
             sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
         });
