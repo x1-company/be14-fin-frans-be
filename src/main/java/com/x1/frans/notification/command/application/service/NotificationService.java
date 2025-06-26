@@ -131,6 +131,7 @@ public class NotificationService {
 
     // 메서드 파라미터 구성방식 수정
     // 변경 전: 낱개 인자로 직접 받았음. 변경 후: NotificationTarget 객체를 직접 인자로 받음
+    @Transactional
     public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
         Notification notification = notificationRepository.save(
                 createNotification(receiver, notificationType, target)
