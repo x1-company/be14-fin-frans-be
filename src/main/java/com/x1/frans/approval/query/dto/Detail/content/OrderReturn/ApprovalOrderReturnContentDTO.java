@@ -36,9 +36,15 @@ public class ApprovalOrderReturnContentDTO extends ApprovalContentDTO{
     @Schema(description = "기안일자")
     private LocalDateTime createdAt;
 
+
     @Schema(description = "결재완료 일자")
     private LocalDateTime processedAt;
 
+    private String positionName;
+
+    @Schema(description = "기안자 서명 URL")
+    private String url;
+  
     @Schema(description = "기안자명")
     private String drafterName;
 

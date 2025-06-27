@@ -235,15 +235,17 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
         // categoryType 조회
         String categoryType = approvalQueryMapper.selectApprovalCategoryType(approvalId);
-
-        // documentIds 조회 (categoryType별)
-        List<Long> documentIds;
-        switch (categoryType) {
-            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);
-            case "RETURN" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsReturn(approvalId);
-            case "PURCHASE_ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsPurchase(approvalId);
-            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
+        if (categoryType == null) {
+            throw new IllegalStateException("categoryType이 null입니다. approvalId: " + approvalId);
         }
+        // documentIds 조회 (categoryType별)
+//        List<Long> documentIds;
+//        switch (categoryType) {
+//            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);
+//            case "RETURN" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsReturn(approvalId);
+//            case "PURCHASE_ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsPurchase(approvalId);
+//            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
+//        }
 
         //  ApprovalDocumentDTO 조회
         List<ApprovalDocumentDTO> docDto;

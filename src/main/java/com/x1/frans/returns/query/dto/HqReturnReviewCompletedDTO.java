@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class HqReturnReviewCompltedDTO {
+public class HqReturnReviewCompletedDTO {
 
     @Schema(description = "반품 ID")
     private Long id;

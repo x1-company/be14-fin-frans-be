@@ -8,14 +8,15 @@ import lombok.*;
 
 import java.util.List;
 
-@Schema(description = "결재 등록 요청 DTO")
+@Schema(description = "결재 임시저정 요청 DTO")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ApprovalCreateRequestDTO {
+public class ApprovalDraftCreateRequestDTO {
+
+    private Long id;
 
     @Schema(description = "결재 제목")
     @NotNull(message = "결재 제목은 필수입니다.")
@@ -29,18 +30,17 @@ public class ApprovalCreateRequestDTO {
     private Boolean isRequest;
 
     @Schema(description = "결재 문서 유형")
+    @NotNull(message = "결재 문서 유형은 필수입니다.")
     private ApprovalCategoryType categoryType;
 
     @Schema(description = "결재에 포함될 문서 정보")
-    @NotNull(message = "결재 문서 정보는 필수입니다.")
-    private ApprovalDocumentDTO approvalDocuments;
+    private List<Long> approvalDocumentId;
 
     @Schema(description = "결재선 정보")
-    @NotNull(message = "결재선 정보는 필수입니다.")
     private List<ApprovalLineRequestDTO> approvalLines;
 
     @Schema(description = "첨부파일 목록")
     private List<ApprovalFileDTO> files;
 
-}
 
+}

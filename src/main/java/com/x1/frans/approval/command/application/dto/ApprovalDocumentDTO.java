@@ -1,5 +1,6 @@
 package com.x1.frans.approval.command.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.x1.frans.approval.common.ApprovalCategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -15,13 +16,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApprovalDocumentDTO {
 
     @Schema(description = "결재 문서 유형")
-    @NotNull(message = "결재 문서 유형은 필수입니다.")
     private ApprovalCategoryType categoryType;
 
     @Schema(description = "결재 문서 ID 목록")
-    @NotNull(message = "결재 문서 ID 목록은 필수입니다.")
     private List<Long> documentIds;
 }
