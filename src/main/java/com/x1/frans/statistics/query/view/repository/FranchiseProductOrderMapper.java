@@ -22,4 +22,9 @@ public interface FranchiseProductOrderMapper {
             @Param("userId") Long userId,
             @Param("franchiseId") Long franchiseId
     );
+
+    boolean existsFranchiseByOwnerId(Long userId);
+
+    List<FranchiseProductOrderQueryDTO> selectStatsByOwnerId(Long userId, Integer year, Integer month);
+
 }

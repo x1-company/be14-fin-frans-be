@@ -13,4 +13,6 @@ public interface FranchiseReturnProductQueryService {
     List<FranchiseReturnProductQueryDTO> getMonthlyStatsForAllByDuty(Long userId, Long deptId, Long dutyId);
 
     List<FranchiseReturnProductQueryDTO> getMonthlyStatsByManagerByFranchiseId(Long userId, Long franchiseId);
+
+    List<FranchiseReturnProductQueryDTO> getStatsByOwnerId(Long userId, Integer year, Integer month);
 }
