@@ -3,6 +3,7 @@ package com.x1.frans.approval.command.application.service;
 import com.x1.frans.approval.command.application.dto.*;
 import com.x1.frans.approval.command.domain.repository.*;
 import com.x1.frans.approval.command.domain.aggregate.*;
+import com.x1.frans.approval.common.ApprovalCategoryType;
 import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.common.ApprovalLineType;
 import com.x1.frans.approval.common.ApprovalStatus;
@@ -29,6 +30,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+<<<<<<< Updated upstream
+=======
+import static com.x1.frans.approval.common.ApprovalCategoryType.*;
+import static com.x1.frans.exception.enums.ErrorCode.USER_SIGNATURE_NOT_FOUND;
+>>>>>>> Stashed changes
 import static java.util.stream.Collectors.toList;
 
 
@@ -67,9 +73,19 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         int degree = 1;
          degree = approvalCommandRepository.findMaxDegreeByCode(newCode) + 1;
 
-        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
-            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+
+        if (request.getIsRequest()) {
+            if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+                throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+            }
         }
+
+
+        // 제목
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new IllegalArgumentException("제목은 필수 입력 항목입니다.");
+        }
+
         // 결재 엔티티 생성
         ApprovalEntity approval = new ApprovalEntity();
         approval.setTitle(request.getTitle());
@@ -80,15 +96,23 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         approval.setCode(newCode);
         approval.setDegree(degree);
 
+
+        if(approval.getStatus() == ApprovalStatus.IN_PROGRESS) {
+            if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+                throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+            }
+        }
+
         // 저장
         approvalCommandRepository.save(approval);
 
 
 
         // 결재 문서
+        // 결재문서
         ApprovalDocumentDTO doc = request.getApprovalDocuments();
-
-        if (doc.getDocumentIds() == null || doc.getDocumentIds().isEmpty()) {
+        if (doc == null || doc.getCategoryType() == null ||
+                doc.getDocumentIds() == null || doc.getDocumentIds().isEmpty()) {
             throw new IllegalArgumentException("결재 문서는 최소 1개 이상 등록해야 합니다.");
         }
         switch (doc.getCategoryType()) {
@@ -117,6 +141,12 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         }
 
         // 결재선 처리
+
+        // 결재선
+        if (request.getApprovalLines() == null || request.getApprovalLines().isEmpty()) {
+            throw new IllegalArgumentException("결재선은 최소 1명 이상 등록되어야 합니다.");
+        }
+
         List<ApprovalLineEntity> approvalLines = request.getApprovalLines().stream()
                 .map(line -> {
                     UserEntity approver = userCommandRepository.findById(line.getUserId())
@@ -223,6 +253,122 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         return String.format("%s%04d", codePrefix, nextSeq);
     }
 
+    @Override
+    public ApprovalResponseDTO createApprovalDrafts(ApprovalDraftCreateRequestDTO request, long userId) {
+
+        // 사용자 조회
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserSignatureNotFoundException("기안자 정보를 찾을 수 없습니다."));
+
+        // 결재 코드 생성
+        String newCode = generateApprovalCode();
+
+        int degree = 1;
+        degree = approvalCommandRepository.findMaxDegreeByCode(newCode) + 1;
+
+
+        // 결재 엔티티 생성
+        ApprovalEntity approval = new ApprovalEntity();
+        approval.setTitle(request.getTitle());
+        approval.setRemarks(request.getRemarks());
+        approval.setStatus(ApprovalStatus.DRAFT);
+        approval.setIsRequested(false);
+        approval.setUser(user); // 연관관계 설정
+        approval.setCode(newCode);
+        approval.setDegree(degree);
+
+        // 저장
+        approvalCommandRepository.save(approval);
+
+
+        // 결재 문서
+//        ApprovalDocumentDTO doc = request.getApprovalDocuments();
+        ApprovalCategoryType docCategory = request.getCategoryType();
+        List<Long> docIds = request.getApprovalDocumentId();
+
+        switch (docCategory) {
+            case ORDER -> {
+                List<OrderApprovalEntity> orderDocs = docIds.stream()
+                        .map(docId -> new OrderApprovalEntity(approval, docId))
+                        .toList();
+                orderApprovalCommandRepository.saveAll(orderDocs);
+            }
+
+            case RETURN -> {
+                List<ReturnApprovalEntity> returnDocs = docIds.stream()
+                        .map(docId -> new ReturnApprovalEntity(approval, docId))
+                        .toList();
+                returnApprovalCommandRepository.saveAll(returnDocs);
+            }
+
+            case PURCHASE_ORDER -> {
+                List<PurchaseOrderApprovalEntity> purchaseOrderDocs = docIds.stream()
+                        .map(docId -> new PurchaseOrderApprovalEntity(approval, docId))
+                        .toList();
+                purchaseOrderApprovalCommandRepository.saveAll(purchaseOrderDocs);
+            }
+
+            default -> throw new IllegalArgumentException("알 수 없는 문서 유형입니다.");
+        }
+
+        // 결재선 처리
+        List<ApprovalLineEntity> approvalLines = request.getApprovalLines().stream()
+                .map(line -> {
+                    UserEntity approver = userCommandRepository.findById(line.getUserId())
+                            .orElseThrow(() -> new UserNotFoundException("결재자 정보를 찾을 수 없습니다."));
+
+                    ApprovalLineEntity approvalLine = new ApprovalLineEntity();
+                    approvalLine.setApproval(approval);
+                    approvalLine.setUser(approver);
+                    approvalLine.setSeq(line.getSeq());
+                    approvalLine.setApprovalType(ApprovalLineType.valueOf(line.getType()));
+                    approvalLine.setApprovalDegree(approval.getDegree().longValue());
+                    return approvalLine;
+                }).toList();
+
+
+        // 순서가 필요한 라인만 필터링 (결재자, 협조자)
+        List<ApprovalLineEntity> orderedLines = approvalLines.stream()
+                .filter(line -> line.getApprovalType().isOrdered())
+                .sorted(Comparator.comparingInt(ApprovalLineEntity::getSeq))
+                .collect(toList());
+
+        // 순서 필요 없는 나머지 (참조자, 수신자)
+        List<ApprovalLineEntity> referenceLines = approvalLines.stream()
+                .filter(line -> !line.getApprovalType().isOrdered())
+                .collect(toList());
+
+        // 상태 설정 enum 메서드에 위임
+        for (int i = 0; i < orderedLines.size(); i++) {
+            ApprovalLineEntity line = orderedLines.get(i);
+            line.setStatus(line.getApprovalType().getInitialStatus(i));
+        }
+
+
+        // 결재선 저장
+        List<ApprovalLineEntity> allLines = new ArrayList<>();
+        allLines.addAll(orderedLines);
+        allLines.addAll(referenceLines);
+
+        // 참조자/수신자는 상태 없이 저장
+        referenceLines.forEach(line -> line.setStatus(null));
+
+        approvalLineCommandRepository.saveAll(allLines);
+
+        // 첨부파일
+        List<ApprovalFileEntity> fileEntities = request.getFiles()== null ? List.of() :
+                request.getFiles().stream()
+                        .map(file -> {
+                            ApprovalFileEntity approvalFile = new ApprovalFileEntity();
+                            approvalFile.setApproval(approval);
+                            approvalFile.setName(file.getName());
+                            approvalFile.setUrl(file.getUrl());
+                            return approvalFile;
+                        }).toList();
+
+        approvalFileCommandRepository.saveAll(fileEntities);
+        return new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt());
+    }
 
     @Transactional
     @Override
@@ -472,6 +618,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         if (request.getIsRequest()) {
             approval.setIsRequested(true); // 결재 진행중
             approval.setStatus(ApprovalStatus.IN_PROGRESS);
+            approval.setCreatedAt(LocalDateTime.now());
 
             // degree 증가 처리
             if (approval.getDegree() == null) {
@@ -483,6 +630,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         } else {
             approval.setIsRequested(false); // 임시저장
             approval.setStatus(ApprovalStatus.DRAFT);
+            approval.setCreatedAt(LocalDateTime.now());
 
             // 임시저장일 경우 degree를 0으로 설정 -기안 전 상태
             if (approval.getDegree() == null) {

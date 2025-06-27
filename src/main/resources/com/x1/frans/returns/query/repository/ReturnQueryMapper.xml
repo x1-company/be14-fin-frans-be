@@ -321,18 +321,20 @@
     </select>
 
     <!-- 검토완료된 반품 목록 조회 -->
-    <select id="findReturnReviewCompletedById" resultType="com.x1.frans.returns.query.dto.HqReturnReviewCompltedDTO">
+    <select id="findReturnReviewCompletedById" resultType="com.x1.frans.returns.query.dto.HqReturnReviewCompletedDTO">
         SELECT
-            r.code
+               r.id
+             , r.code
+             , f.name
              , r.status
              , r.created_at AS createdAt
              , r.total_amount AS totalAmount
              , r.description
         FROM `return` r
-                 JOIN franchise f ON f.id = r.franchise_id
-                 JOIN user u ON u.id = f.manager_id
-        WHERE u.id = #{userId}
-          AND r.status = 'REVIEW_COMPLETED'
-        ORDER BY r.created_at
+        JOIN franchise f ON f.id = r.franchise_id
+        JOIN user u ON u.id = f.manager_id
+       WHERE u.id = #{userId}
+         AND r.status = 'REVIEW_COMPLETED'
+       ORDER BY r.created_at
     </select>
 </mapper>

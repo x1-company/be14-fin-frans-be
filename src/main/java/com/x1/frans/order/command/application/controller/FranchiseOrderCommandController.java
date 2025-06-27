@@ -63,8 +63,8 @@ public class FranchiseOrderCommandController {
 
     @DeleteMapping("/template/{templateId}")
     @Operation(
-            summary = "주문 템플릿 등록",
-            description = "가맹점주가 주문 템플릿을 등록합니다."
+            summary = "주문 템플릿 삭제",
+            description = "가맹점주가 주문 템플릿을 삭제합니다."
     )
     public ResponseEntity<Void> deleteTemplate(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -77,8 +77,8 @@ public class FranchiseOrderCommandController {
 
     @PatchMapping("/template/{templateId}")
     @Operation(
-            summary = "주문 템플릿 등록",
-            description = "가맹점주가 주문 템플릿을 등록합니다."
+            summary = "주문 템플릿 수정",
+            description = "가맹점주가 주문 템플릿을 수정합니다."
     )
     public ResponseEntity<Void> updateTemplate(
             @AuthenticationPrincipal CustomUserDetails userDetails,

@@ -36,5 +36,5 @@ public interface ReturnQueryMapper {
 
     List<ReturnProductDTO> findReturnProductsById(@Param("returnId") Long returnId);
 
-    List<HqReturnReviewCompltedDTO> findReturnReviewCompletedById(Long userId);
+    List<HqReturnReviewCompletedDTO> findReturnReviewCompletedById(Long userId);
 }

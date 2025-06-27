@@ -109,7 +109,7 @@ public class ReturnQueryServiceImpl implements ReturnQueryService {
     }
 
     @Override
-    public List<HqReturnReviewCompltedDTO> findReturnReviewCompletedById(Long userId) {
+    public List<HqReturnReviewCompletedDTO> findReturnReviewCompletedById(Long userId) {
         return returnQueryMapper.findReturnReviewCompletedById(userId);
     }
 }
