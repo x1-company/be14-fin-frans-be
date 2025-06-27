@@ -11,7 +11,7 @@
                rd.product_id AS productId,
                r.franchise_id AS franchiseId,
                SUM(rd.quantity) AS totalQuantity
-          FROM `RETURN` r
+          FROM `return` r
          INNER JOIN return_detail rd ON r.id = rd.return_id
          WHERE r.created_at BETWEEN #{from} AND #{to}
            AND r.STATUS = 'COMPLETED'
