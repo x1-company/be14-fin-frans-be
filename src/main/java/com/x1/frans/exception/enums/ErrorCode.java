@@ -13,7 +13,7 @@ public enum ErrorCode {
     INVALID_ADDRESS("INVALID_ADDRESS", HttpStatus.BAD_REQUEST),
 
     // 인증, 인가 관련 에러
-    TOKEN_EXPIRED("TOKEN_EXPIRED", HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED("TOKEN_EXPIRED", HttpStatus.valueOf(419)), // custom status
     INVALID_TOKEN("INVALID_TOKEN", HttpStatus.UNAUTHORIZED),
     AUTH_FAILED("AUTH_FAILED", HttpStatus.UNAUTHORIZED),
     FORBIDDEN("FORBIDDEN", HttpStatus.FORBIDDEN),
