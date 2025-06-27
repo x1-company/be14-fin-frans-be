@@ -11,9 +11,7 @@ import com.x1.frans.returns.command.domain.aggregate.ReturnFileEntity;
 import com.x1.frans.returns.command.domain.repository.ReturnCommandRepository;
 import com.x1.frans.returns.command.domain.repository.ReturnDetailCommandRepository;
 import com.x1.frans.returns.command.domain.repository.ReturnFileCommandRepository;
-import com.x1.frans.returns.command.domain.vo.ReturnCreateRequestVO;
-import com.x1.frans.returns.command.domain.vo.ReturnDetailRequestVO;
-import com.x1.frans.returns.command.domain.vo.ReturnFileRequestVO;
+import com.x1.frans.returns.command.domain.vo.*;
 import com.x1.frans.returns.enums.ProductReturnStatus;
 import com.x1.frans.returns.enums.ReturnStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
@@ -43,7 +41,8 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
                                     ProductRepository productRepository,
                                     FranchiseCommandRepository franchiseRepository,
                                     ReturnDetailCommandRepository returnDetailRepository,
-                                    ReturnFileCommandRepository returnFileRepository) {
+                                    ReturnFileCommandRepository returnFileRepository
+                                    ) {
         this.returnRepository = returnRepository;
         this.userRepository = userCommandRepository;
         this.productRepository = productRepository;
@@ -95,6 +94,47 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
             List<ReturnFileEntity> returnFiles = createReturnFiles(vo.getFiles(), returnEntity);
             returnFileRepository.saveAll(returnFiles);
         }
+    }
+
+    @Override
+    @Transactional
+    public void completeReview(Long returnId, ReturnReviewCompleteRequestVO vo, Long userId) {
+
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("본사 직원의 정보를 찾을 수 없습니다."));
+
+        ReturnEntity returnEntity = returnRepository.findById(returnId)
+                .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
+
+        returnEntity.updateRejectedReason(vo.getRejectReason());
+        returnEntity.markReviewComplete();
+        returnRepository.save(returnEntity);
+
+
+        for (ReturnDetailStatusVO detailStatus : vo.getStatusList()) {
+            ReturnDetailEntity detailEntity = returnDetailRepository.findById(detailStatus.getReturnDetailId())
+                    .orElseThrow(() -> new NotFoundReturnException("반품 상세 정보를 찾을 수 없습니다"));
+
+            detailEntity.updateReturnType(detailStatus.getStatus());
+            returnDetailRepository.save(detailEntity);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void reject(Long returnId, ReturnRejectRequestVO vo, Long userId) {
+
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("본사 직원의 정보를 찾을 수 없습니다."));
+
+        ReturnEntity returnEntity = returnRepository.findById(returnId)
+                .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
+
+        returnEntity.reject(vo.getRejectReason());
+        returnRepository.save(returnEntity);
+
     }
 
     private BigDecimal calculateTotalAmount(List<ReturnDetailRequestVO> details) {
