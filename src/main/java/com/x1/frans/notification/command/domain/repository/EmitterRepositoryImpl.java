@@ -1,13 +1,19 @@
 package com.x1.frans.notification.command.domain.repository;
 
 import com.x1.frans.notification.command.domain.aggregate.Notification;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Repository
+@Slf4j
 public class EmitterRepositoryImpl implements EmitterRepository {
 
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -73,18 +79,42 @@ public class EmitterRepositoryImpl implements EmitterRepository {
         return emitters.containsKey(emitterId);
     }
 
+//    @Override
+//    public void deleteEventCacheByNotificationId(String userId, Long notificationId) {
+//        Map<String, Object> eventCaches = findAllEventCacheStartWithByUserId(userId);
+//        for (Map.Entry<String, Object> entry : eventCaches.entrySet()) {
+//            Object value = entry.getValue();
+//            if (value instanceof Notification) {
+//                Notification n = (Notification) value;
+//                if (n.getId().equals(notificationId)) {
+//                    // eventCacheMap → eventCache로 수정
+//                    eventCache.remove(entry.getKey());
+//                }
+//            }
+//        }
+//    }
+
     @Override
     public void deleteEventCacheByNotificationId(String userId, Long notificationId) {
-        Map<String, Object> eventCaches = findAllEventCacheStartWithByUserId(userId);
-        for (Map.Entry<String, Object> entry : eventCaches.entrySet()) {
-            Object value = entry.getValue();
-            if (value instanceof Notification) {
-                Notification n = (Notification) value;
-                if (n.getId().equals(notificationId)) {
-                    // eventCacheMap → eventCache로 수정
-                    eventCache.remove(entry.getKey());
+        try {
+            Map<String, Object> eventCaches = findAllEventCacheStartWithByUserId(userId);
+            List<String> keysToRemove = new ArrayList<>();
+
+            for (Map.Entry<String, Object> entry : eventCaches.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof Notification) {
+                    Notification n = (Notification) value;
+                    if (n.getId().equals(notificationId)) {
+                        keysToRemove.add(entry.getKey());
+                    }
                 }
             }
+
+            // 별도로 삭제하여 ConcurrentModificationException 방지
+            keysToRemove.forEach(eventCache::remove);
+
+        } catch (Exception e) {
+            log.error("이벤트 캐시 삭제 중 에러: userId={}, notificationId={}", userId, notificationId, e);
         }
     }
 

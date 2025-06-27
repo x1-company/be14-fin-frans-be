@@ -24,6 +24,7 @@ import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,17 +70,22 @@ public class NotificationService {
      *  3. 문자열을 사용해서 Emitter ID 생성 및 저장소 접근
     * */
     public SseEmitter subscribe(Long userId, String lastEventId) {
-        if (userId == null || userCommandRepository.findById(userId).isEmpty()) {
+        if (userId == null) {
             throw new AccessDeniedException("SSE 연결은 인증된 사용자만 가능합니다.");
         }
 
-        String userIdStr = toUserIdStr(userId);
-
+        String userIdStr = String.valueOf(userId);
         String emitterId = generateEmitterId(userIdStr);
-        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
+
+        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
+        emitterRepository.save(emitterId, emitter);
 
         emitter.onCompletion(() -> safeDeleteEmitter(emitterId));
         emitter.onTimeout(() -> safeDeleteEmitter(emitterId));
+        emitter.onError((e) -> {
+            log.warn("SSE 연결 오류 발생 - emitterId={}, error={}", emitterId, e.getMessage());
+            safeDeleteEmitter(emitterId);
+        });
 
         String eventId = generateEmitterId(userIdStr);
         sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + userIdStr + "]");
@@ -103,6 +110,7 @@ public class NotificationService {
                     .name(EVENT_NAME)
                     .data(data)
             );
+            log.info("[알림 전송 성공] emitterId={}, eventId={}", emitterId, eventId);
         } catch (IOException exception) {
             log.warn("SSE 전송 실패 (IOException) - emitterId={}, eventId={}, exceptionType={}, message={}",
                     emitterId, eventId, exception.getClass().getName(), exception.getMessage(), exception);
@@ -129,19 +137,65 @@ public class NotificationService {
 
     // 메서드 파라미터 구성방식 수정
     // 변경 전: 낱개 인자로 직접 받았음. 변경 후: NotificationTarget 객체를 직접 인자로 받음
+//    @Transactional
+//    public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
+//        Notification notification = notificationRepository.save(
+//                createNotification(receiver, notificationType, target)
+//        );
+//
+//        String receiverIdStr = String.valueOf(receiver.getId());
+//        String eventId = generateEmitterId(receiverIdStr); // UUID 기반으로 변경
+//        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
+//        log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
+//        emitters.forEach((key, emitter) -> {
+//            log.info("[알림 PUSH] emitterId={}", key);
+//            emitterRepository.saveEventCache(key, notification);
+//            sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
+//        });
+//    }
+
+    @Transactional
     public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
-        Notification notification = notificationRepository.save(
-                createNotification(receiver, notificationType, target)
-        );
+        try {
+            Notification notification = notificationRepository.save(
+                    createNotification(receiver, notificationType, target)
+            );
 
-        String receiverIdStr = String.valueOf(receiver.getId());
-        String eventId = generateEmitterId(receiverIdStr); // UUID 기반으로 변경
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
+            // SSE 전송은 트랜잭션 외부에서 처리
+            String receiverIdStr = String.valueOf(receiver.getId());
+            String eventId = generateEmitterId(receiverIdStr);
 
-        emitters.forEach((key, emitter) -> {
-            emitterRepository.saveEventCache(key, notification);
-            sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
-        });
+            // 트랜잭션 완료 후 SSE 전송
+            sendSseNotificationAsync(receiverIdStr, eventId, notification);
+
+        } catch (Exception e) {
+            log.error("알림 생성 중 에러: receiverId={}, type={}", receiver.getId(), notificationType, e);
+            throw e;
+        }
+    }
+
+    @Async
+    public void sendSseNotificationAsync(String receiverIdStr, String eventId, Notification notification) {
+        try {
+            Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
+            log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
+
+            // ConcurrentModificationException 방지
+            Map<String, SseEmitter> emittersCopy = new HashMap<>(emitters);
+
+            emittersCopy.forEach((key, emitter) -> {
+                try {
+                    log.info("[알림 PUSH] emitterId={}", key);
+                    emitterRepository.saveEventCache(key, notification);
+                    sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
+                } catch (Exception e) {
+                    log.error("개별 emitter 전송 실패: emitterId={}", key, e);
+                    emitterRepository.deleteById(key);
+                }
+            });
+        } catch (Exception e) {
+            log.error("SSE 알림 전송 중 에러: receiverId={}", receiverIdStr, e);
+        }
     }
 
     private Notification createNotification(UserEntity receiver,
@@ -158,6 +212,7 @@ public class NotificationService {
                 .build();
     }
 
+    @Transactional
     public List<NotificationDTO.Response> getNotification(UserEntity user) {
         return notificationRepository.findByReceiverId(user.getId())
                 .stream()
@@ -165,6 +220,7 @@ public class NotificationService {
                 .toList();
     }
 
+    @Transactional
     public void markAsRead(Long notificationId, UserEntity receiver) {
         Notification notification = notificationRepository
                 .findByIdAndReceiverId(notificationId, receiver.getId())
@@ -227,29 +283,63 @@ public class NotificationService {
     }
 
     public void clearEmittersAndCache(UserEntity user) {
-        String userIdStr = user.getEmail();
-
+        String userIdStr = String.valueOf(user.getId());
         emitterRepository.deleteAllEmitterStartWithId(userIdStr);
         emitterRepository.deleteAllEventCacheStartWithId(userIdStr);
-
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
 
-    @Scheduled(fixedRate = 30000) // 30초
+//    @Scheduled(fixedRate = 30000) // 30초
+//    public void sendHeartbeat() {
+//        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(""); // ★
+//        log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
+//        emitters.forEach((emitterId, emitter) -> {
+//            try {
+//                emitter.send(SseEmitter.event()
+//                        .id("heartbeat-" + System.currentTimeMillis())
+//                        .name("heartbeat")
+//                        .data("ping"));
+//                log.info("[HEARTBEAT] 전송 성공: {}", emitterId);
+//            } catch (IOException e) {
+//                log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
+//                emitterRepository.deleteById(emitterId);
+//            }
+//        });
+//    }
+
+    @Scheduled(fixedRate = 30000)
     public void sendHeartbeat() {
-        // 모든 연결된 클라이언트에게 heartbeat 전송
-        emitterRepository.findAllEmitterStartWithByUserId("*").forEach((emitterId, emitter) -> {
+        // 실제 연결된 emitter만 조회하도록 수정
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId("");
+
+        if (emitters.isEmpty()) {
+            log.debug("[HEARTBEAT] 연결된 emitter 없음");
+            return;
+        }
+
+        log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
+
+        // ConcurrentModificationException 방지를 위해 복사본 사용
+        Map<String, SseEmitter> emittersCopy = new HashMap<>(emitters);
+
+        emittersCopy.forEach((emitterId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
                         .id("heartbeat-" + System.currentTimeMillis())
                         .name("heartbeat")
                         .data("ping"));
+                log.debug("[HEARTBEAT] 전송 성공: {}", emitterId);
             } catch (IOException e) {
-                log.warn("Heartbeat 전송 실패: {}", emitterId);
+                log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
+                emitterRepository.deleteById(emitterId);
+            } catch (Exception e) {
+                log.error("[HEARTBEAT] 예상치 못한 에러: {}", emitterId, e);
+                emitterRepository.deleteById(emitterId);
             }
         });
     }
 
+    @Transactional
     public void createOrderStatusNotification(Long orderId, OrderStatus status, Long receiverId) {
 
         UserEntity receiver = userCommandRepository.findById(receiverId)
@@ -258,8 +348,7 @@ public class NotificationService {
         NotificationTarget target = new NotificationTarget(
                 NotificationDomainType.ORDER,
                 orderId,
-
-                "status=" + status.name()
+                "/franchise?tab=주문관리&orderId=" + orderId
         );
 
         NotificationType notificationType = NotificationType.ORDER_RESPONSE;
@@ -268,6 +357,7 @@ public class NotificationService {
 
         log.info("주문 상태 변경 알림 생성 및 발송: orderId={}, status={}, receiverId={}", orderId, status, receiverId);
     }
+
 
     @Transactional
     public void createApprovalLineNotification(Long approvalId, Long receiverId, NotificationTarget target) {

@@ -147,8 +147,15 @@ public class HqOrderCommandServiceImpl implements HqOrderCommandService {
     private void notifyIfStatusChanged(Order order, OrderStatus previousStatus) {
         if (!previousStatus.equals(order.getStatus())) {
             Long franchiseOwnerId = order.getFranchise().getOwner().getId();
-            orderNotificationService.notifyOrderStatusChanged(order.getId(), order.getStatus(), franchiseOwnerId);
+
+            orderNotificationService.notifyOrderStatusChanged(
+                    order.getId(),
+                    order.getStatus(),
+                    franchiseOwnerId
+            );
         }
     }
+
+
 
 }

@@ -95,4 +95,8 @@ public class UserQueryServiceImpl implements UserQueryService {
         return userQueryMapper.findFranchiseIdsByDepartmentId(dept.getDepartmentId());
     }
 
+    @Override
+    public MyInfoDTO getMyInfo(Long userId) {
+        return userQueryMapper.getMyInfo(userId);
+    }
 }

@@ -16,7 +16,7 @@
     </resultMap>
 
     <resultMap id="purchaseRequestProductResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto">
-        <id property="id" column="id"/>
+        <id property="id" column="prp_id"/>
         <result property="no" column="no"/>
         <result property="quantity" column="quantity"/>
         <result property="remarks" column="remarks"/>
@@ -31,7 +31,7 @@
     </resultMap>
 
     <resultMap id="purchaseRequestDetailResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestDetailDto">
-        <id property="id" column="id"/>
+        <id property="id" column="pr_id"/>
         <result property="code" column="code"/>
         <result property="title" column="title"/>
         <result property="description" column="description"/>
@@ -41,8 +41,7 @@
         <result property="updatedAt" column="updated_at"/>
         <result property="userName" column="user_name"/>
         <result property="userEmail" column="user_email"/>
-        <collection property="products" ofType="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto"
-                    resultMap="purchaseRequestProductResultMap"/>
+        <collection property="products" ofType="com.x1.frans.purchase.query.dto.PurchaseRequestProductSimpleDto" resultMap="purchaseRequestProductResultMap"/>
     </resultMap>
 
     <select id="selectByStatus" resultMap="purchaseRequestSimpleResultMap">
@@ -119,10 +118,40 @@
     </select>
 
     <select id="selectDraftDetailById" resultMap="purchaseRequestDetailResultMap">
-        SELECT pr.*, pr.description, u.name AS user_name, u.email AS user_email
+        SELECT
+            pr.id AS pr_id,
+            pr.code,
+            pr.title,
+            pr.description,
+            pr.requested_delivery_date,
+            pr.total_amount,
+            pr.created_at,
+            pr.updated_at,
+            u.name AS user_name,
+            u.email AS user_email,
+            prp.id AS prp_id,
+            prp.no,
+            prp.quantity,
+            prp.remarks,
+            prp.product_id,
+            p.code AS product_code,
+            p.name AS product_name,
+            p.purchase_price,
+            p.purchase_unit,
+            pt.name AS product_type_name,
+            pg.name AS product_group_name,
+            pa.name AS product_attribute_name
         FROM purchase_request pr
                  JOIN user u ON pr.user_id = u.id
-        WHERE pr.id = #{id} AND pr.is_requested = false AND pr.status = '임시저장'
+                 LEFT JOIN purchase_request_product prp ON pr.id = prp.purchase_request_id
+                 LEFT JOIN product p ON prp.product_id = p.id
+                 LEFT JOIN product_type pt ON p.product_type_id = pt.id
+                 LEFT JOIN product_group pg ON p.product_group_id = pg.id
+                 LEFT JOIN product_attribute pa ON p.product_attribute_id = pa.id
+        WHERE pr.id = #{id}
+          AND pr.is_requested = false
+          AND pr.status = '임시저장'
+        ORDER BY prp.no ASC
     </select>
 
     <select id="selectProductsByRequestId" resultMap="purchaseRequestProductResultMap">

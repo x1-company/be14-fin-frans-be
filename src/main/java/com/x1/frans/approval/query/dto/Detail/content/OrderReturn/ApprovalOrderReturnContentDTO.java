@@ -36,8 +36,7 @@ public class ApprovalOrderReturnContentDTO extends ApprovalContentDTO{
     @Schema(description = "기안일자")
     private LocalDateTime createdAt;
 
-<<<<<<< Updated upstream
-=======
+
     @Schema(description = "결재완료 일자")
     private LocalDateTime processedAt;
 
@@ -45,10 +44,12 @@ public class ApprovalOrderReturnContentDTO extends ApprovalContentDTO{
 
     @Schema(description = "기안자 서명 URL")
     private String url;
-
->>>>>>> Stashed changes
+  
     @Schema(description = "기안자명")
     private String drafterName;
+
+    @Schema(description = "기안자 부서")
+    private String deptName;
 
     @Schema(description = "결재선 사용자명")
     private String userName;

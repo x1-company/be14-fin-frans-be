@@ -3,6 +3,7 @@ package com.x1.frans.franchise.query.service;
 import com.x1.frans.exception.UnauthorizedAccessException;
 import com.x1.frans.franchise.query.dto.FranchiseDetailDTO;
 import com.x1.frans.franchise.query.dto.FranchiseListDTO;
+import com.x1.frans.franchise.query.dto.MyInfoDTO;
 import com.x1.frans.franchise.query.repository.FranchiseQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,5 +62,10 @@ public class FranchiseQueryServiceImpl implements FranchiseQueryService {
         }
 
         return results;
+    }
+
+    @Override
+    public MyInfoDTO getMyInfo(Long userId) {
+        return franchiseQueryMapper.getMyInfo(userId);
     }
 }

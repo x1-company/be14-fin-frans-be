@@ -5,9 +5,9 @@
 <mapper namespace="com.x1.frans.returns.query.repository.ReturnQueryMapper">
     <select id="findDeliveredOrdersWithinLastWeek" resultType="com.x1.frans.returns.query.dto.ShippedOrderDTO">
         SELECT
-            o.`id`
+               o.`id`
              , o.`code`
-             , d.`delivered_at`
+             , d.`delivered_at` AS `deliveredAt`
              , o.`total_amount`
              , o.`status`
         FROM `orders` o
@@ -16,18 +16,19 @@
           AND o.`user_id` = #{userId}
           AND o.`status` = 'DELIVERED'
           AND d.delivered_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        ORDER BY d.delivered_at DESC
     </select>
 
-    <select id="findProductListByOrdrId" resultType="com.x1.frans.returns.query.dto.ProductOrderDTO">
+    <select id="findProductListByOrderId" resultType="com.x1.frans.returns.query.dto.ProductOrderDTO">
         SELECT
             po.`id` AS id
-             , po.`product_id`
-             , po.`order_id`
+             , po.`product_id` AS `productId`
+             , po.`order_id` AS `orderId`
              , po.`quantity`
              , o.`code` AS orderCode
              , p.`code` AS productCode
              , p.`name` AS productName
-             , p.`sale_price`
+             , p.`sale_price` AS `salePrice`
              , p.`unit`
              , p.`spec`
              , pg.`name` AS productGroupName
@@ -280,6 +281,8 @@
 
         WHERE r.id = #{returnId}
           AND f.`owner_id` = #{userId}
+
+        ORDER BY r.`created_at`
 
     </select>
 

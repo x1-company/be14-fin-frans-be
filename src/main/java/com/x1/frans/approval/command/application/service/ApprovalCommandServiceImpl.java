@@ -30,11 +30,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-<<<<<<< Updated upstream
-=======
 import static com.x1.frans.approval.common.ApprovalCategoryType.*;
 import static com.x1.frans.exception.enums.ErrorCode.USER_SIGNATURE_NOT_FOUND;
->>>>>>> Stashed changes
+
 import static java.util.stream.Collectors.toList;
 
 
@@ -65,7 +63,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
         // 사용자 조회
         UserEntity user = userCommandRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("기안자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserSignatureNotFoundException("기안자 정보를 찾을 수 없습니다."));
 
         // 결재 코드 생성
         String newCode = generateApprovalCode();
@@ -378,9 +376,19 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         ApprovalEntity approval = approvalCommandRepository.findById(approvalId)
                 .orElseThrow(() -> new ApprovalNotFoundException("결재를 찾을 수 없습니다."));
 
+        // 사용자 조회
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserSignatureNotFoundException("결재자 정보를 찾을 수 없습니다."));
+
+
         // 현재 사용자의 결재선 찾기
         ApprovalLineEntity currentLine = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
+
+
+        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+        }
 
         if (!currentLine.getStatus().equals(ApprovalLineStatus.WAITING)) {
             throw new ApprovalActionFailedException("결재선이 대기 상태가 아닙니다.");
@@ -447,6 +455,15 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         // 현재 사용자의 결재선 찾기
         ApprovalLineEntity line = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
+
+        // 사용자 조회
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserSignatureNotFoundException("결재자 정보를 찾을 수 없습니다."));
+
+
+        if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
+            throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
+        }
 
         if (!line.getStatus().equals(ApprovalLineStatus.WAITING)) {
             throw new ApprovalActionFailedException("결재선이 대기 상태가 아닙니다.");
