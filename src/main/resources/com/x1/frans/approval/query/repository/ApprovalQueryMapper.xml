@@ -880,8 +880,6 @@
                  JOIN hq_user_detail hud ON hud.user_id = u.id
                  JOIN department dept ON dept.id = hud.department_id
             JOIN position pos ON pos.id = hud.position_id
-                 JOIN hq_user_detail hud ON hud.user_id = u.id
-                 JOIN department dept ON dept.id = hud.department_id
                  LEFT JOIN (
                             SELECT
                                 al.approval_id,
