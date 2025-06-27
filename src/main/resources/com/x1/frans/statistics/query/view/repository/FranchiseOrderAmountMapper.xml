@@ -19,21 +19,28 @@
         <result property="franchiseId" column="franchise_id"/>
     </resultMap>
 
-    <!-- 1. 해당 매니저가 관리하는 가맹점 존재 여부 -->
+    <!-- 해당 매니저가 관리하는 가맹점 존재 여부 -->
     <select id="existsFranchiseByManagerId" resultType="boolean">
         SELECT EXISTS (
             SELECT 1 FROM franchise WHERE manager_id = #{managerId}
         )
     </select>
 
-    <!-- 2. 해당 부서가 관리하는 가맹점 존재 여부 -->
+    <!-- 해당 부서가 관리하는 가맹점 존재 여부 -->
     <select id="existsFranchiseByDepartmentId" resultType="boolean">
         SELECT EXISTS (
             SELECT 1 FROM franchise WHERE department_id = #{departmentId}
         )
     </select>
 
-    <!-- 3. 매니저별 월별 통계 -->
+    <!-- 해당 가맹점주가 owner인 가맹점 존재 여부 -->
+    <select id="existsFranchiseByOwnerId" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM franchise WHERE owner_id = #{userId}
+        )
+    </select>
+
+    <!-- 매니저별 월별 통계 -->
     <select id="selectStatsByManager" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
                s.id,
@@ -61,25 +68,25 @@
     <!-- 매니저별 특정 가맹점 월별 통계 -->
     <select id="selectStatsByManagerByFranchiseId" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
-        s.id,
-        f.id AS franchise_id,
-        f.name AS franchise_name,
-        s.year,
-        s.month,
-        s.order_amount,
-        s.created_at,
-        s.updated_at,
-        s.is_deleted,
-        s.deleted_reason,
-        s.deleted_at
-        FROM franchise_order_amount_stat s
-        JOIN franchise f ON s.franchise_id = f.id
-        WHERE f.manager_id = #{userId}
-        AND f.id = #{franchiseId}
+               s.id,
+               f.id AS franchise_id,
+               f.name AS franchise_name,
+               s.year,
+               s.month,
+               s.order_amount,
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at
+          FROM franchise_order_amount_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+         WHERE f.manager_id = #{userId}
+           AND f.id = #{franchiseId}
     </select>
 
 
-    <!-- 4. 부서별 월별 통계 -->
+    <!-- 부서별 월별 통계 -->
     <select id="selectStatsByDepartment" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
                s.id,
@@ -98,7 +105,7 @@
          WHERE f.department_id = #{departmentId}
     </select>
 
-    <!-- 5. 전체 통계 조회 (권한 체크는 서비스 단에서 처리됨) -->
+    <!-- 전체 통계 조회 (권한 체크는 서비스 단에서 처리됨) -->
     <select id="selectAllStats" resultMap="FranchiseOrderAmountQueryDTOMap">
         SELECT
                s.id,
@@ -116,14 +123,40 @@
           JOIN franchise f ON s.franchise_id = f.id
     </select>
 
-    <!-- 6. 직책 이름 조회 -->
+    <!-- 직책 이름 조회 -->
     <select id="selectDutyNameById" resultType="string">
         SELECT name FROM duty WHERE id = #{dutyId}
     </select>
 
-    <!-- 7. 부서 코드 조회 -->
+    <!-- 부서 코드 조회 -->
     <select id="selectDeptCodeById" resultType="string">
         SELECT dept_code FROM department WHERE id = #{departmentId}
     </select>
+
+    <!-- 가맹점주별 월별 통계 -->
+    <select id="selectStatsByOwner" resultMap="FranchiseOrderAmountQueryDTOMap">
+        SELECT
+               s.id,
+               f.id AS franchise_id,
+               f.name AS franchise_name,
+               s.year,
+               s.month,
+               s.order_amount,
+               s.created_at,
+               s.updated_at,
+               s.is_deleted,
+               s.deleted_reason,
+               s.deleted_at
+          FROM franchise_order_amount_stat s
+          JOIN franchise f ON s.franchise_id = f.id
+         WHERE f.owner_id = #{userId}
+        <if test="year != null">
+            AND s.year = #{year}
+        </if>
+        <if test="month != null">
+            AND s.month = #{month}
+        </if>
+    </select>
+
 
 </mapper>
