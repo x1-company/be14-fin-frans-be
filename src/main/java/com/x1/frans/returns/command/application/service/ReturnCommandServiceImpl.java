@@ -180,7 +180,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
     }
 
     @Override
-    public void updateDeliveriedAt(Long returnId, ReturnDeliveriedAtVO vo, Long userId) {
+    public void updateDeliveredAt(Long returnId, ReturnDeliveredAtVO vo, Long userId) {
 
         // 사용자 조회
         UserEntity user = userRepository.findById(userId)
@@ -190,10 +190,12 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
                 .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
 
         Delivery delivery = Delivery.builder()
-                .deliveredAt(vo.getDeliveriedAt())
+                .deliveredAt(vo.getDeliveredAt())
                 .build();
 
         delivery = deliveryRepository.save(delivery);
+
+        returnEntity.setDeliveryId(delivery.getId());
 
         returnEntity.setStatus(ReturnStatus.PICKED_UP);
 

@@ -63,14 +63,14 @@ public class HqReturnCommandController {
 
 
     @Operation(summary = "반품 수거일 정보 입력", description ="반품 수거일 정보를 입력할 수 있다.")
-    @PatchMapping("/{returnId}/deliveried-at")
-    public ResponseEntity updateDeliveriedAt(@PathVariable("returnId") Long returnId,
-                                             @RequestBody ReturnDeliveriedAtVO vo,
+    @PatchMapping("/{returnId}/delivered-at")
+    public ResponseEntity updateDeliveredAt(@PathVariable("returnId") Long returnId,
+                                             @RequestBody ReturnDeliveredAtVO vo,
                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         Long userId = customUserDetails.getUserId();
 
-        returnCommandService.updateDeliveriedAt(returnId, vo, userId);
+        returnCommandService.updateDeliveredAt(returnId, vo, userId);
 
         return ResponseEntity.ok().build();
     }
