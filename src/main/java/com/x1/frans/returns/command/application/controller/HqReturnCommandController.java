@@ -75,4 +75,17 @@ public class HqReturnCommandController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "반품 수거 완료 상태 변경", description ="반품 수거 완료로 상태를 변경할 수 있다.")
+    @PatchMapping("/{returnId}/complete")
+    public ResponseEntity returnComplete(@PathVariable("returnId") Long returnId,
+                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = customUserDetails.getUserId();
+
+        returnCommandService.returnComplete(returnId, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+
 }

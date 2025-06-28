@@ -7,7 +7,7 @@ public interface FranchiseOrderAmountQueryService {
 
     List<FranchiseOrderAmountQueryDTO> getMonthlyStatsByManager(Long userId, Integer year, Integer month);
 
-    List<FranchiseOrderAmountQueryDTO> getMonthlyStatsByDepartment(Long deptId);
+    List<FranchiseOrderAmountQueryDTO> getMonthlyStatsByDepartment(Long deptId, Integer year, Integer month);
 
     List<FranchiseOrderAmountQueryDTO> getMonthlyStatsForAllByDuty(Long userId, Long departmentId, Long dutyId);
 

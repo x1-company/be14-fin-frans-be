@@ -380,11 +380,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserSignatureNotFoundException("결재자 정보를 찾을 수 없습니다."));
 
-
         // 현재 사용자의 결재선 찾기
         ApprovalLineEntity currentLine = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
-
 
         if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
             throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
@@ -399,7 +397,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             currentLine.setStatus(ApprovalLineStatus.APPROVED);
             currentLine.setOpinion(request.getOpinion());
             currentLine.setProcessedAt(LocalDateTime.now());
-
             approvalLineCommandRepository.save(currentLine);
         }
 
@@ -407,16 +404,19 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         int nextSeq = currentLine.getSeq() + 1;
         Optional<ApprovalLineEntity> nextLineOpt = approvalLineCommandRepository.findByApprovalIdAndSeq(approval.getId(), nextSeq);
 
-        // 다음 결재선이 있으면 상태를 EXPECTED → WAITING 으로 변경
-        nextLineOpt.ifPresent(nextLine -> {
+        // 다음 결재선이 결재자 or 협조자인 경우에만 상태를 WAITING 으로 변경
+        boolean nextIsApprovalOrCooperator = nextLineOpt
+                .filter(nextLine -> List.of(ApprovalLineType.APPROVER, ApprovalLineType.COOPERATOR).contains(nextLine.getApprovalType()))
+                .isPresent();
+
+        if (nextIsApprovalOrCooperator) {
+            ApprovalLineEntity nextLine = nextLineOpt.get();
             if (nextLine.getStatus() == ApprovalLineStatus.EXPECTED) {
                 nextLine.setStatus(ApprovalLineStatus.WAITING);
                 approvalLineCommandRepository.save(nextLine);
             }
-        });
-
-        if (nextLineOpt.isEmpty()) {
-            // 다음 결재자 또는 협조자가 더 이상 없음을 이중 확인
+        } else {
+            // 다음 결재선이 없거나, 참조/수신만 남은 경우 → 결재 종료 조건 검사
             boolean hasRemainingApprovalOrCooperator =
                     approvalLineCommandRepository.existsByApprovalIdAndApprovalTypeInAndStatusIn(
                             approvalId,
@@ -439,7 +439,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 }
             }
         }
-
 
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }

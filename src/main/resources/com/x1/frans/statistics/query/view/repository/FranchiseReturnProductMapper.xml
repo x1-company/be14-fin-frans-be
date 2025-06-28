@@ -111,7 +111,13 @@
           FROM franchise_return_product_stat s
           JOIN franchise f ON s.franchise_id = f.id
           JOIN product p ON s.product_id = p.id
-        WHERE f.department_id = #{departmentId}
+        WHERE f.department_id = #{deptId}
+        <if test="year != null">
+            AND s.`year` = #{year}
+        </if>
+        <if test="month != null">
+            AND s.`month` = #{month}
+        </if>
     </select>
 
     <!-- 전체 반품 통계 조회 (권한 체크는 서비스 단에서 처리됨) -->

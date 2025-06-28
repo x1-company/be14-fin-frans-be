@@ -66,10 +66,13 @@ public class FranchiseOrderAmountQueryController {
             description = "자신이 속한 부서가 담당하는 가맹점들의 월 주문 금액 통계를 조회한다.")
     @GetMapping("/department")
     public ResponseEntity<List<FranchiseOrderAmountQueryDTO>> getDepartmentStats (
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam Integer year,
+            @RequestParam Integer month
     ) {
         Long deptId = customUserDetails.getDepartmentId();
-        List<FranchiseOrderAmountQueryDTO> stats = franchiseOrderAmountQueryService.getMonthlyStatsByDepartment(deptId);
+        List<FranchiseOrderAmountQueryDTO> stats
+                = franchiseOrderAmountQueryService.getMonthlyStatsByDepartment(deptId, year, month);
 
         return ResponseEntity.ok(stats);
     }
