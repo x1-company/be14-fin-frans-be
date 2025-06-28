@@ -38,11 +38,12 @@ public class FranchiseProductQueryController {
             @RequestParam(required = false) Long productTypeId,
             @RequestParam(required = false) Long productGroupId,
             @RequestParam(required = false) Long productAttributeId,
-            @RequestParam(required = false) Boolean isActive
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) Long supplierId
     ) {
         List<ProductListDTO> productList =
                 productQueryService.getProductsByFilter(
-                        productTypeId, productGroupId, productAttributeId, isActive);
+                        productTypeId, productGroupId, productAttributeId, isActive, supplierId);
 
         return ResponseEntity.ok(productList);
     }
