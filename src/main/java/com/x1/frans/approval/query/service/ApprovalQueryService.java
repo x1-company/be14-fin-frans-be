@@ -1,5 +1,6 @@
 package com.x1.frans.approval.query.service;
 
+import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
@@ -9,21 +10,9 @@ import java.util.List;
 public interface ApprovalQueryService {
     List<ApprovalListDTO> getApprovalListSubmittedAll(long userId);
 
-    List<ApprovalListDTO> getApprovalListDraft(long userId);
-
-    List<ApprovalListDTO> getApprovalListInProgress(long userId);
-
-    List<ApprovalListDTO> getApprovalListApproved(long userId);
-
-    List<ApprovalListDTO> getApprovalListRejected(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedAll(long userId);
 
-    List<ApprovalListDTO> getApprovalListReceivedPending(long userId);
-
-    List<ApprovalListDTO> getApprovalListReceivedUpcoming(long userId);
-
-    List<ApprovalListDTO> getApprovalListReceivedMyCompletedAll(long userId);
 
     List<ApprovalListDTO> getApprovalListReceivedClosedAll(long userId);
 
@@ -80,4 +69,14 @@ public interface ApprovalQueryService {
     List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId);
 
     ApprovalDraftDTO getApprovalDraft(long approvalId, boolean allowDraft);
+
+    // 결재 상신 목록
+    List<ApprovalListDTO> getApprovalListByStatus(long userId, String status);
+
+
+    List<ApprovalListDTO> getApprovalListReceived(long userId, ApprovalLineStatus status);
+
+    List<ApprovalListDTO> getApprovalListReceivedMyCompleted(long userId, ApprovalLineStatus status);
+
+    List<ApprovalListDTO> getApprovalListCooperate(long userId, ApprovalLineStatus status);
 }
