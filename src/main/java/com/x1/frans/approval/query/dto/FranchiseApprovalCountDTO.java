@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Schema(description = "진행중인 주문 결재 리스트 조회")
+@Schema(description = "진행중인 주문 결재 건수 조회")
 @Getter
 @Setter
 @ToString

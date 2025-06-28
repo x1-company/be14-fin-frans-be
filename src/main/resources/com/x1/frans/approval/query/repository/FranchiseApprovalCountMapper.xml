@@ -22,4 +22,17 @@
         AND a.status = 'IN_PROGRESS'
     </select>
 
+    <!-- 완료된 주문 결재(월별) -->
+    <select id="countApprovedApprovalsByMonth" resultType="int">
+        SELECT COUNT(DISTINCT a.id, a.degree)
+        FROM approval a
+                 JOIN order_approval oa ON oa.approval_id = a.id AND oa.approval_degree = a.degree
+        WHERE a.user_id = #{userId}
+          AND a.status = 'APPROVED'
+          AND a.is_deleted = 0
+          AND a.is_requested = 1
+          AND DATE_FORMAT(a.processed_at, '%Y') = #{year}
+          AND DATE_FORMAT(a.processed_at, '%c') = #{monthValue}
+    </select>
+
 </mapper>
