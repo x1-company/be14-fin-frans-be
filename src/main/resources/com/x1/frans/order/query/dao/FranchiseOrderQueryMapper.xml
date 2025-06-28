@@ -197,7 +197,7 @@
         SELECT
                p.code
              , p.name
-             , p.purchase_price AS salePrice
+             , p.sale_price AS salePrice
              , p.purchase_unit AS purchaseUnit
              , p.unit AS unit
              , p.spec
