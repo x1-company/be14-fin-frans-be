@@ -261,7 +261,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
     /** 발주 임시등록 -> 정식 등록 */
     @Override
     @Transactional
-    public void requestOrder(Long purchaseOrderId, Long userId) {
+    public void requestOrder(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId) {
 
         PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
                 .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));

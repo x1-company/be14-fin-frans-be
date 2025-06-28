@@ -1,10 +1,12 @@
 package com.x1.frans.purchaseorder.command.application.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PurchaseOrderProductCreateDto {
     private Long productId;
     private Integer quantity;
