@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface ProductQueryMapper {
 
     List<ProductListDTO> selectByFilter (
-            Long productTypeId, Long productGroupId, Long productAttributeId, Boolean isActive);
+            Long productTypeId, Long productGroupId, Long productAttributeId, Boolean isActive, Long supplierId);
 
     ProductListDTO selectByCode (String code);
 
