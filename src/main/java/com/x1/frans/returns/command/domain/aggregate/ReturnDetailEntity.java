@@ -46,4 +46,8 @@ public class ReturnDetailEntity {
         this.status = status;
     }
 
+    public void reject() {
+        this.status = ProductReturnStatus.REJECTED;
+    }
+
 }

@@ -51,5 +51,4 @@ public class Delivery {
         this.deliveredAt = deliveredAt;
         this.status = DeliveryStatus.DELIVERED; // 배송 완료 상태로 변경
     }
-
 }
