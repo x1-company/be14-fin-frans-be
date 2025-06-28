@@ -13,6 +13,7 @@
         <result property="status" column="status"/>
         <result property="createdAt" column="created_at"/>
         <result property="requestedDeliveryDate" column="requested_delivery_date"/>
+        <result property="supplierId" column="supplier_id"/>
     </resultMap>
 
     <!-- 발주 자재 상세 resultMap -->
@@ -29,6 +30,8 @@
         <result property="productGroupName" column="product_group_name"/>
         <result property="productAttributeName" column="product_attribute_name"/>
         <result property="remarks" column="remarks"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="purchaseRequestId" column="purchase_request_id"/>
     </resultMap>
 
     <!-- 공급처 상세 resultMap (SupplierDetailDTO) -->
@@ -69,7 +72,8 @@
         po.total_amount,
         po.status,
         po.created_at,
-        po.requested_delivery_date
+        po.requested_delivery_date,
+        po.supplier_id
         FROM purchase_order po
         WHERE po.status = '임시저장' AND po.is_requested = false
         ORDER BY po.created_at DESC
@@ -122,7 +126,9 @@
             pt.name AS product_type_name,
             pg.name AS product_group_name,
             pa.name AS product_attribute_name,
-            pop.remarks
+            pop.remarks,
+            p.supplier_id,
+            pop.purchase_request_id
         FROM purchase_order_product pop
                  JOIN product p ON pop.product_id = p.id
                  LEFT JOIN product_type pt ON p.product_type_id = pt.id
