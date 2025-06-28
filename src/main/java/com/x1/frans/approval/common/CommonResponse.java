@@ -3,9 +3,11 @@ package com.x1.frans.approval.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+//@NoArgsConstructor
 public class CommonResponse<T> {
     private boolean success;
     private T data;

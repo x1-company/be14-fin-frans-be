@@ -33,5 +33,11 @@ public interface ApprovalLineCommandRepository extends JpaRepository<ApprovalLin
 
     List<ApprovalLineEntity> findByApprovalId(Long approvalId);
 
+
+    @Modifying
+    @Query("DELETE FROM ApprovalLineEntity al WHERE al.approval.id = :approvalId AND al.approval.degree = :degree")
+    void deleteByApprovalIdAndDegree(Long approvalId, Integer degree);
+
+
     boolean existsByApprovalIdAndApprovalTypeInAndStatusIn(long approvalId, List<ApprovalLineType> approver, List<ApprovalLineStatus> waiting);
 }
