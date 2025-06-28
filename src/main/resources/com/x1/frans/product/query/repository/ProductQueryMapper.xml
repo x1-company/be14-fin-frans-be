@@ -38,6 +38,7 @@
                p.id
              , p.code
              , p.name
+             , p.sale_price
              , p.spec
              , p.purchase_unit
              , p.unit
