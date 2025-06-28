@@ -27,4 +27,10 @@ public interface FranchiseProductOrderMapper {
 
     List<FranchiseProductOrderQueryDTO> selectStatsByOwnerId(Long userId, Integer year, Integer month);
 
+    boolean existsFranchiseByDepartmentId(Long deptId);
+
+    List<FranchiseProductOrderQueryDTO> selectStatsByDepartment(@Param("departmentId") Long deptId,
+                                                                @Param("year") Integer year,
+                                                                @Param("month") Integer month);
+
 }

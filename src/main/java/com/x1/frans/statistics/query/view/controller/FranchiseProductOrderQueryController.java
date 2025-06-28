@@ -71,4 +71,22 @@ public class FranchiseProductOrderQueryController {
         return ResponseEntity.ok(stats);
     }
 
+    @Operation(
+            summary = "부서별 가맹점 월 자재별 주문량 통계 조회",
+            description = "자신이 속한 부서가 담당하는 가맹점들의 월 자재별 주문량 통계를 조회한다."
+    )
+    @GetMapping("/department")
+    public ResponseEntity<List<FranchiseProductOrderQueryDTO>> getDepartmentStats (
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam Integer year,
+            @RequestParam Integer month
+    ) {
+        Long deptId = customUserDetails.getDepartmentId();
+
+        List<FranchiseProductOrderQueryDTO> stats = franchiseProductOrderQueryService
+                .getMonthlyStatsByDepartment(deptId, year, month);
+
+        return ResponseEntity.ok(stats);
+    }
+
 }
