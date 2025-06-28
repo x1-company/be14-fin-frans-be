@@ -197,14 +197,14 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             }
 
             PurchaseOrderProductEntity popEntity = null;
-            if (p.getId() != null && oldMap.containsKey(p.getId())) {
-                popEntity = oldMap.get(p.getId());
+            if (p.getSupplierId() != null && oldMap.containsKey(p.getSupplierId())) {
+                popEntity = oldMap.get(p.getSupplierId());
                 popEntity.setProduct(product);
                 popEntity.setQuantity(p.getQuantity());
                 popEntity.setRemarks(p.getRemarks());
                 popEntity.setNo(idx++);
                 popEntity.setPurchaseRequestId(p.getPurchaseRequestId());
-                newIds.add(p.getId());
+                newIds.add(p.getSupplierId());
             } else {
                 popEntity = PurchaseOrderProductEntity.builder()
                         .purchaseOrder(order)
