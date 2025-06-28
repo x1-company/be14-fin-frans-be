@@ -37,14 +37,14 @@ public class FranchiseOrderAmountQueryServiceImpl implements FranchiseOrderAmoun
 
 
     @Override
-    public List<FranchiseOrderAmountQueryDTO> getMonthlyStatsByDepartment(Long deptId) {
+    public List<FranchiseOrderAmountQueryDTO> getMonthlyStatsByDepartment(Long deptId, Integer year, Integer month) {
         boolean hasFranchises = franchiseOrderAmountMapper.existsFranchiseByDepartmentId(deptId);
 
         if (!hasFranchises) {
             return List.of();
         }
 
-        return franchiseOrderAmountMapper.selectStatsByDepartment(deptId);
+        return franchiseOrderAmountMapper.selectStatsByDepartment(deptId, year, month);
     }
 
     @Override

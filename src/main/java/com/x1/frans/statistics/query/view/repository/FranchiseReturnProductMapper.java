@@ -14,7 +14,9 @@ public interface FranchiseReturnProductMapper {
 
     boolean existsFranchiseByDepartmentId(Long departmentId);
 
-    List<FranchiseReturnProductQueryDTO> selectStatsByDepartment(Long deptId);
+    List<FranchiseReturnProductQueryDTO> selectStatsByDepartment(@Param("departmentId") Long deptId,
+                                                                 @Param("year") Integer year,
+                                                                 @Param("month") Integer month);
 
     List<FranchiseReturnProductQueryDTO> selectAllStats();
 

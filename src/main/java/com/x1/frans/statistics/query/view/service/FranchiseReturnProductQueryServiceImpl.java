@@ -39,7 +39,7 @@ public class FranchiseReturnProductQueryServiceImpl implements FranchiseReturnPr
     }
 
     @Override
-    public List<FranchiseReturnProductQueryDTO> getMonthlyStatsByDepartment(Long deptId) {
+    public List<FranchiseReturnProductQueryDTO> getMonthlyStatsByDepartment(Long deptId, Integer year, Integer month) {
 
         boolean hasFranchises = franchiseReturnProductMapper.existsFranchiseByDepartmentId(deptId);
 
@@ -47,7 +47,7 @@ public class FranchiseReturnProductQueryServiceImpl implements FranchiseReturnPr
             return List.of();
         }
 
-        return franchiseReturnProductMapper.selectStatsByDepartment(deptId);
+        return franchiseReturnProductMapper.selectStatsByDepartment(deptId, year, month);
     }
 
 
