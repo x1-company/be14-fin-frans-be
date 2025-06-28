@@ -41,13 +41,13 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi hqSupplierApi() {
-        return  GroupedOpenApi.builder()
+        return GroupedOpenApi.builder()
                 .group("공급처(본사)")
                 .pathsToMatch("/api/hq/suppliers/**")
                 .build();
     }
 
-  
+
     @Bean
     public GroupedOpenApi authApi() {
         return GroupedOpenApi.builder()
@@ -61,6 +61,14 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("자재")
                 .pathsToMatch("/api/hq/products/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi frProductApi() {
+        return GroupedOpenApi.builder()
+                .group("자재(가맹점)")
+                .pathsToMatch("/api/franchise/products/**")
                 .build();
     }
 
