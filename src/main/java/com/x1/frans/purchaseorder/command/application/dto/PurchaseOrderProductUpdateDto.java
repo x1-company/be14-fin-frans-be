@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class PurchaseOrderProductUpdateDto {
-    private Long id;
+    private Long supplierId;
     private Long productId;
     private Integer quantity;
     private String remarks;
