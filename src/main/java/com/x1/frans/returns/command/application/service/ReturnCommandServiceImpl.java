@@ -195,6 +195,8 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
 
         delivery = deliveryRepository.save(delivery);
 
+        returnEntity.setDeliveryId(delivery.getId());
+
         returnEntity.setStatus(ReturnStatus.PICKED_UP);
 
         returnRepository.save(returnEntity);

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Schema(description = "반품 수거일 정보")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +16,6 @@ import lombok.Setter;
 public class ReturnDeliveredAtVO {
 
     @Schema(name = "수거 완료일")
-    private String deliveredAt;
+    private LocalDate deliveredAt;
 
 }
