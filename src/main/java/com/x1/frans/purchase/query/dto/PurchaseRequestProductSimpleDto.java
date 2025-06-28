@@ -23,6 +23,8 @@ public class PurchaseRequestProductSimpleDto {
     private String productTypeName;
     private String productGroupName;
     private String productAttributeName;
+    private Long supplierId;
+    private Long purchaseRequestId;
 
     public PurchaseRequestProductSimpleDto(PurchaseRequestProductEntity entity) {
         this.id = entity.getId();
