@@ -5,6 +5,7 @@ import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderStatusUpd
 import com.x1.frans.purchaseorder.command.application.dto.PurchaseOrderUpdateRequestDto;
 import com.x1.frans.purchaseorder.command.domain.aggregate.PurchaseOrderEntity;
 import com.x1.frans.purchaseorder.command.application.service.PurchaseOrderCommandService;
+import com.x1.frans.purchaseorder.query.dto.PurchaseOrderRequestPendingListDto;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController

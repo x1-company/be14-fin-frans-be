@@ -2,6 +2,7 @@ package com.x1.frans.purchaseorder.query.repository;
 
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderDetailDto;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderProductDetailDto;
+import com.x1.frans.purchaseorder.query.dto.PurchaseOrderRequestPendingListDto;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderSimpleDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -52,4 +53,6 @@ public interface PurchaseOrderQueryMapper {
     );
 
     int countOrderByTitle(@Param("title") String title);
+
+    List<PurchaseOrderRequestPendingListDto> getRequestPending(Long userId);
 }
