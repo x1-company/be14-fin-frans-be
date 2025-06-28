@@ -39,6 +39,9 @@ public class ApprovalPurchaseOrderContentDTO extends ApprovalContentDTO {
     @Schema(description = "결재완료 일자")
     private LocalDateTime processedAt;
 
+    @Schema(description = "기안자 ID")
+    private String drafterId;
+
     @Schema(description = "기안자명")
     private String drafterName;
 

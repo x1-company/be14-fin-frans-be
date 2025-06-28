@@ -415,31 +415,31 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             }
         });
 
-        // 다음 결재선이 없을때 결재 완료 처리
         if (nextLineOpt.isEmpty()) {
-            // 결재 상태 변경
-            approval.setStatus(ApprovalStatus.APPROVED);
-            approval.setProcessedAt(LocalDateTime.now());
-            approvalCommandRepository.save(approval);
+            // 다음 결재자 또는 협조자가 더 이상 없음을 이중 확인
+            boolean hasRemainingApprovalOrCooperator =
+                    approvalLineCommandRepository.existsByApprovalIdAndApprovalTypeInAndStatusIn(
+                            approvalId,
+                            List.of(ApprovalLineType.APPROVER, ApprovalLineType.COOPERATOR),
+                            List.of(ApprovalLineStatus.WAITING, ApprovalLineStatus.EXPECTED)
+                    );
 
-            // 결재 카테고리 조회
-            String category = approvalQueryMapper.findCategoryByApprovalId(approval.getId());
+            if (!hasRemainingApprovalOrCooperator) {
+                approval.setStatus(ApprovalStatus.APPROVED);
+                approval.setProcessedAt(LocalDateTime.now());
+                approvalCommandRepository.save(approval);
 
-            switch (category) {
-                case "ORDER" -> {
-                    approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId,"APPROVED");
-                }
-                case "RETURN" -> {
-                    approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId,"APPROVED");
-                }
-                case "PURCHASE_ORDER" -> {
-                    approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId,"APPROVED");
-                }
-                default -> {
-                    throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
+                // 카테고리별 상태 업데이트
+                String category = approvalQueryMapper.findCategoryByApprovalId(approval.getId());
+                switch (category) {
+                    case "ORDER" -> approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId, "APPROVED");
+                    case "RETURN" -> approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId, "APPROVED");
+                    case "PURCHASE_ORDER" -> approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId, "APPROVED");
+                    default -> throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
                 }
             }
         }
+
 
         return Optional.of(new ApprovalResponseDTO(approval.getId(), approval.getCode(), approval.getCreatedAt()));
     }

@@ -79,5 +79,5 @@ public interface ApprovalQueryService {
 
     List<ApprovalReceivedListDTO> getApprovalListReceivedRejected(long userId);
 
-    ApprovalDraftDTO getApprovalDraft(long approvalId);
+    ApprovalDraftDTO getApprovalDraft(long approvalId, boolean allowDraft);
 }

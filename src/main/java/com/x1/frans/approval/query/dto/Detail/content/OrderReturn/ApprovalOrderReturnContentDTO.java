@@ -44,9 +44,12 @@ public class ApprovalOrderReturnContentDTO extends ApprovalContentDTO{
 
     @Schema(description = "기안자 서명 URL")
     private String url;
-  
+
     @Schema(description = "기안자명")
     private String drafterName;
+
+    @Schema(description = "기안자 ID")
+    private String drafterId;
 
     @Schema(description = "기안자 부서")
     private String deptName;
