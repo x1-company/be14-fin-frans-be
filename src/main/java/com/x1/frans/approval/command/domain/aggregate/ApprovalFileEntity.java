@@ -22,6 +22,8 @@ public class ApprovalFileEntity {
 
     private String url;
 
+    private Integer size;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
             @JoinColumn(name = "approval_id", referencedColumnName = "id"),
