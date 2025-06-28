@@ -1,9 +1,7 @@
 package com.x1.frans.returns.command.application.controller;
 
 import com.x1.frans.returns.command.application.service.ReturnCommandService;
-import com.x1.frans.returns.command.domain.vo.ReturnCreateRequestVO;
-import com.x1.frans.returns.command.domain.vo.ReturnRejectRequestVO;
-import com.x1.frans.returns.command.domain.vo.ReturnReviewCompleteRequestVO;
+import com.x1.frans.returns.command.domain.vo.*;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,5 +48,31 @@ public class HqReturnCommandController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "반품 회수 정보 입력", description ="반품 회수 정보를 입력할 수 있다.")
+    @PatchMapping("/{returnId}/delivery")
+    public ResponseEntity updateDeliveryInfo(@PathVariable("returnId") Long returnId,
+                                 @RequestBody ReturnDeliveryInfoRequestVO vo,
+                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = customUserDetails.getUserId();
+
+        returnCommandService.updateDeliveryInfo(returnId, vo, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @Operation(summary = "반품 수거일 정보 입력", description ="반품 수거일 정보를 입력할 수 있다.")
+    @PatchMapping("/{returnId}/deliveried-at")
+    public ResponseEntity updateDeliveriedAt(@PathVariable("returnId") Long returnId,
+                                             @RequestBody ReturnDeliveriedAtVO vo,
+                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = customUserDetails.getUserId();
+
+        returnCommandService.updateDeliveriedAt(returnId, vo, userId);
+
+        return ResponseEntity.ok().build();
+    }
 
 }

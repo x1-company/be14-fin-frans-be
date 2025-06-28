@@ -4,4 +4,6 @@ import com.x1.frans.order.command.domain.aggregate.Delivery;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
+
+
 }
