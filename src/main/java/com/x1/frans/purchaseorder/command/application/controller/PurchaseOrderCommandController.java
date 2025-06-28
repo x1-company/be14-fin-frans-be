@@ -59,13 +59,14 @@ public class PurchaseOrderCommandController {
     }
 
     @PutMapping("/{purchaseOrderId}/request")
-    @Operation(summary = "임시저장 발주 정식 등록", description = "임시저장 상태의 발주를 정식으로 등록ㄱ한다.")
+    @Operation(summary = "임시저장 발주 정시 등록", description = "임시저장 상태의 발주를 정시로 등록한다.")
     public ResponseEntity<Void> requestOrder(
             @PathVariable Long purchaseOrderId,
+            @RequestBody PurchaseOrderUpdateRequestDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUserId();
-        purchaseOrderCommandService.requestOrder(purchaseOrderId, userId);
+        purchaseOrderCommandService.requestOrder(purchaseOrderId, dto, userId);
         return ResponseEntity.ok().build();
     }
 
