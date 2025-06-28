@@ -234,6 +234,81 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         purchaseOrderRepository.save(order);
     }
 
+    @Override
+    @Transactional
+    public void updateRegisteredOrder(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId) {
+        PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));
+
+        if (order.getStatus() != PurchaseOrderStatus.REQUEST_PENDING) {
+            throw new InvalidOrderStatusException("발주 대기 상태에서만 수정할 수 있습니다.");
+        }
+
+        UserEntity user = userCommandRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자 정보 없음"));
+
+        HqUserDetailEntity hqDetail = hqUserDetailCommandRepository.findByUser(user)
+                .orElseThrow(() -> new InvalidDepartmentException("부서 정보 없음"));
+        if (!ALLOWED_DEPARTMENT_IDS.contains(hqDetail.getDepartmentId())) {
+            throw new InvalidDepartmentException("구매팀만 수정할 수 있습니다.");
+        }
+
+        order.setTitle(dto.getTitle());
+        order.setRequestedDeliveryDate(dto.getRequestedDeliveryDate());
+        order.setUpdatedAt(LocalDateTime.now());
+
+        List<PurchaseOrderProductEntity> oldProducts = order.getPurchaseOrderProducts();
+        Map<Long, PurchaseOrderProductEntity> oldMap = oldProducts.stream()
+                .filter(p -> p.getId() != null)
+                .collect(Collectors.toMap(PurchaseOrderProductEntity::getId, p -> p));
+        Set<Long> newIds = new HashSet<>();
+
+        int idx = 1;
+        BigDecimal total = BigDecimal.ZERO;
+        List<PurchaseOrderProductEntity> newProductList = new ArrayList<>();
+        SupplierEntity supplier = order.getSupplier();
+
+        for (PurchaseOrderProductUpdateDto p : dto.getProducts()) {
+            ProductEntity product = productRepository.findById(p.getProductId())
+                    .orElseThrow(() -> new ProductNotFoundException("자재 정보 없음"));
+
+            if (!product.getSupplier().getId().equals(supplier.getId())) {
+                throw new ProductSupplierMisMatchException("자재 공급처와 발주 공급처가 다릅니다.");
+            }
+
+            PurchaseRequestEntity purchaseRequest = purchaseRequestMapper.findById(p.getPurchaseRequestId())
+                    .orElseThrow(() -> new PurchaseRequestNotFoundException("구매요청 없음"));
+            if (purchaseRequest.getStatus() != PurchaseRequestStatus.REQUEST_PENDING) {
+                throw new InvalidPurchaseRequestStatusException("대기 요청부터 발주할 수 있습니다.");
+            }
+            if (!purchaseRequestProductMapper.existsByPurchaseRequestIdAndProductId(
+                    p.getPurchaseRequestId(), p.getProductId())) {
+                throw new InvalidPurchaseRequestProductException("구매요청에 해당 자재가 포함되어 있지 않습니다.");
+            }
+
+            PurchaseOrderProductEntity productEntity = (p.getId() != null && oldMap.containsKey(p.getId()))
+                    ? oldMap.get(p.getId())
+                    : PurchaseOrderProductEntity.builder().purchaseOrder(order).build();
+
+            productEntity.setNo(idx++);
+            productEntity.setProduct(product);
+            productEntity.setQuantity(p.getQuantity());
+            productEntity.setRemarks(p.getRemarks());
+            productEntity.setPurchaseRequestId(p.getPurchaseRequestId());
+            newIds.add(productEntity.getId());
+            newProductList.add(productEntity);
+
+            total = total.add(product.getPurchasePrice().multiply(BigDecimal.valueOf(p.getQuantity())));
+        }
+
+        oldProducts.removeIf(old -> old.getId() != null && !newIds.contains(old.getId()));
+        order.getPurchaseOrderProducts().clear();
+        order.getPurchaseOrderProducts().addAll(newProductList);
+        order.setTotalAmount(total);
+
+        purchaseOrderRepository.save(order);
+    }
+
     /** 발주 삭제 */
     @Override
     @Transactional
