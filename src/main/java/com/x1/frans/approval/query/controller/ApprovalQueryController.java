@@ -1,5 +1,6 @@
 package com.x1.frans.approval.query.controller;
 
+import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.lines.ApprovalLinesDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
@@ -9,10 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class ApprovalQueryController {
 
     // 결재 상신 관련
 
-    @Operation(summary = "결재 목록 조회 - 상신 전체문서", description = "상신된 전체 결재 리스트를 최신순으로 조회한다.")
+    @Operation(summary = "결재 상신 목록 전체 조회", description = "상신된 전체 결재 리스트를 최신순으로 조회한다.")
     @GetMapping("/list/submitted/all")
     public ResponseEntity<List<ApprovalListDTO>> getApprovalListSubmittedAll(@AuthenticationPrincipal CustomUserDetails user) {
         long userId = user.getUserId();
@@ -38,42 +36,17 @@ public class ApprovalQueryController {
         return ResponseEntity.ok(list);
     }
 
-
-    @Operation(summary = "결재 목록 조회 - 임시저장", description = "임시저장된 결재 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/submitted/draft")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListDrafts(@AuthenticationPrincipal CustomUserDetails user) {
+    @Operation(summary = "결재 상신 목록 조회( DRAFT, IN_PROGRESS, APPROVED, REJECTED )", description = "상신한 결재 상태별 리스트를 최신순으로 조회한다.")
+    @GetMapping("/list/submitted")
+    public ResponseEntity<List<ApprovalListDTO>> getApprovalListByStatus(@AuthenticationPrincipal CustomUserDetails user,
+                                                                         @RequestParam(required = false) String status) {
         long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListDraft(userId);
+        List<ApprovalListDTO> list = approvalQueryService.getApprovalListByStatus(userId, status);
 
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "결재 목록 조회 - 결재중", description = "결재중인 결재 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/submitted/in-progress")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListInProgress(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListInProgress(userId);
 
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 결재완료", description = "결재완료된 결재 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/submitted/approved")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListApproved(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListApproved(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 결재반려", description = "결재반려된 결재 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/submitted/rejected")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListRejected(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListRejected(userId);
-
-        return ResponseEntity.ok(list);
-    }
 
     // 결재 수신 관련
 
@@ -95,50 +68,31 @@ public class ApprovalQueryController {
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "결재 목록 조회 - 결재 대기", description = "결재 대기 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/received/pending")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedPending(@AuthenticationPrincipal CustomUserDetails user) {
+    @Operation(summary = "결재 목록 조회 - 수신함( WAITING, EXPECTED )", description = "결재자 수신함 리스트를 상태별로 최신순 조회한다.")
+    @GetMapping("/list/received")
+    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceived(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "status") ApprovalLineStatus status
+    ) {
         long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceivedPending(userId);
+        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceived(userId, status);
 
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "결재 목록 조회 - 결재 예정", description = "결재 예정 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/received/upcoming")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedUpcoming(@AuthenticationPrincipal CustomUserDetails user) {
+
+    @Operation(summary = "결재 목록 조회 - 결재자가 완료한 문서( APPROVED, REJECTED )", description = "결재자가 승인 또는 반려로 완료한 문서를 상태에 따라 조회한다.")
+    @GetMapping("/list/received/my-completed")
+    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedMyCompleted(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "status") ApprovalLineStatus status
+    ) {
         long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceivedUpcoming(userId);
+        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceivedMyCompleted(userId, status);
 
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "결재 목록 조회 - 결재자 결재 완료 전체 문서", description = "결재자의 결재 완료 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/received/my-completed/all")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedMyCompletedAll(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceivedMyCompletedAll(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 결재자 승인 및 결재 완료문서", description = "결재자 승인 및 종료된 문서 전체 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/received/my-completed/approved")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedMyCompletedApproved(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceivedMyCompletedApproved(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 결재자 반려 및 결재 완료문서", description = "결재자 반려 및 종료된 문서 전체 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/received/my-completed/rejected")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedMyCompletedRejected(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListReceivedMyCompletedRejected(userId);
-
-        return ResponseEntity.ok(list);
-    }
 
     @Operation(summary = "결재 목록 조회 - 종료된 문서 전체", description = "종료된 문서 전체 리스트를 최신순으로 조회한다.")
     @GetMapping("/list/received/closed/all")
@@ -149,6 +103,7 @@ public class ApprovalQueryController {
         return ResponseEntity.ok(list);
     }
 
+    // 보류 - 여기서부터
     @Operation(summary = "결재 목록 조회 - 종료된 문서 전체 결재 문서", description = "종료된 결재문서 전체 리스트를 최신순으로 조회한다.")
     @GetMapping("/list/received/closed/approval/all")
     public ResponseEntity<List<ApprovalListDTO>> getApprovalListReceivedClosedApprovalAll(@AuthenticationPrincipal CustomUserDetails user) {
@@ -202,7 +157,9 @@ public class ApprovalQueryController {
 
         return ResponseEntity.ok(list);
     }
+    // 여기까지
 
+    // 협조문서
 
     @Operation(summary = "결재 목록 조회 - 전체 협조문서", description = "전체 협조문서 리스트를 최신순으로 조회한다.")
     @GetMapping("/list/cooperate/all")
@@ -213,48 +170,14 @@ public class ApprovalQueryController {
         return ResponseEntity.ok(list);
     }
 
-    @Operation(summary = "결재 목록 조회 - 협조 대기", description = "협조 대기 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/cooperate/pending")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListCooperatePending(@AuthenticationPrincipal CustomUserDetails user) {
+    @Operation(summary = "결재 목록 조회 - 협조 문서", description = "협조 문서를 상태별로 조회한다. (WAITING, EXPECTED, APPROVED, REJECTED)")
+    @GetMapping("/list/cooperate")
+    public ResponseEntity<List<ApprovalListDTO>> getApprovalListCooperate(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "status") ApprovalLineStatus status
+    ) {
         long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListCooperatePending(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 협조 예정", description = "협조 예정 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/cooperate/upcoming")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListCooperateUpcoming(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListCooperateUpcoming(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 내 협조 완료 전체", description = "내 협조 완료 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/cooperate/my-completed/all")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListCooperateMyCompletedAll(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListCooperateMyCompletedAll(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 협조 승인", description = "협조 승인 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/cooperate/approved")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListCooperateApproved(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListCooperateApproved(userId);
-
-        return ResponseEntity.ok(list);
-    }
-
-    @Operation(summary = "결재 목록 조회 - 협조 반려", description = "협조 반려 리스트를 최신순으로 조회한다.")
-    @GetMapping("/list/cooperate/rejected")
-    public ResponseEntity<List<ApprovalListDTO>> getApprovalListCooperateRejected(@AuthenticationPrincipal CustomUserDetails user) {
-        long userId = user.getUserId();
-        List<ApprovalListDTO> list = approvalQueryService.getApprovalListCooperateRejected(userId);
-
+        List<ApprovalListDTO> list = approvalQueryService.getApprovalListCooperate(userId, status);
         return ResponseEntity.ok(list);
     }
 
@@ -275,6 +198,7 @@ public class ApprovalQueryController {
 
         return ResponseEntity.ok(list);
     }
+
 
 
     @Operation(summary = "결재 상세 조회 - 결재 본문", description = "결재 상세본문 조회한다.")

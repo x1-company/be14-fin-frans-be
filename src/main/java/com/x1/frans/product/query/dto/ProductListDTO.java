@@ -49,4 +49,7 @@ public class ProductListDTO {
     @Schema(description = "공급처명")
     private String supplierName;
 
+    @Schema(description = "공급처 id")
+    private Long supplierId;
+
 }

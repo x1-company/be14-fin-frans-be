@@ -47,118 +47,39 @@
              , dept.name AS deptName
              , pos.name AS positionName
           FROM approval a
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
+          JOIN user u ON u.id = a.user_id
+          JOIN hq_user_detail hud ON hud.user_id = u.id
+          JOIN department dept ON dept.id = hud.department_id
+          JOIN position pos ON pos.id = hud.position_id
          WHERE u.id = #{userId}
          ORDER BY a.created_at DESC
     </select>
 
-    <select id="getApprovalListDraft" resultMap="getApprovalListMap">
+<!--    상신 문서 필터링( DRAFT, IN_PROGRESS, APPROVED, REJECTED )-->
+    <select id="getApprovalListByStatus" resultMap="getApprovalListMap">
         SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE u.id = #{userId}
-           AND a.status = 'DRAFT'
-         ORDER BY a.created_at DESC
-    </select>
-    <select id="getApprovalListInProgress" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE u.id = #{userId}
-           AND a.status = 'IN_PROGRESS'
-         ORDER BY a.created_at DESC
-    </select>
-
-    <select id="getApprovalListApproved" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE u.id = #{userId}
-           AND a.status = 'APPROVED'
-         ORDER BY a.created_at DESC
-    </select>
-
-    <select id="getApprovalListRejected" resultMap="getApprovalListMap">
-        SELECT
-            a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
+        a.id AS approvalId,
+        a.code,
+        a.title,
+        a.status,
+        a.created_at AS createdAt,
+        a.is_requested AS isRequested,
+        u.name AS drafterName,
+        dept.name AS deptName,
+        pos.name AS positionName
         FROM approval a
-                 JOIN user u
-                      ON u.id = a.user_id
-                 JOIN hq_user_detail hud
-                      ON hud.user_id = u.id
-                 JOIN department dept
-                      ON dept.id = hud.department_id
-                 JOIN position pos
-                      ON pos.id = hud.position_id
+        JOIN user u ON u.id = a.user_id
+        JOIN hq_user_detail hud ON hud.user_id = u.id
+        JOIN department dept ON dept.id = hud.department_id
+        JOIN position pos ON pos.id = hud.position_id
         WHERE u.id = #{userId}
-          AND a.status = 'REJECTED'
+        <if test="status != null and status != ''">
+            AND a.status = #{status}
+        </if>
         ORDER BY a.created_at DESC
     </select>
 
-<!-- 결재 수신 관련-->
+<!-- 수신 관련-->
 <!--    수신받은  모든 문서-->
     <select id="getApprovalListReceivedAll" resultMap="getApprovalListMap">
         SELECT
@@ -172,16 +93,11 @@
              , dept.name AS deptName
              , pos.name AS positionName
           FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-          ON hud.user_id = u.id
-          JOIN department dept
-          ON dept.id = hud.department_id
-          JOIN position pos
-          ON pos.id = hud.position_id
+          JOIN approval_line al ON al.approval_id = a.id
+          JOIN user u ON u.id = a.user_id
+          JOIN hq_user_detail hud ON hud.user_id = u.id
+          JOIN department dept ON dept.id = hud.department_id
+          JOIN position pos ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND (
              al.approval_type != 'RECIPIENT'
@@ -204,173 +120,68 @@
              , dept.name AS deptName
              , pos.name AS positionName
           FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
+          JOIN approval_line al ON al.approval_id = a.id
+          JOIN user u ON u.id = a.user_id
+          JOIN hq_user_detail hud ON hud.user_id = u.id
+          JOIN department dept ON dept.id = hud.department_id
+          JOIN position pos ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'APPROVER'
            AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
-
-    <select id="getApprovalListReceivedPending" resultMap="getApprovalListMap">
+<!-- 결재 목록 조회 - 수신함( WAITING, EXPECTED ) -->
+    <select id="getApprovalListReceived" resultMap="getApprovalListMap">
         SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status = 'WAITING'
-           AND al.approval_type = 'APPROVER'
-           AND a.status = 'IN_PROGRESS'
-           AND a.status != 'DRAFT'
-         ORDER BY a.created_at DESC
-    </select>
-
-    <select id="getApprovalListReceivedUpcoming" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status = 'EXPECTED'
-           AND al.approval_type = 'APPROVER'
-           AND a.status != 'DRAFT'
-         ORDER BY a.created_at DESC
-    </select>
-<!--    내 결재 완료 전체-->
-    <select id="getApprovalListReceivedMyCompletedAll" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status IN ('APPROVED', 'REJECTED')
-           AND al.approval_type = 'APPROVER'
-           AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
-           AND a.status != 'DRAFT'
-         ORDER BY a.created_at DESC
-    </select>
-
-<!--    내 결재 완료 - 승인-->
-    <select id="getApprovalListReceivedMyCompletedApproved" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
+        a.id AS approvalId,
+        a.code,
+        a.title,
+        a.status,
+        a.created_at AS createdAt,
+        a.is_requested AS isRequested,
+        u.name AS drafterName,
+        dept.name AS deptName,
+        pos.name AS positionName
         FROM approval a
-                 JOIN approval_line al
-                      ON al.approval_id = a.id
-                 JOIN user u
-                      ON u.id = a.user_id
-                 JOIN hq_user_detail hud
-                      ON hud.user_id = u.id
-                 JOIN department dept
-                      ON dept.id = hud.department_id
-                 JOIN position pos
-                      ON pos.id = hud.position_id
+        JOIN approval_line al ON al.approval_id = a.id
+        JOIN user u ON u.id = a.user_id
+        JOIN hq_user_detail hud ON hud.user_id = u.id
+        JOIN department dept ON dept.id = hud.department_id
+        JOIN position pos ON pos.id = hud.position_id
         WHERE al.user_id = #{userId}
-          AND al.status = 'APPROVED'
-          AND al.approval_type = 'APPROVER'
-          AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
-          AND a.status != 'DRAFT'
+        AND al.status = #{status}
+        AND al.approval_type = 'APPROVER'
+        AND a.status != 'DRAFT'
+        AND a.status = 'IN_PROGRESS'
         ORDER BY a.created_at DESC
     </select>
 
-<!--    내 결재 완료 - 반려-->
-    <select id="getApprovalListReceivedMyCompletedRejected" resultMap="getApprovalListMap">
+<!--    내 결재 완료 ( APPROVED, REJECTED )-->
+    <select id="getApprovalListReceivedMyCompleted" resultMap="getApprovalListMap">
         SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
+            a.id AS approvalId,
+            a.code,
+            a.title,
+            a.status,
+            a.created_at AS createdAt,
+            a.is_requested AS isRequested,
+            u.name AS drafterName,
+            dept.name AS deptName,
+            pos.name AS positionName
         FROM approval a
-                 JOIN approval_line al
-                      ON al.approval_id = a.id
-                 JOIN user u
-                      ON u.id = a.user_id
-                 JOIN hq_user_detail hud
-                      ON hud.user_id = u.id
-                 JOIN department dept
-                      ON dept.id = hud.department_id
-                 JOIN position pos
-                      ON pos.id = hud.position_id
+        JOIN approval_line al ON al.approval_id = a.id
+        JOIN user u ON u.id = a.user_id
+        JOIN hq_user_detail hud ON hud.user_id = u.id
+        JOIN department dept ON dept.id = hud.department_id
+        JOIN position pos ON pos.id = hud.position_id
         WHERE al.user_id = #{userId}
-          AND al.status = 'REJECTED'
+          AND al.status = #{status}
           AND al.approval_type = 'APPROVER'
-          AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
-          AND a.status != 'DRAFT'
+      AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
         ORDER BY a.created_at DESC
     </select>
+
 
 <!--    종료된 문서 전체-->
     <select id="getApprovalListReceivedClosedAll" resultMap="getApprovalListMap">
@@ -605,160 +416,38 @@
             ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'COOPERATOR'
-           AND a.status != 'DRAFT'
-         ORDER BY a.created_at DESC
-    </select>
-
-<!--    협조 문서 - 대기-->
-    <select id="getApprovalListCooperatePending" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status = 'WAITING'
-           AND al.approval_type = 'COOPERATOR'
            AND a.status = 'IN_PROGRESS'
            AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
-<!--    협조 문서 - 예정 -->
-    <select id="getApprovalListCooperateUpcoming" resultMap="getApprovalListMap">
+    <select id="getApprovalListCooperateByStatus" resultMap="getApprovalListMap">
         SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status = 'EXPECTED'
-           AND al.approval_type = 'COOPERATOR'
-           AND a.status = 'IN_PROGRESS'
-           AND a.status != 'DRAFT'
-         ORDER BY a.created_at DESC
-    </select>
-<!--    내 협조 완료 전체  -->
-    <select id="getApprovalListCooperateMyCompletedAll" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
+        a.id AS approvalId,
+        a.code,
+        a.title,
+        a.status,
+        a.created_at AS createdAt,
+        a.is_requested AS isRequested,
+        u.name AS drafterName,
+        dept.name AS deptName,
+        pos.name AS positionName
         FROM approval a
-                 JOIN approval_line al
-                      ON al.approval_id = a.id
-                 JOIN user u
-                      ON u.id = a.user_id
-                 JOIN hq_user_detail hud
-                      ON hud.user_id = u.id
-                 JOIN department dept
-                      ON dept.id = hud.department_id
-                 JOIN position pos
-                      ON pos.id = hud.position_id
+        JOIN approval_line al ON al.approval_id = a.id
+        JOIN user u ON u.id = a.user_id
+        JOIN hq_user_detail hud ON hud.user_id = u.id
+        JOIN department dept ON dept.id = hud.department_id
+        JOIN position pos ON pos.id = hud.position_id
         WHERE al.user_id = #{userId}
-          AND al.status IN ('APPROVED', 'REJECTED')
-          AND al.approval_type = 'COOPERATOR'
-          AND a.status IN ('IN_PROGRESS','APPROVED', 'REJECTED')
+        AND al.approval_type = 'COOPERATOR'
+        AND al.status = #{status}
+        AND a.status != 'DRAFT'
+        <if test="status.name() == 'WAITING' or status.name() == 'EXPECTED'">
+            AND a.status = 'IN_PROGRESS'
+        </if>
         ORDER BY a.created_at DESC
     </select>
 
-<!--    협조 문서 - 승인-->
-    <select id="getApprovalListCooperateApproved" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status = 'APPROVED'
-           AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
-           AND al.approval_type = 'COOPERATOR'
-         ORDER BY a.created_at DESC
-    </select>
-
-<!--    협조 문서 - 반려-->
-    <select id="getApprovalListCooperateRejected" resultMap="getApprovalListMap">
-        SELECT
-               a.id AS approvalId
-             , a.code
-             , a.title
-             , a.status
-             , a.created_at AS createdAt
-             , a.is_requested AS isRequested
-             , u.name AS drafterName
-             , dept.name AS deptName
-             , pos.name AS positionName
-          FROM approval a
-          JOIN approval_line al
-            ON al.approval_id = a.id
-          JOIN user u
-            ON u.id = a.user_id
-          JOIN hq_user_detail hud
-            ON hud.user_id = u.id
-          JOIN department dept
-            ON dept.id = hud.department_id
-          JOIN position pos
-            ON pos.id = hud.position_id
-         WHERE al.user_id = #{userId}
-           AND al.status = 'REJECTED'
-           AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
-           AND al.approval_type = 'COOPERATOR'
-         ORDER BY a.created_at DESC
-    </select>
 
 <!--    참조 문서 -->
     <select id="getApprovalListReferences" resultMap="getApprovalListMap">

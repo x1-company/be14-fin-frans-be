@@ -20,12 +20,12 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
     @Override
     public List<ProductListDTO> getProductsByFilter (
-            Long productTypeId, Long productGroupId, Long productAttributeId, Boolean isActive) {
+            Long productTypeId, Long productGroupId, Long productAttributeId, Boolean isActive, Long supplierId) {
         List<ProductListDTO> products = productQueryMapper.selectByFilter (
-                productTypeId, productGroupId, productAttributeId, isActive);
-        if (products.isEmpty()) {
-            throw new ProductNotFoundException ("검색 조건에 해당하는 자재가 없습니다.");
-        }
+                productTypeId, productGroupId, productAttributeId, isActive, supplierId);
+//        if (products.isEmpty()) {
+//            throw new ProductNotFoundException ("검색 조건에 해당하는 자재가 없습니다.");
+//        }
 
         return products;
     }
