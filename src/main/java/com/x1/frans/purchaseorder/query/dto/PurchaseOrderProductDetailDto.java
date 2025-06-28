@@ -21,4 +21,5 @@ public class PurchaseOrderProductDetailDto {
     private String productTypeName;
     private String productGroupName;
     private String productAttributeName;
+    private String remarks;
 }

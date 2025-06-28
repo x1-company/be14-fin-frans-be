@@ -28,6 +28,7 @@
         <result property="productTypeName" column="product_type_name"/>
         <result property="productGroupName" column="product_group_name"/>
         <result property="productAttributeName" column="product_attribute_name"/>
+        <result property="remarks" column="remarks"/>
     </resultMap>
 
     <!-- 공급처 상세 resultMap (SupplierDetailDTO) -->
@@ -120,7 +121,8 @@
             p.spec,
             pt.name AS product_type_name,
             pg.name AS product_group_name,
-            pa.name AS product_attribute_name
+            pa.name AS product_attribute_name,
+            pop.remarks
         FROM purchase_order_product pop
                  JOIN product p ON pop.product_id = p.id
                  LEFT JOIN product_type pt ON p.product_type_id = pt.id
