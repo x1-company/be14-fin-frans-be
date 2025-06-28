@@ -190,6 +190,8 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
                 .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
 
         Delivery delivery = Delivery.builder()
+                .code("DLV-" + System.currentTimeMillis())
+                .status(DeliveryStatus.PICKED_UP)
                 .deliveredAt(vo.getDeliveredAt())
                 .build();
 
