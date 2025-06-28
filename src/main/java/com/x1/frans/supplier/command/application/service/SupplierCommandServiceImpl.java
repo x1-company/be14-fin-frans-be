@@ -3,9 +3,12 @@ package com.x1.frans.supplier.command.application.service;
 import com.x1.frans.exception.InvalidSupplierArgumentException;
 import com.x1.frans.exception.SupplierNotFoundException;
 import com.x1.frans.exception.UnauthorizedAccessException;
+import com.x1.frans.exception.UserNotFoundException;
 import com.x1.frans.supplier.command.domain.aggregate.SupplierEntity;
 import com.x1.frans.supplier.command.domain.repository.SupplierCommandRepository;
 import com.x1.frans.supplier.command.vo.SupplierUpdateRequestVO;
+import com.x1.frans.user.command.aggregate.UserEntity;
+import com.x1.frans.user.command.repository.UserCommandRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +19,12 @@ import java.time.LocalDateTime;
 public class SupplierCommandServiceImpl implements SupplierCommandService{
 
     private final SupplierCommandRepository supplierCommandRepository;
+    private final UserCommandRepository userCommandRepository;
 
     @Autowired
-    public SupplierCommandServiceImpl(SupplierCommandRepository supplierCommandRepository) {
+    public SupplierCommandServiceImpl(SupplierCommandRepository supplierCommandRepository, UserCommandRepository userCommandRepository) {
         this.supplierCommandRepository = supplierCommandRepository;
+        this.userCommandRepository = userCommandRepository;
     }
 
     @Transactional
@@ -28,11 +33,13 @@ public class SupplierCommandServiceImpl implements SupplierCommandService{
 
         SupplierEntity supplier = supplierCommandRepository.findById(supplierId)
                 .orElseThrow(() -> new SupplierNotFoundException("공급처를 찾을 수 없습니다."));
+//        UserEntity manager = userCommandRepository.findById(userId)
+//                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
-        if (!supplier.getManagerId().equals(userId)) {
-            throw new UnauthorizedAccessException("접근 권한이 없습니다.");
-        }
-
+        UserEntity manager = supplier.getUser();
+        if (!manager.getId().equals(userId)) {
+                throw new UnauthorizedAccessException("접근 권한이 없습니다.");
+            }
         // 유효성 검사 수행
         validateSupplierUpdateRequest(vo);
 
@@ -45,6 +52,10 @@ public class SupplierCommandServiceImpl implements SupplierCommandService{
         supplier.setSignedAt(vo.getSignedAt());
         supplier.setIsActive(vo.getIsActive());
         supplier.setUpdatedAt(LocalDateTime.now());
+        manager.setName(vo.getSupplierName());
+        manager.setEmail(vo.getSupplierEmail());
+        manager.setPhone(vo.getSupplierPhone());
+
 
 
 
