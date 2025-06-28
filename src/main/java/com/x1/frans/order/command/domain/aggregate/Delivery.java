@@ -52,4 +52,8 @@ public class Delivery {
         this.status = DeliveryStatus.DELIVERED; // 배송 완료 상태로 변경
     }
 
+    public void pickUpDelivery(LocalDate deliveredAt) {
+        this.deliveredAt = deliveredAt;
+        this.status = DeliveryStatus.PICKED_UP;
+    }
 }

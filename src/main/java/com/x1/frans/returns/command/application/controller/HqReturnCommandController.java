@@ -1,9 +1,7 @@
 package com.x1.frans.returns.command.application.controller;
 
 import com.x1.frans.returns.command.application.service.ReturnCommandService;
-import com.x1.frans.returns.command.domain.vo.ReturnCreateRequestVO;
-import com.x1.frans.returns.command.domain.vo.ReturnRejectRequestVO;
-import com.x1.frans.returns.command.domain.vo.ReturnReviewCompleteRequestVO;
+import com.x1.frans.returns.command.domain.vo.*;
 import com.x1.frans.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,6 +44,45 @@ public class HqReturnCommandController {
         Long userId = customUserDetails.getUserId();
 
         returnCommandService.reject(returnId, vo, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "반품 회수 정보 입력", description ="반품 회수 정보를 입력할 수 있다.")
+    @PatchMapping("/{returnId}/delivery")
+    public ResponseEntity updateDeliveryInfo(@PathVariable("returnId") Long returnId,
+                                 @RequestBody ReturnDeliveryInfoRequestVO vo,
+                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = customUserDetails.getUserId();
+
+        returnCommandService.updateDeliveryInfo(returnId, vo, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    @Operation(summary = "반품 수거일 정보 입력", description ="반품 수거일 정보를 입력할 수 있다.")
+    @PatchMapping("/{returnId}/delivered-at")
+    public ResponseEntity updateDeliveredAt(@PathVariable("returnId") Long returnId,
+                                             @RequestBody ReturnDeliveredAtVO vo,
+                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = customUserDetails.getUserId();
+
+        returnCommandService.updateDeliveredAt(returnId, vo, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "반품 수거 완료 상태 변경", description ="반품 수거 완료로 상태를 변경할 수 있다.")
+    @PatchMapping("/{returnId}/complete")
+    public ResponseEntity returnComplete(@PathVariable("returnId") Long returnId,
+                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Long userId = customUserDetails.getUserId();
+
+        returnCommandService.returnComplete(returnId, userId);
 
         return ResponseEntity.ok().build();
     }

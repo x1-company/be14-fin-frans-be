@@ -149,4 +149,6 @@ public interface ApprovalQueryMapper  {
     List<ApprovalDocumentDTO> selectApprovalDocumentMetaReturn(long approvalId);
 
     List<ApprovalDocumentDTO> selectApprovalDocumentMetaPurchase(long approvalId);
+
+    ApprovalDraftDTO selectApprovalById(@Param("approvalId") long approvalId);
 }

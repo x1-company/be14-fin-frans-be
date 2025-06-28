@@ -1,23 +1,24 @@
 package com.x1.frans.purchaseorder.query.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PurchaseOrderSimpleDto {
+public class PurchaseOrderDraftDetailDto {
     private Long id;
     private String code;
-    private String title;
-    private BigDecimal totalAmount;
     private String status;
+    private BigDecimal totalAmount;
     private LocalDateTime createdAt;
     private LocalDate requestedDeliveryDate;
-    private Long supplierId;
+    private String userName;
+    private String supplierName;
+
+    private List<PurchaseOrderProductDraftDto> products;
 }

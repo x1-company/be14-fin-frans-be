@@ -3,6 +3,8 @@ package com.x1.frans.returns.command.application.service;
 import com.x1.frans.exception.*;
 import com.x1.frans.franchise.command.domain.aggregate.FranchiseEntity;
 import com.x1.frans.franchise.command.domain.repository.FranchiseCommandRepository;
+import com.x1.frans.order.command.domain.aggregate.Delivery;
+import com.x1.frans.order.command.domain.repository.DeliveryRepository;
 import com.x1.frans.product.command.domain.aggregate.ProductEntity;
 import com.x1.frans.product.command.domain.repository.ProductRepository;
 import com.x1.frans.returns.command.domain.aggregate.ReturnDetailEntity;
@@ -16,6 +18,7 @@ import com.x1.frans.returns.enums.ProductReturnStatus;
 import com.x1.frans.returns.enums.ReturnStatus;
 import com.x1.frans.user.command.aggregate.UserEntity;
 import com.x1.frans.user.command.repository.UserCommandRepository;
+import com.x1.frans.user.enums.DeliveryStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,13 +38,15 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
     private final FranchiseCommandRepository franchiseRepository;
     private final ReturnDetailCommandRepository returnDetailRepository;
     private final ReturnFileCommandRepository returnFileRepository;
+    private final DeliveryRepository deliveryRepository;
 
     public ReturnCommandServiceImpl(ReturnCommandRepository returnRepository,
                                     UserCommandRepository userCommandRepository,
                                     ProductRepository productRepository,
                                     FranchiseCommandRepository franchiseRepository,
                                     ReturnDetailCommandRepository returnDetailRepository,
-                                    ReturnFileCommandRepository returnFileRepository
+                                    ReturnFileCommandRepository returnFileRepository,
+                                    DeliveryRepository deliveryRepository
                                     ) {
         this.returnRepository = returnRepository;
         this.userRepository = userCommandRepository;
@@ -49,6 +54,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         this.franchiseRepository = franchiseRepository;
         this.returnDetailRepository = returnDetailRepository;
         this.returnFileRepository = returnFileRepository;
+        this.deliveryRepository = deliveryRepository;
 
     }
 
@@ -135,6 +141,84 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         returnEntity.reject(vo.getRejectReason());
         returnRepository.save(returnEntity);
 
+        List<ReturnDetailEntity> detailList = returnDetailRepository.findByReturnEntityId(returnId);
+        for (ReturnDetailEntity detail : detailList) {
+            detail.reject();
+        }
+        returnDetailRepository.saveAll(detailList);
+
+    }
+
+    @Override
+    @Transactional
+    public void updateDeliveryInfo(Long returnId, ReturnDeliveryInfoRequestVO vo, Long userId) {
+
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("본사 직원의 정보를 찾을 수 없습니다."));
+
+        ReturnEntity returnEntity = returnRepository.findById(returnId)
+                .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
+
+        Delivery delivery = Delivery.builder()
+                .code("DLV-" + System.currentTimeMillis())
+                .deliveryCompany(vo.getDeliveryCompany())
+                .trackingNumber(vo.getTrackingNumber())
+                .name(vo.getName())
+                .phone(vo.getPhone())
+                .status(DeliveryStatus.PICKING_UP)
+                .build();
+
+        delivery = deliveryRepository.save(delivery);
+
+        returnEntity.setDeliveryId(delivery.getId());
+
+        returnEntity.setStatus(ReturnStatus.PICKING_UP);
+
+        returnRepository.save(returnEntity);
+
+    }
+
+    @Override
+    public void updateDeliveredAt(Long returnId, ReturnDeliveredAtVO vo, Long userId) {
+
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("본사 직원의 정보를 찾을 수 없습니다."));
+
+        ReturnEntity returnEntity = returnRepository.findById(returnId)
+                .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
+
+        // 기존의 Delivery
+        Long deliveryId = returnEntity.getDeliveryId();
+        if (deliveryId == null) {
+            throw new NotFoundReturnException("먼저 배송정보를 등록해야 합니다.");
+        }
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new NotFoundReturnException("배송 정보를 찾을 수 없습니다."));
+
+        // 반품 수거 완료 처리
+        delivery.pickUpDelivery(vo.getDeliveredAt());
+        delivery = deliveryRepository.save(delivery);
+
+        returnEntity.setDeliveryId(delivery.getId());
+        returnEntity.setStatus(ReturnStatus.PICKED_UP);
+        returnRepository.save(returnEntity);
+
+    }
+
+    @Override
+    public void returnComplete(Long returnId, Long userId) {
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("본사 직원의 정보를 찾을 수 없습니다."));
+
+        ReturnEntity returnEntity = returnRepository.findById(returnId)
+                .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
+
+        returnEntity.complete();
+
+        returnRepository.save(returnEntity);
     }
 
     private BigDecimal calculateTotalAmount(List<ReturnDetailRequestVO> details) {

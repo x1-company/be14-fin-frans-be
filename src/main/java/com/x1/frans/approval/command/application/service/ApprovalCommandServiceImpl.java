@@ -380,11 +380,9 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserSignatureNotFoundException("결재자 정보를 찾을 수 없습니다."));
 
-
         // 현재 사용자의 결재선 찾기
         ApprovalLineEntity currentLine = approvalLineCommandRepository.findByApprovalIdAndUserId(approval.getId(), userId)
                 .orElseThrow(() -> new ApprovalLineNotFoundException("해당 사용자의 결재선이 없습니다."));
-
 
         if (user.getSignUrl() == null || user.getSignUrl().isBlank()) {
             throw new IllegalStateException("서명이 등록되지 않은 사용자는 결재 등록이 불가능합니다.");
@@ -399,7 +397,6 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
             currentLine.setStatus(ApprovalLineStatus.APPROVED);
             currentLine.setOpinion(request.getOpinion());
             currentLine.setProcessedAt(LocalDateTime.now());
-
             approvalLineCommandRepository.save(currentLine);
         }
 
@@ -407,36 +404,38 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         int nextSeq = currentLine.getSeq() + 1;
         Optional<ApprovalLineEntity> nextLineOpt = approvalLineCommandRepository.findByApprovalIdAndSeq(approval.getId(), nextSeq);
 
-        // 다음 결재선이 있으면 상태를 EXPECTED → WAITING 으로 변경
-        nextLineOpt.ifPresent(nextLine -> {
+        // 다음 결재선이 결재자 or 협조자인 경우에만 상태를 WAITING 으로 변경
+        boolean nextIsApprovalOrCooperator = nextLineOpt
+                .filter(nextLine -> List.of(ApprovalLineType.APPROVER, ApprovalLineType.COOPERATOR).contains(nextLine.getApprovalType()))
+                .isPresent();
+
+        if (nextIsApprovalOrCooperator) {
+            ApprovalLineEntity nextLine = nextLineOpt.get();
             if (nextLine.getStatus() == ApprovalLineStatus.EXPECTED) {
                 nextLine.setStatus(ApprovalLineStatus.WAITING);
                 approvalLineCommandRepository.save(nextLine);
             }
-        });
+        } else {
+            // 다음 결재선이 없거나, 참조/수신만 남은 경우 → 결재 종료 조건 검사
+            boolean hasRemainingApprovalOrCooperator =
+                    approvalLineCommandRepository.existsByApprovalIdAndApprovalTypeInAndStatusIn(
+                            approvalId,
+                            List.of(ApprovalLineType.APPROVER, ApprovalLineType.COOPERATOR),
+                            List.of(ApprovalLineStatus.WAITING, ApprovalLineStatus.EXPECTED)
+                    );
 
-        // 다음 결재선이 없을때 결재 완료 처리
-        if (nextLineOpt.isEmpty()) {
-            // 결재 상태 변경
-            approval.setStatus(ApprovalStatus.APPROVED);
-            approval.setProcessedAt(LocalDateTime.now());
-            approvalCommandRepository.save(approval);
+            if (!hasRemainingApprovalOrCooperator) {
+                approval.setStatus(ApprovalStatus.APPROVED);
+                approval.setProcessedAt(LocalDateTime.now());
+                approvalCommandRepository.save(approval);
 
-            // 결재 카테고리 조회
-            String category = approvalQueryMapper.findCategoryByApprovalId(approval.getId());
-
-            switch (category) {
-                case "ORDER" -> {
-                    approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId,"APPROVED");
-                }
-                case "RETURN" -> {
-                    approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId,"APPROVED");
-                }
-                case "PURCHASE_ORDER" -> {
-                    approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId,"APPROVED");
-                }
-                default -> {
-                    throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
+                // 카테고리별 상태 업데이트
+                String category = approvalQueryMapper.findCategoryByApprovalId(approval.getId());
+                switch (category) {
+                    case "ORDER" -> approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId, "APPROVED");
+                    case "RETURN" -> approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId, "APPROVED");
+                    case "PURCHASE_ORDER" -> approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId, "APPROVED");
+                    default -> throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
                 }
             }
         }

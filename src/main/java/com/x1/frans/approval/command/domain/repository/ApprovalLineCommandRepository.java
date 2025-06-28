@@ -2,6 +2,9 @@ package com.x1.frans.approval.command.domain.repository;
 
 import com.x1.frans.approval.command.domain.aggregate.ApprovalLineEntity;
 import java.util.List;
+
+import com.x1.frans.approval.common.ApprovalLineStatus;
+import com.x1.frans.approval.common.ApprovalLineType;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,4 +33,5 @@ public interface ApprovalLineCommandRepository extends JpaRepository<ApprovalLin
 
     List<ApprovalLineEntity> findByApprovalId(Long approvalId);
 
+    boolean existsByApprovalIdAndApprovalTypeInAndStatusIn(long approvalId, List<ApprovalLineType> approver, List<ApprovalLineStatus> waiting);
 }

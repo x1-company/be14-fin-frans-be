@@ -22,6 +22,9 @@ public class ProductListDTO {
     @Schema(description = "자재명")
     private String name;
 
+    @Schema(description = "판매 단가")
+    private BigDecimal sale_price;
+
     @Schema(description = "규격")
     private String spec;
 

@@ -197,14 +197,14 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             }
 
             PurchaseOrderProductEntity popEntity = null;
-            if (p.getId() != null && oldMap.containsKey(p.getId())) {
-                popEntity = oldMap.get(p.getId());
+            if (p.getSupplierId() != null && oldMap.containsKey(p.getSupplierId())) {
+                popEntity = oldMap.get(p.getSupplierId());
                 popEntity.setProduct(product);
                 popEntity.setQuantity(p.getQuantity());
                 popEntity.setRemarks(p.getRemarks());
                 popEntity.setNo(idx++);
                 popEntity.setPurchaseRequestId(p.getPurchaseRequestId());
-                newIds.add(p.getId());
+                newIds.add(p.getSupplierId());
             } else {
                 popEntity = PurchaseOrderProductEntity.builder()
                         .purchaseOrder(order)
@@ -261,7 +261,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
     /** 발주 임시등록 -> 정식 등록 */
     @Override
     @Transactional
-    public void requestOrder(Long purchaseOrderId, Long userId) {
+    public void requestOrder(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId) {
 
         PurchaseOrderEntity order = purchaseOrderRepository.findById(purchaseOrderId)
                 .orElseThrow(() -> new PurchaseOrderNotFoundException("발주 정보 없음"));

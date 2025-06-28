@@ -54,8 +54,12 @@ public class SupplierEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "manager_id", nullable = false)
-    private Long managerId;
+//    @Column(name = "manager_id", nullable = false)
+//    private Long managerId;
+
+    @ManyToOne
+    @JoinColumn(name = "manager_id", nullable = false)
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = false)

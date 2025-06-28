@@ -2,6 +2,7 @@ package com.x1.frans.purchaseorder.query.service;
 
 import com.x1.frans.purchaseorder.enums.PurchaseOrderStatus;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderDetailDto;
+import com.x1.frans.purchaseorder.query.dto.PurchaseOrderRequestPendingListDto;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderSimpleDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +30,6 @@ public interface PurchaseOrderQueryService {
 
     // 발주 제목으로 조회
     Page<PurchaseOrderSimpleDto> getOrderByTitle(String title, Pageable pageable);
+
+    List<PurchaseOrderRequestPendingListDto> getRequestPending(Long userId);
 }
