@@ -1,5 +1,6 @@
 package com.x1.frans.approval.query.repository;
 
+import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
@@ -151,4 +152,14 @@ public interface ApprovalQueryMapper  {
     List<ApprovalDocumentDTO> selectApprovalDocumentMetaPurchase(long approvalId);
 
     ApprovalDraftDTO selectApprovalById(@Param("approvalId") long approvalId);
+
+
+
+    List<ApprovalListDTO> getApprovalListByStatus(long userId, String status);
+
+    List<ApprovalListDTO> getApprovalListReceived(@Param("userId") long userId,@Param("status") ApprovalLineStatus status);
+
+    List<ApprovalListDTO> getApprovalListReceivedMyCompleted(@Param("userId") long userId,@Param("status") ApprovalLineStatus status);
+
+    List<ApprovalListDTO> getApprovalListCooperateByStatus(@Param("userId") long userId,@Param("status")  ApprovalLineStatus status);
 }
