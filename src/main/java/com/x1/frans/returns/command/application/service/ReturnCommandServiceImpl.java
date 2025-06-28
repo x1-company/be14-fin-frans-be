@@ -180,7 +180,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
     }
 
     @Override
-    public void updateDeliveriedAt(Long returnId, ReturnDeliveriedAtVO vo, Long userId) {
+    public void updateDeliveredAt(Long returnId, ReturnDeliveredAtVO vo, Long userId) {
 
         // 사용자 조회
         UserEntity user = userRepository.findById(userId)
@@ -189,16 +189,36 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         ReturnEntity returnEntity = returnRepository.findById(returnId)
                 .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
 
-        Delivery delivery = Delivery.builder()
-                .deliveredAt(vo.getDeliveriedAt())
-                .build();
+        // 기존의 Delivery
+        Long deliveryId = returnEntity.getDeliveryId();
+        if (deliveryId == null) {
+            throw new NotFoundReturnException("먼저 배송정보를 등록해야 합니다.");
+        }
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new NotFoundReturnException("배송 정보를 찾을 수 없습니다."));
 
+        // 반품 수거 완료 처리
+        delivery.pickUpDelivery(vo.getDeliveredAt());
         delivery = deliveryRepository.save(delivery);
 
+        returnEntity.setDeliveryId(delivery.getId());
         returnEntity.setStatus(ReturnStatus.PICKED_UP);
-
         returnRepository.save(returnEntity);
 
+    }
+
+    @Override
+    public void returnComplete(Long returnId, Long userId) {
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("본사 직원의 정보를 찾을 수 없습니다."));
+
+        ReturnEntity returnEntity = returnRepository.findById(returnId)
+                .orElseThrow(() -> new NotFoundReturnException("반품 정보를 찾을 수 없습니다"));
+
+        returnEntity.complete();
+
+        returnRepository.save(returnEntity);
     }
 
     private BigDecimal calculateTotalAmount(List<ReturnDetailRequestVO> details) {

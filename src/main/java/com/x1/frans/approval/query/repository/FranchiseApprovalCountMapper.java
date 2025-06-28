@@ -9,4 +9,6 @@ public interface FranchiseApprovalCountMapper {
     int countInProgressOrderApprovals(@Param("userId") Long userId);
     int countInProgressReturnApprovals(@Param("userId") Long userId);
 
+    int countApprovedApprovalsByMonth(Long userId, int year, int monthValue);
+
 }

@@ -3,6 +3,7 @@ package com.x1.frans.purchaseorder.query.service;
 import com.x1.frans.purchaseorder.enums.PurchaseOrderStatus;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderDetailDto;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderProductDetailDto;
+import com.x1.frans.purchaseorder.query.dto.PurchaseOrderRequestPendingListDto;
 import com.x1.frans.purchaseorder.query.dto.PurchaseOrderSimpleDto;
 import com.x1.frans.purchaseorder.query.repository.PurchaseOrderQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,10 @@ public class PurchaseOrderQueryServiceImpl implements PurchaseOrderQueryService 
         List<PurchaseOrderSimpleDto> content = purchaseOrderQueryMapper.selectOrderByTitle(title, limit, offset);
         int total = purchaseOrderQueryMapper.countOrderByTitle(title);
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public List<PurchaseOrderRequestPendingListDto> getRequestPending(Long userId) {
+        return purchaseOrderQueryMapper.getRequestPending(userId);
     }
 }

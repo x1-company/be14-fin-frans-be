@@ -1,6 +1,5 @@
 package com.x1.frans.returns.command.domain.vo;
 
-import com.x1.frans.returns.command.domain.aggregate.ReturnDetailEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

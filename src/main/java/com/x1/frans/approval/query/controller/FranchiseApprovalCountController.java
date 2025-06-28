@@ -1,5 +1,6 @@
 package com.x1.frans.approval.query.controller;
 
+import com.x1.frans.approval.query.dto.FranchiseApprovedApprovalCountDTO;
 import com.x1.frans.approval.query.dto.FranchiseApprovalCountDTO;
 import com.x1.frans.approval.query.service.FranchiseApprovalCountService;
 import com.x1.frans.security.CustomUserDetails;
@@ -29,6 +30,17 @@ public class FranchiseApprovalCountController {
     ) {
         Long userId = customUserDetails.getUserId();
         FranchiseApprovalCountDTO dto = service.getInProgressApprovalCounts(userId);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @Operation(summary = "완료된 결재 개수 조회", description = "가맹점주가 기안한 주문 결재 중 완료된 건수 조회")
+    @GetMapping("/approved/count")
+    public ResponseEntity<FranchiseApprovedApprovalCountDTO> getCompletedApprovalCounts(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Long userId = customUserDetails.getUserId();
+        FranchiseApprovedApprovalCountDTO dto = service.getApprovedApprovalCounts(userId);
         return ResponseEntity.ok(dto);
     }
 

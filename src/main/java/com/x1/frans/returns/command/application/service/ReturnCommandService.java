@@ -12,5 +12,7 @@ public interface ReturnCommandService {
 
     void updateDeliveryInfo(Long returnId, ReturnDeliveryInfoRequestVO vo, Long userId);
 
-    void updateDeliveriedAt(Long returnId, ReturnDeliveriedAtVO vo, Long userId);
+    void updateDeliveredAt(Long returnId, ReturnDeliveredAtVO vo, Long userId);
+
+    void returnComplete(Long returnId, Long userId);
 }
