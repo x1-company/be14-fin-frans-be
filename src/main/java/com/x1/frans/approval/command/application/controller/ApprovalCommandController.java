@@ -41,6 +41,21 @@ public class ApprovalCommandController {
 
     }
 
+    @Operation(summary = "결재 임시저장", description = "결재를 임시저장합니다.")
+    @PostMapping("/drafts")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> createApprovalDrafts(@RequestBody ApprovalDraftCreateRequestDTO request,
+                                                                              @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.createApprovalDrafts(request,userId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "임시저장이 완료되었습니다."));
+
+    }
+
 
     @Operation(summary = "결재자/협조자 승인", description = "결재자/협조자가 결재를 승인합니다.")
     @PostMapping("/{approvalId}/approve")

@@ -20,7 +20,7 @@ public class StatisticsScheduler {
         this.statisticsGenerators = statisticsGenerators;
     }
 
-    @Scheduled(cron = "0 51 3 25 * *")
+    @Scheduled(cron = "0 12 12 28 * *")
     public void generateLastMonthStats() {
         YearMonth targetMonth = YearMonth.now().minusMonths(1);
 

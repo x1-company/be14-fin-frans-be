@@ -50,17 +50,30 @@ public class NotificationController {
         return notificationService.subscribe(customUserDetails.getUserId(), lastEventId);
     }
 
+//    @GetMapping("/list")
+//    @Operation(
+//            summary = "알림 목록 조회",
+//            description = "사용자 자신에게 쌓인 알림 목록을 조회합니다. 파라미터는 userId 입니다."
+//    )
+//    public ResponseEntity<List<Response>> getNotifications(
+//                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+//        UserEntity user = userCommandRepository.findById(customUserDetails.getUserId())
+//                .orElseThrow(() -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다."));
+//        List<NotificationDTO.Response> notifications = notificationService.getNotification(user);
+//        return ResponseEntity.ok(notifications);
+//    }
+
     @GetMapping("/list")
-    @Operation(
-            summary = "알림 목록 조회",
-            description = "사용자 자신에게 쌓인 알림 목록을 조회합니다. 파라미터는 userId 입니다."
-    )
     public ResponseEntity<List<Response>> getNotifications(
-                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        UserEntity user = userCommandRepository.findById(customUserDetails.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        List<NotificationDTO.Response> notifications = notificationService.getNotification(user);
-        return ResponseEntity.ok(notifications);
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        try {
+            UserEntity user = userCommandRepository.findById(customUserDetails.getUserId())
+                    .orElseThrow(() -> new UserNotFoundException("사용자 정보를 찾을 수 없습니다."));
+            List<NotificationDTO.Response> notifications = notificationService.getNotification(user);
+            return ResponseEntity.ok(notifications);
+        } catch (Exception e) {
+            throw e; // 예외를 다시 던져서 Spring이 처리하도록
+        }
     }
 
     @PatchMapping("/{id}/read")

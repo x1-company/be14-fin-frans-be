@@ -202,7 +202,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         supplier.setIsActive(true);
         supplier.setCreatedAt(LocalDateTime.now());
         supplier.setUpdatedAt(LocalDateTime.now());
-        supplier.setManagerId(vo.getManagerId());
+        savedUser.setId(vo.getManagerId());
         supplier.setSupplier(savedUser);
 
         return supplier;

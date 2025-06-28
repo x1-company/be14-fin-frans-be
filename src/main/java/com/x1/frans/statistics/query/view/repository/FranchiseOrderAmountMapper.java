@@ -24,4 +24,8 @@ public interface FranchiseOrderAmountMapper {
 
     List<FranchiseOrderAmountQueryDTO> selectStatsByManagerByFranchiseId(@Param("userId") Long userId,
                                                                          @Param("franchiseId") Long franchiseId);
+
+    boolean existsFranchiseByOwnerId(Long userId);
+
+    List<FranchiseOrderAmountQueryDTO> selectStatsByOwner(Long userId, Integer year, Integer month);
 }

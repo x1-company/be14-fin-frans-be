@@ -349,7 +349,16 @@ public class ApprovalQueryController {
     @GetMapping("/draft/{approvalId}")
     public ResponseEntity<ApprovalDraftDTO> getApprovalDraft(@PathVariable long approvalId) {
 
-        ApprovalDraftDTO list = approvalQueryService.getApprovalDraft(approvalId);
+        ApprovalDraftDTO list = approvalQueryService.getApprovalDraft(approvalId, false);
+
+        return ResponseEntity.ok(list);
+    }
+
+    @Operation(summary = "재기안 할 문서 상세조회", description = "재기안 할 문서 상세조회 할 수 있다.")
+    @GetMapping("/re-draft/{approvalId}")
+    public ResponseEntity<ApprovalDraftDTO> getApprovalReDraft(@PathVariable long approvalId) {
+
+        ApprovalDraftDTO list = approvalQueryService.getApprovalDraft(approvalId, true);
 
         return ResponseEntity.ok(list);
     }

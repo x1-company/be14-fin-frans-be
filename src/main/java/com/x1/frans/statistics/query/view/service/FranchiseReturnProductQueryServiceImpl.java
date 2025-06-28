@@ -66,4 +66,15 @@ public class FranchiseReturnProductQueryServiceImpl implements FranchiseReturnPr
 
         return franchiseReturnProductMapper.selectAllStats();
     }
+
+    @Override
+    public List<FranchiseReturnProductQueryDTO> getStatsByOwnerId(Long userId, Integer year, Integer month) {
+        boolean hasFranchises = franchiseReturnProductMapper.existsFranchiseByOwnerId(userId);
+        if (!hasFranchises) {
+            return List.of();
+        }
+
+        return franchiseReturnProductMapper.selectStatsByOwner(userId, year, month);
+    }
+
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x1.frans.approval.query.repository.FranchiseApprovalCountMapper">
+
+    <!-- 진행중인 주문 결재 개수 -->
+    <select id="countInProgressOrderApprovals" resultType="int">
+        SELECT COUNT(*)
+        FROM approval a
+        JOIN order_approval oa ON oa.approval_id = a.id
+        WHERE a.user_id = #{userId}
+        AND a.status = 'IN_PROGRESS'
+    </select>
+
+    <!-- 진행중인 반품 결재 개수 -->
+    <select id="countInProgressReturnApprovals" resultType="int">
+        SELECT COUNT(*)
+        FROM approval a
+        JOIN return_approval ra ON ra.approval_id = a.id
+        WHERE a.user_id = #{userId}
+        AND a.status = 'IN_PROGRESS'
+    </select>
+
+</mapper>

@@ -220,9 +220,14 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
     }
 
     @Override
-    public ApprovalDraftDTO getApprovalDraft(long approvalId) {
+    public ApprovalDraftDTO getApprovalDraft(long approvalId, boolean allowDraft) {
         // 기본 임시저장 데이터 조회
-        ApprovalDraftDTO draft = approvalQueryMapper.selectApprovalDraft(approvalId);
+//        ApprovalDraftDTO draft = approvalQueryMapper.selectApprovalDraft(approvalId);
+
+        // 기본 결재 데이터 조회 (상태 조건 분기)
+        ApprovalDraftDTO draft = allowDraft
+                ? approvalQueryMapper.selectApprovalById(approvalId) // 상태 상관없이
+                : approvalQueryMapper.selectApprovalDraft(approvalId); // DRAFT만
 
         // Null 체크 (없으면 예외 던지기)
         if (draft == null) {
@@ -235,14 +240,8 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
 
         // categoryType 조회
         String categoryType = approvalQueryMapper.selectApprovalCategoryType(approvalId);
-
-        // documentIds 조회 (categoryType별)
-        List<Long> documentIds;
-        switch (categoryType) {
-            case "ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIds(approvalId);
-            case "RETURN" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsReturn(approvalId);
-            case "PURCHASE_ORDER" -> documentIds = approvalQueryMapper.selectApprovalDocumentIdsPurchase(approvalId);
-            default -> throw new IllegalArgumentException("Unknown categoryType: " + categoryType);
+        if (categoryType == null) {
+            throw new IllegalStateException("categoryType이 null입니다. approvalId: " + approvalId);
         }
 
         //  ApprovalDocumentDTO 조회

@@ -1,6 +1,7 @@
 package com.x1.frans.approval.command.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.x1.frans.approval.common.ApprovalCategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -26,6 +27,9 @@ public class ApprovalCreateRequestDTO {
     @Schema(description = "요청여부(임시저장)")
     @NotNull(message = "요청여부는 필수입니다.")
     private Boolean isRequest;
+
+    @Schema(description = "결재 문서 유형")
+    private ApprovalCategoryType categoryType;
 
     @Schema(description = "결재에 포함될 문서 정보")
     @NotNull(message = "결재 문서 정보는 필수입니다.")

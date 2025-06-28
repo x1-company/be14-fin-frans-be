@@ -16,4 +16,6 @@ public class ApprovalFileDTO {
     @Schema(description = "파일 경로 또는 URL")
     private String url;
 
+    private Integer size;
+
 }

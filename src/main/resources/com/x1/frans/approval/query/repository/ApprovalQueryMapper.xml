@@ -183,7 +183,12 @@
           JOIN position pos
           ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
-         ORDER BY a.created_at DESC
+           AND (
+             al.approval_type != 'RECIPIENT'
+         OR (al.approval_type = 'RECIPIENT' AND a.status = 'APPROVED')
+             )
+           AND a.status != 'DRAFT'
+        ORDER BY a.created_at DESC
     </select>
 
 <!--    수신받은 결재 모든 문서-->
@@ -211,6 +216,7 @@
             ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'APPROVER'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -241,6 +247,7 @@
            AND al.status = 'WAITING'
            AND al.approval_type = 'APPROVER'
            AND a.status = 'IN_PROGRESS'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -269,6 +276,7 @@
          WHERE al.user_id = #{userId}
            AND al.status = 'EXPECTED'
            AND al.approval_type = 'APPROVER'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 <!--    내 결재 완료 전체-->
@@ -298,6 +306,7 @@
            AND al.status IN ('APPROVED', 'REJECTED')
            AND al.approval_type = 'APPROVER'
            AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -328,6 +337,7 @@
           AND al.status = 'APPROVED'
           AND al.approval_type = 'APPROVER'
           AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
+          AND a.status != 'DRAFT'
         ORDER BY a.created_at DESC
     </select>
 
@@ -358,6 +368,7 @@
           AND al.status = 'REJECTED'
           AND al.approval_type = 'APPROVER'
           AND a.status IN ('IN_PROGRESS', 'APPROVED', 'REJECTED')
+          AND a.status != 'DRAFT'
         ORDER BY a.created_at DESC
     </select>
 
@@ -387,6 +398,7 @@
          WHERE al.user_id = #{userId}
            AND al.approval_type IN ('APPROVER','COOPERATOR')
            AND a.status = 'APPROVED'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
     <!--    종료된 문서 - 결재 전체 -->
@@ -415,6 +427,7 @@
         WHERE al.user_id = #{userId}
           AND al.approval_type = 'APPROVER'
           AND a.status IN ('APPROVED', 'REJECTED')
+          AND a.status != 'DRAFT'
         ORDER BY a.created_at DESC
     </select>
 
@@ -444,6 +457,7 @@
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'APPROVER'
            AND a.status = 'APPROVED'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 <!-- 결재자로서 반려된 문서 -->
@@ -472,6 +486,7 @@
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'APPROVER'
            AND a.status = 'REJECTED'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -501,6 +516,7 @@
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'COOPERATOR'
            AND a.status IN ('APPROVED', 'REJECTED')
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -530,6 +546,7 @@
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'COOPERATOR'
            AND a.status = 'APPROVED'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -559,6 +576,7 @@
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'COOPERATOR'
            AND a.status = 'REJECTED'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -587,6 +605,7 @@
             ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'COOPERATOR'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -617,6 +636,7 @@
            AND al.status = 'WAITING'
            AND al.approval_type = 'COOPERATOR'
            AND a.status = 'IN_PROGRESS'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -647,6 +667,7 @@
            AND al.status = 'EXPECTED'
            AND al.approval_type = 'COOPERATOR'
            AND a.status = 'IN_PROGRESS'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 <!--    내 협조 완료 전체  -->
@@ -764,6 +785,7 @@
             ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'REFERENCE'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -792,6 +814,8 @@
             ON pos.id = hud.position_id
          WHERE al.user_id = #{userId}
            AND al.approval_type = 'RECIPIENT'
+           AND a.status = 'APPROVED'
+           AND a.status != 'DRAFT'
          ORDER BY a.created_at DESC
     </select>
 
@@ -865,7 +889,11 @@
              , a.title
              , a.remarks
              , 'ORDER' AS categoryType
+             , pos.name AS positionName
+             , u.sign_url AS url
              , dept.name AS deptName
+             , dept.name AS deptName
+             , u.id AS drafterId
              , a.status
              , a.created_at
              , a.processed_at As processedAt
@@ -876,6 +904,7 @@
                  LEFT JOIN user u ON a.user_id = u.id
                  JOIN hq_user_detail hud ON hud.user_id = u.id
                  JOIN department dept ON dept.id = hud.department_id
+            JOIN position pos ON pos.id = hud.position_id
                  LEFT JOIN (
                             SELECT
                                 al.approval_id,
@@ -938,6 +967,9 @@
              , a.title
              , a.remarks
              , 'RETURN' AS categoryType
+             , pos.name AS positionName
+             , u.sign_url AS url
+             , u.id AS drafterId
              , dept.name AS deptName
              , a.processed_at As processedAt
              , a.status
@@ -949,6 +981,8 @@
           LEFT JOIN user u ON a.user_id = u.id
           JOIN hq_user_detail hud ON hud.user_id = u.id
           JOIN department dept ON dept.id = hud.department_id
+              JOIN position pos ON pos.id = hud.position_id
+
           LEFT JOIN (
                       SELECT
                              al.approval_id
@@ -990,6 +1024,9 @@
              , a.title
              , a.remarks
              , 'PURCHASE_ORDER' AS categoryType
+             , pos.name AS positionName
+             , u.sign_url AS url
+             , u.id AS drafterId
              , dept.name AS deptName
              , a.status
              , a.processed_at As processedAt
@@ -998,9 +1035,12 @@
              , l.user_name
              , l.approval_type AS user_type
           FROM approval a
+          LEFT JOIN user u
+            ON a.user_id = u.id
           LEFT JOIN user u ON a.user_id = u.id
               JOIN hq_user_detail hud ON hud.user_id = u.id
               JOIN department dept ON dept.id = hud.department_id
+              JOIN position pos ON pos.id = hud.position_id
           LEFT JOIN (
                         SELECT
                                al.approval_id
@@ -1021,6 +1061,7 @@
                 id AS fileId
              , name AS fileName
              , url
+             , size
           FROM approval_file
          WHERE approval_id = #{id}
     </select>
@@ -1159,6 +1200,10 @@
           JOIN user Approver ON Approver.id = al.user_id
          WHERE Approver.id = #{userId}
            AND a.status = 'IN_PROGRESS'
+           AND (
+             al.approval_type != 'RECIPIENT'
+         OR (al.approval_type = 'RECIPIENT' AND a.status = 'APPROVED')
+             )
          ORDER BY a.created_at
     </select>
 
@@ -1211,7 +1256,7 @@
             a.id AS approvalId,
             a.code,
             a.title,
-            a.remarks
+            a.remarks,
             a.status,
             a.is_requested AS isRequested,
             a.user_id AS id
@@ -1239,7 +1284,8 @@
 
     <select id="selectApprovalDraftFiles" resultType="com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO">
         SELECT
-            f.name,
+            f.id AS fileId,
+            f.name AS fileName,
             f.url
         FROM approval_file f
         WHERE f.approval_id = #{approvalId}
@@ -1273,6 +1319,21 @@
         UNION
         SELECT 'PURCHASE_ORDER' FROM purchase_order_approval WHERE approval_id = #{approvalId}
     </select>
+
+    <select id="selectApprovalById" resultType="com.x1.frans.approval.query.dto.ApprovalDraftDTO">
+        SELECT
+            a.id AS approvalId,
+            a.code,
+            a.title,
+            a.remarks,
+            a.status,
+            a.is_requested AS isRequested,
+            a.user_id AS id
+        FROM approval a
+        WHERE a.id = #{approvalId}
+
+    </select>
+
 <!--    총 금액-->
     <!-- 주문 총 금액 -->
     <select id="findTotalOrderAmountByApprovalId" resultType="java.math.BigDecimal">
@@ -1310,7 +1371,7 @@
 
 <!--    documentDTO 추가된 사항 -->
     <select id="selectApprovalDocumentMetaOrder" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
-        SELECT
+        SELECT DISTINCT
             o.id AS documentId,
             o.code AS documentNo,
             f.name AS franchiseName,
@@ -1323,7 +1384,7 @@
     </select>
 
     <select id="selectApprovalDocumentMetaReturn" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
-        SELECT
+        SELECT DISTINCT
             r.id AS documentId,
             r.code AS documentNo,
             f.name AS franchiseName,
@@ -1333,10 +1394,11 @@
         FROM return_approval ra
                  JOIN `return` r ON ra.return_id = r.id
                  LEFT JOIN franchise f ON r.franchise_id = f.id
+        WHERE ra.approval_id = #{approvalId}
     </select>
 
     <select id="selectApprovalDocumentMetaPurchase" parameterType="long" resultType="com.x1.frans.approval.query.dto.ApprovalDocumentDTO">
-        SELECT
+        SELECT DISTINCT
             po.id AS documentId,
             po.code AS documentNo,
             s.name AS supplierName,
@@ -1347,10 +1409,5 @@
                  LEFT JOIN supplier s ON po.supplier_id = s.id
         WHERE poa.approval_id = #{approvalId}
     </select>
-
-
-
-
-
 
 </mapper>

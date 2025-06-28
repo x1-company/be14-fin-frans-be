@@ -42,4 +42,12 @@ public class ReturnDetailEntity {
     @JoinColumn(name = "return_id", nullable = false)
     private ReturnEntity returnEntity;
 
+    public void updateReturnType(ProductReturnStatus status) {
+        this.status = status;
+    }
+
+    public void reject() {
+        this.status = ProductReturnStatus.REJECTED;
+    }
+
 }
