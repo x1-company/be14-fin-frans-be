@@ -10,4 +10,5 @@ public class PurchaseOrderProductCreateDto {
     private Integer quantity;
     private String remarks;
     private Long purchaseRequestId;
+    private Long supplierId;
 }
