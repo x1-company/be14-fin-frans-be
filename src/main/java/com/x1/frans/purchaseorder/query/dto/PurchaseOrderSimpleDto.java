@@ -19,4 +19,5 @@ public class PurchaseOrderSimpleDto {
     private String status;
     private LocalDateTime createdAt;
     private LocalDate requestedDeliveryDate;
+    private Long supplierId;
 }
