@@ -272,4 +272,20 @@
         WHERE title LIKE CONCAT('%', #{title}, '%')
     </select>
 
+    <!-- 발주 대기인 발주 목록 조회 -->
+    <select id="getRequestPending" resultType="com.x1.frans.purchaseorder.query.dto.PurchaseOrderRequestPendingListDto">
+        SELECT
+               po.id
+             , po.code
+             , s.name AS supplierName
+             , po.total_amount AS totalAmount
+             , po.created_at AS createdAt
+          FROM purchase_order po
+          JOIN supplier s ON po.supplier_id = s.id
+          JOIN user u ON u.id = po.user_id
+         WHERE u.id = #{userId}
+           AND po.status = '발주 대기'
+         ORDER BY po.created_at
+    </select>
+
 </mapper>
