@@ -14,7 +14,9 @@ public interface FranchiseOrderAmountMapper {
 
     boolean existsFranchiseByDepartmentId(Long departmentId);
 
-    List<FranchiseOrderAmountQueryDTO> selectStatsByDepartment(Long departmentId);
+    List<FranchiseOrderAmountQueryDTO> selectStatsByDepartment(@Param("departmentId") Long departmentId,
+                                                               @Param("year")  Integer year,
+                                                               @Param("month")  Integer month);
 
     List<FranchiseOrderAmountQueryDTO> selectAllStats();
 

@@ -65,14 +65,16 @@ public class FranchiseReturnProductQueryController {
 
     @Operation(
             summary = "부서별 가맹점 월 자재별 반품량 통계 조회",
-            description = "자신이 속한 부서가 담당하는 가맹점들의 월 주문 금액 통계를 조회한다.")
+            description = "자신이 속한 부서가 담당하는 가맹점들의 월 자재 반품량 통계를 조회한다.")
     @GetMapping("/department")
     public ResponseEntity<List<FranchiseReturnProductQueryDTO>> getDepartmentStats (
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam Integer year,
+            @RequestParam Integer month
     ) {
         Long deptId = customUserDetails.getDepartmentId();
         List<FranchiseReturnProductQueryDTO> stats = franchiseReturnProductQueryService.getMonthlyStatsByDepartment (
-                deptId);
+                deptId, year, month);
 
         return ResponseEntity.ok(stats);
     }

@@ -8,7 +8,7 @@ public interface FranchiseReturnProductQueryService {
     List<FranchiseReturnProductQueryDTO> getMonthlyStatsByManager(Long userId, Integer year, Integer month);
 
 
-    List<FranchiseReturnProductQueryDTO> getMonthlyStatsByDepartment(Long deptId);
+    List<FranchiseReturnProductQueryDTO> getMonthlyStatsByDepartment(Long deptId, Integer year, Integer month);
 
     List<FranchiseReturnProductQueryDTO> getMonthlyStatsForAllByDuty(Long userId, Long deptId, Long dutyId);
 
