@@ -79,5 +79,12 @@ public class ReturnEntity {
         this.rejectedReason = reason;
     }
 
+    public void complete() {
+        if (this.status != ReturnStatus.PICKED_UP) {
+            throw new InvalidRejectConditionException("반품 수거 완료 상태에서만 검토 완료로 변경할 수 있습니다.");
+        }
+        this.status = ReturnStatus.COMPLETED;
+    }
+
 
 }
