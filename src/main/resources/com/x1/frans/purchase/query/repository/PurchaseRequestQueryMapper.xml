@@ -30,6 +30,7 @@
         <result property="productAttributeName" column="product_attribute_name"/>
         <result property="supplierId" column="supplier_id"/>
         <result property="purchaseRequestId" column="purchase_request_id"/>
+        <result property="supplierName" column="supplier_name"/>
     </resultMap>
 
     <resultMap id="purchaseRequestDetailResultMap" type="com.x1.frans.purchase.query.dto.PurchaseRequestDetailDto">
@@ -158,7 +159,7 @@
     </select>
 
     <select id="selectProductsByRequestId" resultMap="purchaseRequestProductResultMap">
-        SELECT prp.id, prp.no, prp.quantity, prp.remarks, prp.product_id,
+        SELECT prp.id as prp_id, prp.no, prp.quantity, prp.remarks, prp.product_id,
                p.code AS product_code,
                p.name AS product_name,
                p.purchase_price,
@@ -167,12 +168,14 @@
                pg.name AS product_group_name,
                pa.name AS product_attribute_name,
                prp.purchase_request_id,
-               p.supplier_id
+               p.supplier_id,
+               s.name AS supplier_name
         FROM purchase_request_product prp
                  JOIN product p ON prp.product_id = p.id
                  LEFT JOIN product_type pt ON p.product_type_id = pt.id
                  LEFT JOIN product_group pg ON p.product_group_id = pg.id
                  LEFT JOIN product_attribute pa ON p.product_attribute_id = pa.id
+                 LEFT JOIN supplier s ON p.supplier_id = s.id
         WHERE prp.purchase_request_id = #{requestId}
         ORDER BY prp.no ASC
     </select>
