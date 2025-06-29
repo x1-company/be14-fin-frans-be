@@ -85,8 +85,8 @@
 
             <if test="startYearMonth != null and endYearMonth != null">
                 <![CDATA[
-                AND a.requested_delivery_date >= STR_TO_DATE(CONCAT(#{startYearMonth}, '01'), '%Y%m%d')
-                AND a.requested_delivery_date < STR_TO_DATE(CONCAT(#{endYearMonth}, '01'), '%Y%m%d') + INTERVAL 1 MONTH
+                AND c.`processed_at` >= STR_TO_DATE(CONCAT(#{startYearMonth}, '01'), '%Y%m%d')
+                AND c.`processed_at` < STR_TO_DATE(CONCAT(#{endYearMonth}, '01'), '%Y%m%d') + INTERVAL 1 MONTH
                 ]]>
             </if>
 
