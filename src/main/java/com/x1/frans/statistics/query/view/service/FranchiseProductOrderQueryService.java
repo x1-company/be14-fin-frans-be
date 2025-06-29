@@ -17,4 +17,5 @@ public interface FranchiseProductOrderQueryService {
     List<FranchiseProductOrderQueryDTO> getMonthlyStatsByDepartment(Long deptId, Integer year, Integer month);
 
     List<FranchiseProductOrderQueryDTO> getMonthlyStatsByDepartmentByFranchiseId(Long deptId, Long franchiseId);
+
 }

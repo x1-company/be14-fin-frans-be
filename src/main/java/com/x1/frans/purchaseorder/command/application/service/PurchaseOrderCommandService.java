@@ -18,4 +18,6 @@ public interface PurchaseOrderCommandService {
     void cancel(Long purchaseOrderId, Long userId);
 
     void updateStatus(Long purchaseOrderId, PurchaseOrderStatusUpdateRequestDto dto, Long userId);
+
+    void updateRegisteredOrder(Long purchaseOrderId, PurchaseOrderUpdateRequestDto dto, Long userId);
 }

@@ -70,4 +70,5 @@ public class FranchiseProductOrderQueryServiceImpl implements FranchiseProductOr
         }
         return franchiseProductOrderMapper.selectStatsByDepartmentByFranchiseId(deptId, franchiseId);
     }
+
 }

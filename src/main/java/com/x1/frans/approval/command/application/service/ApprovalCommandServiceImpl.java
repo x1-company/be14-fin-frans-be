@@ -434,7 +434,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 switch (category) {
                     case "ORDER" -> approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId, "APPROVED");
                     case "RETURN" -> approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId, "APPROVED");
-                    case "PURCHASE_ORDER" -> approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId, "APPROVED");
+                    case "PURCHASE_ORDER" -> approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId, "승인 완료");
                     default -> throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
                 }
             }
@@ -840,5 +840,37 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         }
 
         template.setSeq(newSeq);
+    }
+
+    @Transactional
+    @Override
+    public ApprovalResponseDTO deleteApprovalDrafts(Long approvalId, long userId) {
+        ApprovalEntity draft = approvalCommandRepository.findById(approvalId)
+                .orElseThrow(() -> new ApprovalNotFoundException("해당 임시저장 문서를 찾을 수 없습니다."));
+
+        if (!draft.getUser().getId().equals(userId)) {
+            throw new UnauthorizedAccessException("삭제 권한이 없습니다.");
+        }
+
+        if (!draft.getStatus().equals(ApprovalStatus.DRAFT)) {
+            throw new InvalidApprovalStateException("임시저장 상태의 문서만 삭제할 수 있습니다.");
+        }
+
+        Integer degree = draft.getDegree();
+
+        // 어떤 문서에 연결되었는지 확인 후 삭제
+            if (orderApprovalCommandRepository.existsByApproval_IdAndApproval_Degree(approvalId, degree)) {
+                orderApprovalCommandRepository.deleteByApproval_IdAndApproval_Degree(approvalId, degree);
+            } else if (returnApprovalCommandRepository.existsByApproval_IdAndApproval_Degree(approvalId, degree)) {
+                returnApprovalCommandRepository.deleteByApproval_IdAndApproval_Degree(approvalId, degree);
+            } else if (purchaseOrderApprovalCommandRepository.existsByApproval_IdAndApproval_Degree(approvalId, degree)) {
+                purchaseOrderApprovalCommandRepository.deleteByApproval_IdAndApproval_Degree(approvalId, degree);
+            }
+
+        approvalFileCommandRepository.deleteByApprovalIdAndDegree(approvalId, degree);
+        approvalLineCommandRepository.deleteByApprovalIdAndDegree(approvalId, draft.getDegree());
+        approvalCommandRepository.delete(draft);
+
+        return new ApprovalResponseDTO(draft.getId(), "삭제 완료된 임시 문서입니다.");
     }
 }

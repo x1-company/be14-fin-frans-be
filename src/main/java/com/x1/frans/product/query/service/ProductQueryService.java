@@ -7,7 +7,7 @@ import java.util.List;
 public interface ProductQueryService {
 
     List<ProductListDTO> getProductsByFilter (
-            Long productTypeId, Long productGroupId, Long productAttributeId, Boolean isActive);
+            Long productTypeId, Long productGroupId, Long productAttributeId, Boolean isActive, Long supplierId);
 
     ProductListDTO getProductByCode(String code);
 

@@ -47,6 +47,18 @@ public class PurchaseOrderCommandController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/{orderId}")
+    @Operation(summary = "정식 등록된 발주 수정", description = "정식 등록된 발주의 제목, 납기일, 자재 정보를 수정한다. (승인/반려 제외)")
+    public ResponseEntity<Void> updateRegisteredOrder(
+            @PathVariable("orderId") Long orderId,
+            @RequestBody PurchaseOrderUpdateRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        purchaseOrderCommandService.updateRegisteredOrder(orderId, dto, userId);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{purchaseOrderId}")
     @Operation(summary = "발주 삭제", description = "발주 임시저장/발주 대기 상태에서만 발주를 삭제한다.")
     public ResponseEntity<Void> delete(
@@ -59,7 +71,7 @@ public class PurchaseOrderCommandController {
     }
 
     @PutMapping("/{purchaseOrderId}/request")
-    @Operation(summary = "임시저장 발주 정시 등록", description = "임시저장 상태의 발주를 정시로 등록한다.")
+    @Operation(summary = "임시저장 발주 정식 등록", description = "임시저장 상태의 발주를 정시로 등록한다.")
     public ResponseEntity<Void> requestOrder(
             @PathVariable Long purchaseOrderId,
             @RequestBody PurchaseOrderUpdateRequestDto dto,

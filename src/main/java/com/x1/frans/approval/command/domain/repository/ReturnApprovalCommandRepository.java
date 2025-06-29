@@ -14,4 +14,8 @@ public interface ReturnApprovalCommandRepository extends JpaRepository<ReturnApp
     @Transactional
     @Query("DELETE FROM ReturnApprovalEntity ra WHERE ra.approval.id = :approvalId")
     void deleteByApprovalId(@Param("approvalId") Long approvalId);
+
+    boolean existsByApproval_IdAndApproval_Degree(Long approvalId, Integer degree);
+
+    void deleteByApproval_IdAndApproval_Degree(Long approvalId, Integer degree);
 }

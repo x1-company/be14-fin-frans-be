@@ -32,6 +32,7 @@
         <result property="remarks" column="remarks"/>
         <result property="supplierId" column="supplier_id"/>
         <result property="purchaseRequestId" column="purchase_request_id"/>
+        <result property="productId" column="product_id"/>
     </resultMap>
 
     <!-- 공급처 상세 resultMap (SupplierDetailDTO) -->
@@ -128,7 +129,8 @@
             pa.name AS product_attribute_name,
             pop.remarks,
             p.supplier_id,
-            pop.purchase_request_id
+            pop.purchase_request_id,
+            p.id AS product_id
         FROM purchase_order_product pop
                  JOIN product p ON pop.product_id = p.id
                  LEFT JOIN product_type pt ON p.product_type_id = pt.id

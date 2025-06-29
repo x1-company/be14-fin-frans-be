@@ -1,6 +1,7 @@
 package com.x1.frans.approval.query.service;
 
 import com.x1.frans.approval.command.domain.repository.ApprovalLineCommandRepository;
+import com.x1.frans.approval.common.ApprovalLineStatus;
 import com.x1.frans.approval.query.dto.*;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalContentDTO;
 import com.x1.frans.approval.query.dto.Detail.content.ApprovalFileDTO;
@@ -31,50 +32,63 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         this.approvalLineCommandRepository = approvalLineCommandRepository;
     }
 
+
     @Override
     public List<ApprovalListDTO> getApprovalListSubmittedAll(long userId) {
         return approvalQueryMapper.getApprovalListSubmittedAll(userId);
     }
 
-
     @Override
-    public List<ApprovalListDTO> getApprovalListDraft(long userId) {
-        return approvalQueryMapper.getApprovalListDraft(userId);
+    public List<ApprovalListDTO> getApprovalListByStatus(long userId, String status) {
+        return approvalQueryMapper.getApprovalListByStatus(userId, status);
     }
 
-    @Override
-    public List<ApprovalListDTO> getApprovalListInProgress(long userId) {
-        return approvalQueryMapper.getApprovalListInProgress(userId);
-    }
 
-    @Override
-    public List<ApprovalListDTO> getApprovalListApproved(long userId) {
-        return approvalQueryMapper.getApprovalListApproved(userId);
-    }
-
-    @Override
-    public List<ApprovalListDTO> getApprovalListRejected(long userId) {
-        return approvalQueryMapper.getApprovalListRejected(userId);
-    }
-
+    // 수신 관련
     @Override
     public List<ApprovalListDTO> getApprovalListReceivedAll(long userId) {
         return approvalQueryMapper.getApprovalListReceivedAll(userId);
     }
 
     @Override
-    public List<ApprovalListDTO> getApprovalListReceivedPending(long userId) {
-        return approvalQueryMapper.getApprovalListReceivedPending(userId);
+    public List<ApprovalListDTO> getApprovalListReceived(long userId, ApprovalLineStatus status) {
+
+        switch (status) {
+            case WAITING:
+            case EXPECTED:
+                return approvalQueryMapper.getApprovalListReceived(userId, status);
+            default:
+                throw new IllegalArgumentException("지원하지 않는 상태입니다: " + status);
+        }
+
     }
 
     @Override
-    public List<ApprovalListDTO> getApprovalListReceivedUpcoming(long userId) {
-        return approvalQueryMapper.getApprovalListReceivedUpcoming(userId);
+    public List<ApprovalListDTO> getApprovalListReceivedMyCompleted(long userId, ApprovalLineStatus status) {
+
+        switch (status) {
+            case APPROVED:
+            case REJECTED:
+                return approvalQueryMapper.getApprovalListReceivedMyCompleted(userId, status);
+            default:
+                throw new IllegalArgumentException("지원하지 않는 상태입니다: " + status);
+        }
     }
 
+    // 협조문서
+
+
     @Override
-    public List<ApprovalListDTO> getApprovalListReceivedMyCompletedAll(long userId) {
-        return approvalQueryMapper.getApprovalListReceivedMyCompletedAll(userId);
+    public List<ApprovalListDTO> getApprovalListCooperate(long userId, ApprovalLineStatus status) {
+        switch (status) {
+            case WAITING:
+            case EXPECTED:
+            case APPROVED:
+            case REJECTED:
+                return approvalQueryMapper.getApprovalListCooperateByStatus(userId, status);
+            default:
+                throw new IllegalArgumentException("지원하지 않는 상태입니다: " + status);
+        }
     }
 
     @Override

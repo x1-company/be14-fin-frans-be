@@ -15,6 +15,7 @@
         <result property="productAttributeId" column="product_attribute_id"/>
         <result property="isActive" column="is_active"/>
         <result property="supplierName" column="supplier_name"/>
+        <result property="supplierId" column="supplier_id"/>
     </resultMap>
     <resultMap id="productDetailResultMap" type="com.x1.frans.product.query.dto.ProductDetailDTO">
         <id property="id" column="id"/>
@@ -47,6 +48,7 @@
              , p.product_attribute_id
              , p.is_active
              , s.name AS supplier_name
+             , s.id AS supplier_id
           FROM product p
           JOIN supplier s ON p.supplier_id = s.id
          WHERE 1=1
@@ -61,6 +63,9 @@
         </if>
         <if test="isActive != null">
            AND p.is_active = #{isActive}
+        </if>
+        <if test="supplierId != null">
+            AND p.supplier_id = #{supplierId}
         </if>
     </select>
 

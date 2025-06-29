@@ -1,5 +1,7 @@
 package com.x1.frans.approval.query.dto;
 
+import com.x1.frans.approval.common.ApprovalCategoryType;
+import com.x1.frans.approval.common.ApprovalStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -22,7 +24,7 @@ public class ApprovalListDTO {
     private String title;
 
     @Schema(description = "결재 상태(결재완료, 결재반려, 결재중,임시저장)")
-    private String status;
+    private ApprovalStatus status;
 
     @Schema(description = "기안일시")
     private LocalDateTime createdAt;
@@ -41,5 +43,9 @@ public class ApprovalListDTO {
 
     @Schema(description = "결재선 정보")
     private List<ApprovalListLineDTO> lines;
+
+
+    private String categoryType;
+
 
 }

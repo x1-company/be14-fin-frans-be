@@ -24,4 +24,5 @@ public class PurchaseOrderProductDetailDto {
     private String remarks;
     private Long supplierId;
     private Long purchaseRequestId;
+    private Long productId;
 }

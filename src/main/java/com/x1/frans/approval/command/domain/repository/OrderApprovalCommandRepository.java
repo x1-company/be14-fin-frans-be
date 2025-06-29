@@ -13,4 +13,9 @@ public interface OrderApprovalCommandRepository extends JpaRepository<OrderAppro
     @Transactional
     @Query("DELETE FROM OrderApprovalEntity o WHERE o.approval.id = :approvalId")
     void deleteByApprovalId(@Param("approvalId") long approvalId);
+
+
+    boolean existsByApproval_IdAndApproval_Degree(Long approvalId, Integer degree);
+
+    void deleteByApproval_IdAndApproval_Degree(Long approvalId, Integer degree);
 }
