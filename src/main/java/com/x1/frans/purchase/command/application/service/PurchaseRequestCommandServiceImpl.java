@@ -22,7 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Optional;
 
 @Service
 public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommandService {
@@ -280,14 +283,26 @@ public class PurchaseRequestCommandServiceImpl implements PurchaseRequestCommand
     }
 
     private String generateNextPurchaseRequestCode() {
-        String lastCode = purchaseRequestMapper.findTopByOrderByIdDesc()
-                .map(PurchaseRequestEntity::getCode)
-                .orElse(null);
-        if (lastCode == null || !lastCode.matches("PR-\\d{4}")) {
-            return "PR-0001";
+        // 오늘 날짜 yyMMdd
+        String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        String prefix = "pr-sup" + dateStr + "-";
+        // 마지막 코드 중 오늘 날짜와 일치하는 것만 필터
+        Optional<PurchaseRequestEntity> lastToday = purchaseRequestMapper.findTopByOrderByIdDesc()
+                .filter(e -> {
+                    String code = e.getCode();
+                    return code != null && code.startsWith(prefix);
+                });
+        int nextNum = 1;
+        if (lastToday.isPresent()) {
+            String lastCode = lastToday.get().getCode();
+            // 마지막 4자리 숫자 추출
+            String[] parts = lastCode.split("-");
+            if (parts.length == 3) {
+                try {
+                    nextNum = Integer.parseInt(parts[2]) + 1;
+                } catch (NumberFormatException ignored) {}
+            }
         }
-        int lastNum = Integer.parseInt(lastCode.substring(3));
-        int nextNum = lastNum + 1;
-        return String.format("PR-%04d", nextNum);
+        return prefix + String.format("%04d", nextNum);
     }
 }

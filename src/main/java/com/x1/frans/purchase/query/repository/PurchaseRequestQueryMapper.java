@@ -38,4 +38,9 @@ public interface PurchaseRequestQueryMapper {
     PurchaseRequestDetailDto selectDraftDetailById(@Param("id") Long id);
 
     List<PurchaseRequestProductSimpleDto> selectProductsByRequestId(@Param("requestId") Long requestId);
+
+    List<PurchaseRequestSimpleDto> selectBySupplierId(@Param("supplierId") Long supplierId,
+                                                    @Param("limit") int limit,
+                                                    @Param("offset") int offset);
+    int countBySupplierId(@Param("supplierId") Long supplierId);
 }
