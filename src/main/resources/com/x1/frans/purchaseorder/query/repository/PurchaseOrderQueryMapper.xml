@@ -198,6 +198,7 @@
         po.requested_delivery_date
         FROM purchase_order po
         WHERE po.status = #{status}
+          AND po.supplier_id = #{supplierId}
         ORDER BY po.created_at DESC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
@@ -244,6 +245,7 @@
         SELECT COUNT(*)
         FROM purchase_order
         WHERE status = #{status}
+          AND supplier_id = #{supplierId}
     </select>
 
     <!-- 임시저장 발주 총 개수 -->

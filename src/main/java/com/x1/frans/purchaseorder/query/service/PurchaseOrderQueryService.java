@@ -23,7 +23,7 @@ public interface PurchaseOrderQueryService {
     PurchaseOrderDetailDto getOrderDetail(Long id);
 
     // 발주 상태로 조회
-    Page<PurchaseOrderSimpleDto> getOrderByStatus(PurchaseOrderStatus status, Pageable pageable);
+    Page<PurchaseOrderSimpleDto> getOrderByStatus(PurchaseOrderStatus status, Long supplierId, Pageable pageable);
 
     // 발주 번호로 조회
     Page<PurchaseOrderSimpleDto> getOrderByCode(String code, Pageable pageable);

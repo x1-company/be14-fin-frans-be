@@ -57,9 +57,10 @@ public class PurchaseOrderQueryController {
     @Operation(summary = "발주 상태로 발주 조회", description = "발주 상태로 발주 목록을 조회한다.")
     public Page<PurchaseOrderSimpleDto> getOrderByStatus(
             @RequestParam("status") PurchaseOrderStatus status,
+            @RequestParam("supplierId") Long supplierId,
             Pageable pageable
     ) {
-        return purchaseOrderQueryService.getOrderByStatus(status, pageable);
+        return purchaseOrderQueryService.getOrderByStatus(status, supplierId, pageable);
     }
 
     @GetMapping("/code")

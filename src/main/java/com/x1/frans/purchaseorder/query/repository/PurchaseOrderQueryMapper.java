@@ -32,10 +32,14 @@ public interface PurchaseOrderQueryMapper {
     // 상태로 발주 목록 조회
     List<PurchaseOrderSimpleDto> selectOrderByStatus(
             @Param("status") String status,
+            @Param("supplierId") Long supplierId,
             @Param("limit") Integer limit,
             @Param("offset") Integer offset
     );
-    int countOrderByStatus(@Param("status") String status);
+    int countOrderByStatus(
+            @Param("status") String status,
+            @Param("supplierId") Long supplierId
+    );
 
     // 코드로 발주 목록 조회
     List<PurchaseOrderSimpleDto> selectOrderByCode(

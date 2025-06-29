@@ -63,12 +63,12 @@ public class PurchaseOrderQueryServiceImpl implements PurchaseOrderQueryService 
     }
 
     @Override
-    public Page<PurchaseOrderSimpleDto> getOrderByStatus(PurchaseOrderStatus status, Pageable pageable) {
+    public Page<PurchaseOrderSimpleDto> getOrderByStatus(PurchaseOrderStatus status, Long supplierId, Pageable pageable) {
         int offset = (int) pageable.getOffset();
         int limit = pageable.getPageSize();
         String dbStatus = status.getLabel();
-        List<PurchaseOrderSimpleDto> content = purchaseOrderQueryMapper.selectOrderByStatus(dbStatus, limit, offset);
-        int total = purchaseOrderQueryMapper.countOrderByStatus(dbStatus);
+        List<PurchaseOrderSimpleDto> content = purchaseOrderQueryMapper.selectOrderByStatus(dbStatus, supplierId, limit, offset);
+        int total = purchaseOrderQueryMapper.countOrderByStatus(dbStatus, supplierId);
         return new PageImpl<>(content, pageable, total);
     }
 
