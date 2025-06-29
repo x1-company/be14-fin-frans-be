@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,13 +53,16 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
         UserEntity user = userCommandRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 주문 생성 (주문 상태 : WAITING_FOR_RECEIPT)
+        // ✅ 주문 코드 생성
+        String orderCode = generateOrderCode(franchise.getId());
+
+        // 주문 생성
         Order order = Order.builder()
-                .code("ORD-" + System.currentTimeMillis())
+                .code(orderCode)
                 .status(OrderStatus.WAITING_FOR_RECEIPT)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .totalAmount(BigDecimal.valueOf(0))
+                .totalAmount(BigDecimal.ZERO)
                 .totalQuantity(0)
                 .franchise(franchise)
                 .user(user)
@@ -95,13 +99,12 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
             productOrders.add(productOrder);
         }
 
-
         productOrderRepository.saveAll(productOrders);
 
         // 총 수량, 총 금액 등록
         order.updateTotal(totalQuantity, totalAmount);
-
     }
+
 
     @Override
     @Transactional
@@ -216,5 +219,27 @@ public class FranchiseOrderCommandServiceImpl implements FranchiseOrderCommandSe
 
         // 4. 저장 (details는 orphanRemoval + cascade 덕에 자동 정리됨)
         orderTemplateRepository.save(template);
+    }
+
+    private String generateOrderCode(Long franchiseId) {
+        // 가맹점 정보 조회
+        FranchiseEntity franchise = franchiseCommandRepository.findById(franchiseId)
+                .orElseThrow(() -> new FranchiseNotFoundException("가맹점을 찾을 수 없습니다."));
+
+        // 가맹점코드 앞 3글자 (예: JRO)
+        String franchiseCode = franchise.getCode().substring(0, 3).toUpperCase();
+
+        // 날짜 yyMMdd 형식
+        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+
+        // 오늘 해당 가맹점의 주문 수
+        String codePrefix = "ORD-" + franchiseCode + currentDate + "-";
+        int todayOrderCount = orderCommandRepository.countByCodeStartingWith(codePrefix);
+
+        // 일련번호 (0001부터 시작)
+        String sequenceNumber = String.format("%04d", todayOrderCount + 1);
+
+        // 최종 주문 코드
+        return codePrefix + sequenceNumber;
     }
 }

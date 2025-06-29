@@ -19,4 +19,8 @@ public interface OrderCommandRepository extends JpaRepository<Order, Long> {
     void updateOrderStatusToDelivering(@Param("orderIds") List<Long> orderIds);
 
     List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime before);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.code LIKE CONCAT(:codePrefix, '%')")
+    int countByCodeStartingWith(@Param("codePrefix") String codePrefix);
+
 }
