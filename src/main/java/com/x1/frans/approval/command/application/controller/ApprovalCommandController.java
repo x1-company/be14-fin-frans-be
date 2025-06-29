@@ -41,6 +41,7 @@ public class ApprovalCommandController {
 
     }
 
+    // 보류
     @Operation(summary = "결재 임시저장", description = "결재를 임시저장합니다.")
     @PostMapping("/drafts")
     public ResponseEntity<CommonResponse<ApprovalResponseDTO>> createApprovalDrafts(@RequestBody ApprovalDraftCreateRequestDTO request,
@@ -200,6 +201,22 @@ public class ApprovalCommandController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CommonResponse.success(responseDTO, "결재가 등록되었습니다."));
+
+    }
+
+
+    @Operation(summary = "결재 임시저장 삭제", description = "임시저장된 결재 문서가 삭제합니다.")
+    @DeleteMapping("/drafts/{approvalId}")
+    public ResponseEntity<CommonResponse<ApprovalResponseDTO>> deleteApprovalDrafts(@PathVariable Long approvalId,
+                                                                                    @AuthenticationPrincipal CustomUserDetails user) {
+        long userId = user.getUserId();
+
+        ApprovalResponseDTO responseDTO = approvalCommandService.deleteApprovalDrafts(approvalId, userId);
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.success(responseDTO, "임시저장 문서가 삭제되었습니다."));
 
     }
 
