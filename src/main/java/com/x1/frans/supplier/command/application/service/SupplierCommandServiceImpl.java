@@ -37,9 +37,9 @@ public class SupplierCommandServiceImpl implements SupplierCommandService{
 //                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
         UserEntity manager = supplier.getUser();
-        if (!manager.getId().equals(userId)) {
-                throw new UnauthorizedAccessException("접근 권한이 없습니다.");
-            }
+//        if (!manager.getId().equals(userId)) {
+//                throw new UnauthorizedAccessException("접근 권한이 없습니다.");
+//            }
         // 유효성 검사 수행
         validateSupplierUpdateRequest(vo);
 
