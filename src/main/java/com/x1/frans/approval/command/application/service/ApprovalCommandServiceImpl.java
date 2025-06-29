@@ -480,6 +480,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
             // 결재 상태 반려 처리
             approval.setStatus(ApprovalStatus.REJECTED);
+            approval.setProcessedAt(LocalDateTime.now());
             approvalCommandRepository.save(approval);
 
         NotificationTarget target = new NotificationTarget(
