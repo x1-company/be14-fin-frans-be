@@ -180,4 +180,25 @@
         SELECT dept_code FROM department WHERE id = #{departmentId}
     </select>
 
+    <select id="selectStatsByDepartmentByFranchiseId" resultMap="FranchiseReturnProductQueryDTOMap">
+        SELECT
+            s.id,
+            f.name AS franchise_name,
+            s.year,
+            s.month,
+            s.return_quantity,
+            s.created_at,
+            s.updated_at,
+            s.is_deleted,
+            s.deleted_reason,
+            s.deleted_at,
+            s.product_id,
+            p.name AS product_name,
+            s.franchise_id
+        FROM franchise_return_product_stat s
+                 JOIN franchise f ON s.franchise_id = f.id
+                 JOIN product p ON s.product_id = p.id
+        WHERE f.department_id = #{deptId}
+          AND f.id = #{franchiseId}
+    </select>
 </mapper>
