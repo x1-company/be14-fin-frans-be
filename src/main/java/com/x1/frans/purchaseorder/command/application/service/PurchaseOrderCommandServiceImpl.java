@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -563,7 +564,26 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
     }
 
     private String generateOrderCode() {
-        Long maxId = purchaseOrderRepository.findTopByOrderByIdDesc().map(PurchaseOrderEntity::getId).orElse(0L);
-        return String.format("PO%04d", maxId + 1);
+        // 오늘 날짜 yyMMdd
+        String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        String prefix = "po-sup" + dateStr + "-";
+        // 마지막 코드 중 오늘 날짜와 일치하는 것만 필터
+        Optional<PurchaseOrderEntity> lastToday = purchaseOrderRepository.findTopByOrderByIdDesc()
+                .filter(e -> {
+                    String code = e.getCode();
+                    return code != null && code.startsWith(prefix);
+                });
+        int nextNum = 1;
+        if (lastToday.isPresent()) {
+            String lastCode = lastToday.get().getCode();
+            // 마지막 4자리 숫자 추출
+            String[] parts = lastCode.split("-");
+            if (parts.length == 3) {
+                try {
+                    nextNum = Integer.parseInt(parts[2]) + 1;
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return prefix + String.format("%04d", nextNum);
     }
 }

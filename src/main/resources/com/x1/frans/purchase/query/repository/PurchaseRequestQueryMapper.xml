@@ -197,4 +197,34 @@
         WHERE is_requested = false AND status = '임시저장'
     </select>
 
+    <select id="selectBySupplierId" resultMap="purchaseRequestSimpleResultMap">
+        SELECT DISTINCT pr.*,
+               u.name AS user_name
+        FROM purchase_request pr
+        JOIN user u ON pr.user_id = u.id
+        WHERE pr.status != '임시저장'
+          AND EXISTS (
+            SELECT 1 FROM purchase_request_product prp
+            JOIN product p ON prp.product_id = p.id
+            WHERE prp.purchase_request_id = pr.id
+              AND p.supplier_id = #{supplierId}
+        )
+        ORDER BY pr.created_at DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countBySupplierId" resultType="int">
+        SELECT COUNT(DISTINCT pr.id)
+        FROM purchase_request pr
+        WHERE pr.status != '임시저장'
+          AND EXISTS (
+            SELECT 1 FROM purchase_request_product prp
+            JOIN product p ON prp.product_id = p.id
+            WHERE prp.purchase_request_id = pr.id
+              AND p.supplier_id = #{supplierId}
+        )
+    </select>
+
 </mapper>

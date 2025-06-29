@@ -70,4 +70,13 @@ public class PurchaseRequestQueryController {
     public Page<PurchaseRequestSimpleDto> getAllRequests(Pageable pageable) {
         return purchaseRequestQueryServiceImpl.getAllRequests(pageable);
     }
+
+    @GetMapping("/by-supplier")
+    @Operation(summary = "공급처 자재가 포함된 구매요청 목록 조회", description = "특정 공급처의 자재가 1개 이상 포함된 구매요청만 조회한다.")
+    public Page<PurchaseRequestSimpleDto> getRequestsBySupplierId(
+            @RequestParam("supplierId") Long supplierId,
+            Pageable pageable
+    ) {
+        return purchaseRequestQueryServiceImpl.getRequestsBySupplierId(supplierId, pageable);
+    }
 }

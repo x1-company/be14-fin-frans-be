@@ -88,4 +88,13 @@ public class PurchaseRequestQueryServiceImpl implements PurchaseRequestQueryServ
         );
         return new PageImpl<>(list, pageable, total);
     }
+
+    @Override
+    public Page<PurchaseRequestSimpleDto> getRequestsBySupplierId(Long supplierId, Pageable pageable) {
+        int total = purchaseRequestQueryMapper.countBySupplierId(supplierId);
+        List<PurchaseRequestSimpleDto> list = purchaseRequestQueryMapper.selectBySupplierId(
+                supplierId, pageable.getPageSize(), (int) pageable.getOffset()
+        );
+        return new PageImpl<>(list, pageable, total);
+    }
 }
