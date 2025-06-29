@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReturnCommandRepository extends JpaRepository<ReturnEntity, Long> {
 
-    @Query("SELECT COUNT(r) FROM ReturnEntity r WHERE r.code LIKE :prefix%")
+    @Query("SELECT COUNT(r) FROM ReturnEntity r WHERE r.code LIKE CONCAT(:prefix, '%')")
     int countByReturnCodePrefix(@Param("prefix") String prefix);
 }
