@@ -135,25 +135,6 @@ public class NotificationService {
                         sendNotification(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    // 메서드 파라미터 구성방식 수정
-    // 변경 전: 낱개 인자로 직접 받았음. 변경 후: NotificationTarget 객체를 직접 인자로 받음
-//    @Transactional
-//    public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
-//        Notification notification = notificationRepository.save(
-//                createNotification(receiver, notificationType, target)
-//        );
-//
-//        String receiverIdStr = String.valueOf(receiver.getId());
-//        String eventId = generateEmitterId(receiverIdStr); // UUID 기반으로 변경
-//        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverIdStr);
-//        log.info("[알림 PUSH] userId={}, emitter 개수={}", receiverIdStr, emitters.size());
-//        emitters.forEach((key, emitter) -> {
-//            log.info("[알림 PUSH] emitterId={}", key);
-//            emitterRepository.saveEventCache(key, notification);
-//            sendNotification(emitter, eventId, key, NotificationDTO.Response.createResponse(notification));
-//        });
-//    }
-
     @Transactional
     public void send(UserEntity receiver, NotificationType notificationType, NotificationTarget target) {
         try {
@@ -232,10 +213,6 @@ public class NotificationService {
         }
     }
 
-    // 증긴에 예외 발생 시 DB 상태가 중간 단계로 남아 일관성 깨질 수 있음
-    // 동시성 문제로 인해 예상치 못한 데이터 꼬임 가능
-    // 롤백 불가로 인해 데이터 무결성 훼손될 수 있음
-    // => @Transactional 사용
     @Transactional
     public void markAllAsRead(UserEntity receiver) {
         List<Notification> unreadNotifications
@@ -288,24 +265,6 @@ public class NotificationService {
         emitterRepository.deleteAllEventCacheStartWithId(userIdStr);
         log.info("SSE 연결 및 캐시 삭제 완료 - userId={}", userIdStr);
     }
-
-//    @Scheduled(fixedRate = 30000) // 30초
-//    public void sendHeartbeat() {
-//        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(""); // ★
-//        log.info("[HEARTBEAT] 전체 emitter 개수: {}", emitters.size());
-//        emitters.forEach((emitterId, emitter) -> {
-//            try {
-//                emitter.send(SseEmitter.event()
-//                        .id("heartbeat-" + System.currentTimeMillis())
-//                        .name("heartbeat")
-//                        .data("ping"));
-//                log.info("[HEARTBEAT] 전송 성공: {}", emitterId);
-//            } catch (IOException e) {
-//                log.warn("[HEARTBEAT] 전송 실패(연결 끊김): {}", emitterId, e);
-//                emitterRepository.deleteById(emitterId);
-//            }
-//        });
-//    }
 
     @Scheduled(fixedRate = 30000)
     public void sendHeartbeat() {
