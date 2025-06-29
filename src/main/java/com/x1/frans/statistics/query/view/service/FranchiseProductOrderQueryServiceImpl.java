@@ -61,4 +61,14 @@ public class FranchiseProductOrderQueryServiceImpl implements FranchiseProductOr
 
         return franchiseProductOrderMapper.selectStatsByDepartment(deptId, year, month);
     }
+
+    @Override
+    public List<FranchiseProductOrderQueryDTO> getMonthlyStatsByDepartmentByFranchiseId(Long deptId, Long franchiseId) {
+        boolean hasFranchises = franchiseProductOrderMapper.existsFranchiseByDepartmentId(deptId);
+        if (!hasFranchises) {
+            return List.of();
+        }
+        return franchiseProductOrderMapper.selectStatsByDepartmentByFranchiseId(deptId, franchiseId);
+    }
+
 }

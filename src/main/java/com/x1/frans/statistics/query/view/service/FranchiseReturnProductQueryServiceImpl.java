@@ -77,4 +77,13 @@ public class FranchiseReturnProductQueryServiceImpl implements FranchiseReturnPr
         return franchiseReturnProductMapper.selectStatsByOwner(userId, year, month);
     }
 
+    @Override
+    public List<FranchiseReturnProductQueryDTO> getMonthlyStatsByDepartmentByFranchiseId(Long deptId, Long franchiseId) {
+        boolean hasFranchises = franchiseReturnProductMapper.existsFranchiseByDepartmentId(deptId);
+        if (!hasFranchises) {
+            return List.of();
+        }
+
+        return franchiseReturnProductMapper.selectStatsByDepartmentByFranchiseId(deptId, franchiseId);
+    }
 }

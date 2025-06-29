@@ -164,5 +164,25 @@
         </if>
     </select>
 
+    <!-- 부서별 특정 가맹점 월별 통계 -->
+    <select id="selectStatsByDepartmentByFranchiseId" resultMap="FranchiseOrderAmountQueryDTOMap">
+        SELECT
+            s.id,
+            f.id AS franchise_id,
+            f.name AS franchise_name,
+            s.year,
+            s.month,
+            s.order_amount,
+            s.created_at,
+            s.updated_at,
+            s.is_deleted,
+            s.deleted_reason,
+            s.deleted_at
+        FROM franchise_order_amount_stat s
+                 JOIN franchise f ON s.franchise_id = f.id
+        WHERE f.department_id = #{departmentId}
+          AND f.id = #{franchiseId}
+        ORDER BY s.year, s.month
+    </select>
 
 </mapper>

@@ -26,4 +26,6 @@ public interface ApprovalCommandService {
     void approvalLineTemplatesSeqModify(long userId, Long templateId, int seq);
 
     ApprovalResponseDTO createApprovalDrafts(ApprovalDraftCreateRequestDTO request, long userId);
+
+    ApprovalResponseDTO deleteApprovalDrafts(Long approvalId, long userId);
 }

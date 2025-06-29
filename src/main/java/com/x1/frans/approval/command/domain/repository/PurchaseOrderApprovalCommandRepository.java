@@ -14,4 +14,9 @@ public interface PurchaseOrderApprovalCommandRepository extends JpaRepository<Pu
     @Query("DELETE FROM PurchaseOrderApprovalEntity poa WHERE poa.approval.id = :approvalId")
     void deleteByApprovalId(@Param("approvalId") Long approvalId);
     void deleteByApprovalId(long approvalId);
+
+
+    boolean existsByApproval_IdAndApproval_Degree(Long approvalId, Integer degree);
+
+    void deleteByApproval_IdAndApproval_Degree(Long approvalId, Integer degree);
 }

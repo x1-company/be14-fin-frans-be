@@ -30,4 +30,8 @@ public interface FranchiseReturnProductMapper {
     boolean existsFranchiseByOwnerId(Long userId);
 
     List<FranchiseReturnProductQueryDTO> selectStatsByOwner(Long userId, Integer year, Integer month);
+
+    List<FranchiseReturnProductQueryDTO> selectStatsByDepartmentByFranchiseId(@Param("deptId") Long deptId,
+                                                                              @Param("franchiseId") Long franchiseId);
+
 }

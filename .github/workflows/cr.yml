@@ -56,6 +56,11 @@ jobs:
               validation-timeout: 5000
               keepalive-time: 30000
               register-mbeans: true
+      
+            servlet:
+              multipart:
+                max-file-size: 20MB
+                max-request-size: 20MB
 
             jpa:
               generate-ddl: false
