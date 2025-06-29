@@ -434,7 +434,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 switch (category) {
                     case "ORDER" -> approvalCategoryQueryMapper.updateOrderStatusByApprovalId(approvalId, "APPROVED");
                     case "RETURN" -> approvalCategoryQueryMapper.updateReturnStatusByApprovalId(approvalId, "APPROVED");
-                    case "PURCHASE_ORDER" -> approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId, "APPROVED");
+                    case "PURCHASE_ORDER" -> approvalCategoryQueryMapper.updatePurchaseOrderStatusByApprovalId(approvalId, "승인 완료");
                     default -> throw new IllegalStateException("알 수 없는 결재 카테고리입니다: " + category);
                 }
             }
