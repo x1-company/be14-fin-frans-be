@@ -72,12 +72,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 // TODO: 배포 시 변경 필요 (auth...AuthCommandController와 동일하게)
                 .httpOnly(true)
-//                .secure(true) // HTTPS
+                .secure(true) // HTTPS
                 .path("/")
                 .maxAge(expirationMillis / 1000)
-                .sameSite("Lax")
-//                .sameSite("None") // HTTPS
-//                .domain("frans.co.kr")
+//                .sameSite("Lax")
+                .sameSite("None") // HTTPS
+                .domain("frans.co.kr")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
