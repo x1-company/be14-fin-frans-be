@@ -47,7 +47,7 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
                                     ReturnDetailCommandRepository returnDetailRepository,
                                     ReturnFileCommandRepository returnFileRepository,
                                     DeliveryRepository deliveryRepository
-                                    ) {
+    ) {
         this.returnRepository = returnRepository;
         this.userRepository = userCommandRepository;
         this.productRepository = productRepository;
@@ -252,26 +252,21 @@ public class ReturnCommandServiceImpl implements ReturnCommandService {
         FranchiseEntity franchise = franchiseRepository.findById(franchiseId)
                 .orElseThrow(() -> new FranchiseNotFoundException("가맹점 정보를 찾을 수 없습니다."));
 
-        // 현재 날짜 (YYYYMMDD 형식)
-        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        // 가맹점 코드 앞 3글자 (예: JRO)
+        String franchiseCode = franchise.getCode().substring(0, 3).toUpperCase();
 
-        String code = franchise.getCode();
+        // 오늘 날짜 (yyMMdd 형식)
+        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
 
-        String firstThree = code.substring(0, 3);
-        String lastFour = code.substring(code.length() - 4);
+        // 오늘 해당 가맹점의 반품 수 조회
+        String codePrefix = "RTN-" + franchiseCode + currentDate + "-";
+        int todayReturnCount = returnRepository.countByReturnCodePrefix(codePrefix);
 
-        String franchisePrefix = firstThree + lastFour;
+        // 일련번호 (0001부터 시작)
+        String sequenceNumber = String.format("%04d", todayReturnCount + 1);
 
-        int franchiseReturnCount = returnRepository.countByReturnCodePrefix(franchisePrefix);
-
-        // 일련번호 생성 (0001부터 시작)
-        String sequenceNumber = String.format("%04d", franchiseReturnCount + 1);
-
-        // 최종 반품 코드 생성: [가맹점코드][날짜][일련번호]
-        // 예) FR001202412150001
-        String returnCode = franchisePrefix + currentDate + sequenceNumber;
-
-        return returnCode;
+        // 최종 반품 코드
+        return codePrefix + sequenceNumber;
     }
 
     private List<ReturnDetailEntity> createReturnDetails(List<ReturnDetailRequestVO> details, ReturnEntity returnEntity) {
