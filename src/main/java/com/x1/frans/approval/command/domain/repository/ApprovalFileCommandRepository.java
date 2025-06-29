@@ -12,4 +12,9 @@ public interface ApprovalFileCommandRepository extends JpaRepository<ApprovalFil
     @Transactional
     @Query("DELETE FROM ApprovalFileEntity af WHERE af.approval.id = :approvalId")
     void deleteByApprovalId(@Param("approvalId") Long approvalId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ApprovalFileEntity af WHERE af.approval.id = :approvalId AND af.approval.degree = :degree")
+    void deleteByApprovalIdAndDegree(@Param("approvalId") Long approvalId, @Param("degree") Integer degree);
 }

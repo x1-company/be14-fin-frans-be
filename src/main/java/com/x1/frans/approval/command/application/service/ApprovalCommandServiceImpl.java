@@ -867,6 +867,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
                 purchaseOrderApprovalCommandRepository.deleteByApproval_IdAndApproval_Degree(approvalId, degree);
             }
 
+        approvalFileCommandRepository.deleteByApprovalIdAndDegree(approvalId, degree);
         approvalLineCommandRepository.deleteByApprovalIdAndDegree(approvalId, draft.getDegree());
         approvalCommandRepository.delete(draft);
 
