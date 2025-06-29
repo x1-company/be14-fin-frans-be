@@ -78,6 +78,20 @@ public class FranchiseOrderAmountQueryController {
     }
 
     @Operation(
+            summary = "부서별 가맹점의 월별 주문 금액 통계 조회",
+            description = "자신이 속한 부서가 담당하는 특정 가맹점의 월별 주문 금액 통계를 조회한다.")
+    @GetMapping("/department/{franchiseId}")
+    public ResponseEntity<List<FranchiseOrderAmountQueryDTO>> getDepartmentStatsByFranchiseId(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long franchiseId
+    ) {
+        Long deptId = customUserDetails.getDepartmentId();
+        List<FranchiseOrderAmountQueryDTO> stats =
+                franchiseOrderAmountQueryService.getMonthlyStatsByDepartmentByFranchiseId(deptId, franchiseId);
+        return ResponseEntity.ok(stats);
+    }
+
+    @Operation(
             summary = "전체 가맹점 월 주문 금액 통계 조회",
             description = "부서와 직책에 따라 전체 가맹점 통계를 조회한다.")
     @GetMapping("/all")

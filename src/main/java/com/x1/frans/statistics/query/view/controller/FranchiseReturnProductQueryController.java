@@ -95,4 +95,19 @@ public class FranchiseReturnProductQueryController {
 
         return ResponseEntity.ok(stats);
     }
+
+    @Operation(
+            summary = "부서 담당 특정 가맹점 월 자재별 반품량 통계 조회",
+            description = "자신이 속한 부서가 담당하는 특정 가맹점의 월 자재별 반품량을 조회한다."
+    )
+    @GetMapping("/department/{franchiseId}")
+    public ResponseEntity<List<FranchiseReturnProductQueryDTO>> getDepartmentStatsByFranchiseId(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long franchiseId
+    ) {
+        Long deptId = customUserDetails.getDepartmentId();
+        List<FranchiseReturnProductQueryDTO> stats =
+                franchiseReturnProductQueryService.getMonthlyStatsByDepartmentByFranchiseId(deptId, franchiseId);
+        return ResponseEntity.ok(stats);
+    }
 }

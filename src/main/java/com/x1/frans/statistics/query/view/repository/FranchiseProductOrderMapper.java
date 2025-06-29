@@ -33,4 +33,8 @@ public interface FranchiseProductOrderMapper {
                                                                 @Param("year") Integer year,
                                                                 @Param("month") Integer month);
 
+
+    List<FranchiseProductOrderQueryDTO> selectStatsByDepartmentByFranchiseId(@Param("departmentId") Long departmentId,
+                                                                             @Param("franchiseId") Long franchiseId);
+
 }
