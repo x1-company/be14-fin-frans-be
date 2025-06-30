@@ -1,4 +1,4 @@
-# Frans: 대형 프랜차이즈를 위한 주문 관리 시스템
+<img width="660" alt="image" src="https://github.com/user-attachments/assets/ad265eb0-cc54-4e69-8299-e98480cf9e92" /># Frans: 대형 프랜차이즈를 위한 주문 관리 시스템
 
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/8613af56-85f8-43a3-a1db-852d31b649da" />
 <br><br><br>
@@ -135,6 +135,81 @@
   <summary>배송 시작</summary>
   
 <img width="900" alt="image" src="https://github.com/user-attachments/assets/d5266c23-6a72-4c2a-8b48-b1f99d1b6d5c" />
+
+  </details>
+  
+<br>
+
+# 주요 기능
+
+<details>
+  <summary>주문/반품 관리</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/da452bed-f6e1-4303-bc32-b2fa76a12311" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>가맹점 통계 대시보드</summary>
+  
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/839dfa59-4b90-4e58-b5c5-4455ac06a661" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>구매 요청</summary>
+  
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/6cceccc3-e27e-40c8-8541-056a000ccec3" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>발주</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/b1235528-2402-4d5b-bae2-6206d65d87e7" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>결재</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/9d4cbc7d-e59a-436f-b4e6-aea0df111dda" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>주문</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/d8f6b689-c143-463e-bf28-2f977752b1d0" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>반품</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/90db9a64-c227-4180-bee6-ca4d594a45e1" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>납품</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/1a1f3132-21d7-4d66-b10b-36597223480a" />
+
+  </details>
+  
+<br>
+<details>
+  <summary>실시간 알림</summary>
+
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/b16db9b9-0084-46cf-ac7d-fc6317fe789d" />
 
   </details>
   
