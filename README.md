@@ -53,7 +53,7 @@
 
 
 ### 🔍 논리 모델링
-[![논리 모델링](https://img.shields.io/badge/논리_모델링-바로가기-teal?style=for-the-badge)](https://your-link.com/logical-model)
+[![논리 모델링](https://img.shields.io/badge/논리_모델링-바로가기-teal?style=for-the-badge)](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%94%8D-%EB%85%BC%EB%A6%AC-%EB%AA%A8%EB%8D%B8%EB%A7%81)
 
 
 
