@@ -10,11 +10,11 @@
 | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/emily9949) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/mmmv41) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/oni128) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/cxzaqq) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/JK-LEE98) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/zi-won) |
 
 
-## [💻 프로젝트 소개]([https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%92%BB-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%86%8C%EA%B0%9C])
-## [🎥 주요 프로세스]([https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8E%A5-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4])
-## [🐥 주요 기능]([https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%90%A5-%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5])
-## [🛠️ 기술 스택]([https://github.com/rbgus2002/be-was/wiki/test])
-## [🏛️ 시스템 아키텍처]([https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8F%9B%EF%B8%8F-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98])
+## [💻 프로젝트 소개](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%92%BB-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%86%8C%EA%B0%9C)
+## [🎥 주요 프로세스](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8E%A5-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4)
+## [🐥 주요 기능](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%90%A5-%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5)
+## [🛠️ 기술 스택](https://github.com/rbgus2002/be-was/wiki/test)
+## [🏛️ 시스템 아키텍처](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8F%9B%EF%B8%8F-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98)
 
 
 ## [📃 문서]([])
