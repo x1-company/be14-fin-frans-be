@@ -1,12 +1,10 @@
-# FRANS
-<img width="450" alt="image" src="https://github.com/user-attachments/assets/8613af56-85f8-43a3-a1db-852d31b649da" />
-<br><br>
+# FRANS : 대형 프랜차이즈를 위한 주문 관리 시스템
+<img alt="image" src="https://github.com/user-attachments/assets/e96c6d9a-fef9-4147-b4c9-64cd1ba82e74"/>
 
----
 
-# 🚀 Team X1 🚀
+## 팀원 
 
-| <img src="https://github.com/user-attachments/assets/c96cd9e0-dee6-4026-9086-7b2ffee3e56f" width="110"> | <img src="https://github.com/user-attachments/assets/c3df4899-1878-4180-a133-689254256ec8" width="110"> | <img src="https://github.com/user-attachments/assets/2e220b76-b0b4-4939-a277-dd1dfbf92db1" width="110"> | <img src="https://github.com/user-attachments/assets/8c603a5c-9c99-4d21-a353-e194298b1318" width="110"> | <img src="https://github.com/user-attachments/assets/47e0f3a1-b5e0-48c7-b63f-590db29cc4df" width="110"> | <img src="https://github.com/user-attachments/assets/8d5fd81a-89cb-42a1-a432-45a5ab59516c" width="110"> |
+| <img src="https://github.com/user-attachments/assets/55fd8236-71dc-4ca0-9a89-b8eb6fa72b43" width="110"> | <img src="https://github.com/user-attachments/assets/a26c95a2-32ed-4488-b681-4599670dc2c4" width="110"> | <img src="https://github.com/user-attachments/assets/af497517-f615-41b3-9eb0-ac8ee5760895" width="110"> | <img src="https://github.com/user-attachments/assets/66e016e3-691b-4bff-b677-c025986e0cdf" width="110"> | <img src="https://github.com/user-attachments/assets/e5426474-2fa2-49cf-a8d4-cada3143983a" width="110"> | <img src="https://github.com/user-attachments/assets/0d9bee47-ae0e-4381-8b8e-799c2cf17ad1" width="110"> |
 | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: |
 | 황수민 | 신민경 | 이예원 | 조윤태 | 이준규 | 박지원 |
 | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/emily9949) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/mmmv41) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/oni128) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/cxzaqq) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/JK-LEE98) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/zi-won) |
