@@ -43,7 +43,7 @@ ERP 시스템을 실제로 사용하는 가맹점주와 본사 직원을 직접 
 본사의 발주 요청에 따라 창고로 상품을 납품.
 
 ## 결과물
-[🔗 자세히 보기] 
+[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/5.-%ED%99%94%EB%A9%B4-%EC%8B%9C%EC%97%B0) 
 
 ## 기술 스택
 <div align="left">
