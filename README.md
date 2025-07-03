@@ -2,7 +2,6 @@
 <img alt="image" src="https://github.com/user-attachments/assets/c2282e10-7ef0-4d7b-9a55-235e96047356"/>
 
 
-
 ## 팀원 
 
 | <img src="https://github.com/user-attachments/assets/55fd8236-71dc-4ca0-9a89-b8eb6fa72b43" width="110"> | <img src="https://github.com/user-attachments/assets/a26c95a2-32ed-4488-b681-4599670dc2c4" width="110"> | <img src="https://github.com/user-attachments/assets/af497517-f615-41b3-9eb0-ac8ee5760895" width="110"> | <img src="https://github.com/user-attachments/assets/66e016e3-691b-4bff-b677-c025986e0cdf" width="110"> | <img src="https://github.com/user-attachments/assets/e5426474-2fa2-49cf-a8d4-cada3143983a" width="110"> | <img src="https://github.com/user-attachments/assets/0d9bee47-ae0e-4381-8b8e-799c2cf17ad1" width="110"> |
@@ -44,6 +43,12 @@ ERP 시스템을 실제로 사용하는 가맹점주와 본사 직원을 직접 
 
 ## 결과물
 [🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/5.-%ED%99%94%EB%A9%B4-%EC%8B%9C%EC%97%B0) 
+<br><br>
+<img width="1433" alt="image" src="https://github.com/user-attachments/assets/31930f33-9219-437f-b956-0d04e0db81a0" />
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/9d2d1977-57f0-4a45-a287-a0c1d8941b9f" />
+<img width="1438" alt="image" src="https://github.com/user-attachments/assets/f610e3a2-a4ee-4bdd-8f6b-315b7717dd9e" />
+<img width="1439" alt="image" src="https://github.com/user-attachments/assets/092ecb12-4156-4a86-89da-a839011ac9ce" />
+
 
 ## 기술 스택
 <div align="left">
