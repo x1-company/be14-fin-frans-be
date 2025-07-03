@@ -17,12 +17,20 @@
 <br><br>
 <img src = "https://github.com/user-attachments/assets/e9f34344-8a0e-46ee-81a4-71c30ba5d3a0"/>
 
+### 1. 사용자 불편 사항 조사
+ERP 시스템을 실제로 사용하는 가맹점주와 본사 직원을 직접 인터뷰하고, 약 50명을 대상으로 설문조사를 진행한 결과, 기존 주문·재고 관리 시스템에서는 원하는 기능을 찾기 어렵고 메뉴가 복잡하여 사용성이 떨어진다는 의견이 많았습니다. 또한, 로딩 속도가 느리고 실시간으로 정보를 확인하기 어려운 점도 불편함으로 지적되었습니다.
+
+### 2. 주요 Pain Point 및 시장 성장성
+프랜차이즈 업계는 지속적으로 성장하고 있으며, 가맹점 수와 매출도 꾸준히 증가하고 있습니다. 이에 따라 현장에서는 더욱 효율적이고 체계적인 관리 시스템에 대한 요구가 높아지고 있습니다. 기존 시스템의 한계가 분명해지면서 실시간 정보 제공과 효율적인 업무 지원의 필요성이 강조되고 있습니다.
+
+### 3. FRANS의 목표
+이러한 배경에서 FRANS 프로젝트는 누구나 쉽게 사용할 수 있는 직관적인 UI/UX, 반복 업무를 줄여주는 자동화 및 임시저장 기능, 실시간 알림과 데이터 통합 관리 시스템을 제공하는 것을 목표로 기획되었습니다. 
 
 
 ---
 
 ## 프로세스 구조
-[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8E%A5-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4)
+[🔗 자세히 보기]([https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8E%A5-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4](https://github.com/x1-company/be14-fin-frans-be/wiki/3.-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4))
 <br><br>
 <img src = "https://github.com/user-attachments/assets/4dc2f837-29f4-49a0-b068-e54ac6ed9354"/>
 
