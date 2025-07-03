@@ -30,7 +30,7 @@ ERP 시스템을 실제로 사용하는 가맹점주와 본사 직원을 직접 
 ---
 
 ## 프로세스 구조
-[🔗 자세히 보기]([https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8E%A5-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4](https://github.com/x1-company/be14-fin-frans-be/wiki/3.-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4))
+[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/3.-%EC%A3%BC%EC%9A%94-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4)
 <br><br>
 <img src = "https://github.com/user-attachments/assets/4dc2f837-29f4-49a0-b068-e54ac6ed9354"/>
 
