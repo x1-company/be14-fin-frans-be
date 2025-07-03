@@ -60,6 +60,9 @@
 ### 화면 설계서
 [![화면설계서](https://img.shields.io/badge/화면설계서-바로가기-blueviolet?style=for-the-badge)]()
 
+### 🎬 화면 시연
+[![화면시연](https://img.shields.io/badge/화면시연-바로가기-lightgrey?style=for-the-badge)](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%8E%AC-%ED%99%94%EB%A9%B4-%EC%8B%9C%EC%97%B0
+)
 
 
 ### 테스트케이스
