@@ -13,7 +13,7 @@
 ---
 
 ## 프로젝트 기획 배경
-[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/%F0%9F%92%BB-%ED%94%84%EB%9E%9C%EC%8B%9C%EC%A6%8C-%EC%86%8C%EA%B0%9C)
+[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/2.-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B8%B0%ED%9A%8D)
 <br><br>
 <img src = "https://github.com/user-attachments/assets/e9f34344-8a0e-46ee-81a4-71c30ba5d3a0"/>
 
