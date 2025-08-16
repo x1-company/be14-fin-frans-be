@@ -1,13 +1,13 @@
-# FRANS : 대형 프랜차이즈를 위한 주문 관리 시스템
+# 🌐 FRANS
+### : 대형 프랜차이즈를 위한 주문 관리 시스템
 <img alt="image" src="https://github.com/user-attachments/assets/c2282e10-7ef0-4d7b-9a55-235e96047356"/>
 
+## 팀 Wiki 
+[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki)
+<img width="1259" height="614" alt="image" src="https://github.com/user-attachments/assets/07abd2e3-7748-4093-8593-351437cacbf5" />
 
-## 팀원 
-[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/1.-%ED%8C%80-%EC%86%8C%EA%B0%9C)
-| <img src="https://github.com/user-attachments/assets/55fd8236-71dc-4ca0-9a89-b8eb6fa72b43" width="110"> | <img src="https://github.com/user-attachments/assets/a26c95a2-32ed-4488-b681-4599670dc2c4" width="110"> | <img src="https://github.com/user-attachments/assets/af497517-f615-41b3-9eb0-ac8ee5760895" width="110"> | <img src="https://github.com/user-attachments/assets/66e016e3-691b-4bff-b677-c025986e0cdf" width="110"> | <img src="https://github.com/user-attachments/assets/e5426474-2fa2-49cf-a8d4-cada3143983a" width="110"> | <img src="https://github.com/user-attachments/assets/0d9bee47-ae0e-4381-8b8e-799c2cf17ad1" width="110"> |
-| :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: |
-| 황수민 | 신민경 | 이예원 | 조윤태 | 이준규 | 박지원 |
-| [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/emily9949) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/mmmv41) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/oni128) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/cxzaqq) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/JK-LEE98) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/zi-won) |
+<br>
+
 
 ---
 
@@ -41,12 +41,24 @@ ERP 시스템을 실제로 사용하는 가맹점주와 본사 직원을 직접 
 ### 공급처
 본사의 발주 요청에 따라 창고로 상품을 납품.
 
+---
+
 ## 결과물
 [🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/5.-%ED%99%94%EB%A9%B4-%EC%8B%9C%EC%97%B0) 
 <br><br>
 <img width="1433" alt="image" src="https://github.com/user-attachments/assets/31930f33-9219-437f-b956-0d04e0db81a0" />
 <img width="1440" alt="image" src="https://github.com/user-attachments/assets/9d2d1977-57f0-4a45-a287-a0c1d8941b9f" />
 
+---
+
+## 팀원 
+[🔗 자세히 보기](https://github.com/x1-company/be14-fin-frans-be/wiki/1.-%ED%8C%80-%EC%86%8C%EA%B0%9C)
+| <img src="https://github.com/user-attachments/assets/55fd8236-71dc-4ca0-9a89-b8eb6fa72b43" width="110"> | <img src="https://github.com/user-attachments/assets/a26c95a2-32ed-4488-b681-4599670dc2c4" width="110"> | <img src="https://github.com/user-attachments/assets/af497517-f615-41b3-9eb0-ac8ee5760895" width="110"> | <img src="https://github.com/user-attachments/assets/66e016e3-691b-4bff-b677-c025986e0cdf" width="110"> | <img src="https://github.com/user-attachments/assets/e5426474-2fa2-49cf-a8d4-cada3143983a" width="110"> | <img src="https://github.com/user-attachments/assets/0d9bee47-ae0e-4381-8b8e-799c2cf17ad1" width="110"> |
+| :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: |
+| 황수민 | 신민경 | 이예원 | 조윤태 | 이준규 | 박지원 |
+| [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/emily9949) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/mmmv41) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/oni128) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/cxzaqq) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/JK-LEE98) | [<img src="https://img.shields.io/badge/Github-Link-181717?logo=Github">](https://github.com/zi-won) |
+
+---
 
 ## 기술 스택
 <div align="left">
@@ -94,6 +106,8 @@ ERP 시스템을 실제로 사용하는 가맹점주와 본사 직원을 직접 
 </div>
 
 </div>
+
+---
 
 ## 시스템 아키텍쳐
 <img width="8085" alt="frans아키텍쳐" src="https://github.com/user-attachments/assets/ffd4d4ce-8a14-4ac8-b182-395b0e1cff02" />
