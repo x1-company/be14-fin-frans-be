@@ -83,4 +83,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(errorCode.getCode(), message);
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        // 액추에이터 전체는 JWT 필터 제외 (Prometheus/PMM 수집용)
+        return uri != null && uri.startsWith("/actuator/");
+    }
+
 }

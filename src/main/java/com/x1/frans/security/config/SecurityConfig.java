@@ -119,6 +119,9 @@ public class SecurityConfig {
 
                 // TODO: 개발용 설정. 배포 시 변경 필요
                 authorize
+                        // 액추에이터(헬스/프로메테우스) 허용
+                        .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
+
                         // 배포용 health 체크
                         .requestMatchers("/health").permitAll()
 
