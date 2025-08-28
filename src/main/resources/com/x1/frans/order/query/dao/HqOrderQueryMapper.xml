@@ -19,22 +19,22 @@
     <select id="searchOrders" resultMap="OrderSummaryMap"
             parameterType="com.x1.frans.order.query.dto.OrderSearchConditionDto">
         SELECT
-        o.id AS order_id
-        , o.code AS order_code
-        , CASE
-        WHEN COUNT(DISTINCT po.product_id) > 1
-        THEN CONCAT(MIN(p.name), ' 외 ', COUNT(DISTINCT po.product_id) - 1, '건')
-        ELSE MIN(p.name)
-        END AS product_summary
-        , o.status
-        , o.created_at
-        , o.total_amount
-        , f.name AS franchise_name
-        FROM orders o
-        JOIN franchise f ON o.franchise_id = f.id
-        LEFT JOIN hq_user_detail h ON f.department_id = h.department_id
-        JOIN product_order po ON o.id = po.order_id
-        JOIN product p ON po.product_id = p.id
+               o.id AS order_id
+             , o.code AS order_code
+             , CASE
+               WHEN COUNT(DISTINCT po.product_id) > 1
+               THEN CONCAT(MIN(p.name), ' 외 ', COUNT(DISTINCT po.product_id) - 1, '건')
+               ELSE MIN(p.name)
+               END AS product_summary
+             , o.status
+             , o.created_at
+             , o.total_amount
+             , f.name AS franchise_name
+          FROM orders o
+          JOIN franchise f ON o.franchise_id = f.id
+          LEFT JOIN hq_user_detail h ON f.department_id = h.department_id
+          JOIN product_order po ON o.id = po.order_id
+          JOIN product p ON po.product_id = p.id
         <where>
             <!-- 접수 대기, 접수 취소 상태는 제외 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
@@ -68,9 +68,9 @@
                 AND o.created_at BETWEEN #{startDate} AND #{endDate}
             </if>
         </where>
-        GROUP BY o.id, o.code, o.status, o.created_at, o.total_amount, f.name
-        ORDER BY o.created_at DESC
-        LIMIT #{size} OFFSET #{offset}
+         GROUP BY o.id, o.code, o.status, o.created_at, o.total_amount, f.name
+         ORDER BY o.created_at DESC
+         LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 주문 개수 조회 (페이징 계산용) -->
