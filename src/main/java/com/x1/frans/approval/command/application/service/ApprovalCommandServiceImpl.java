@@ -24,10 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.x1.frans.approval.common.ApprovalCategoryType.*;
@@ -803,8 +800,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
 
     @Transactional
     @Override
-    public void approvalLineTemplatesSeqModify(long userId, Long templateId, int seq) {
-
+    public void approvalLineTemplatesSeqModify(long userId, Long templateId, int targetIndex) {
         // 현재 템플릿
         ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
                 .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
@@ -813,33 +809,27 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         List<ApprovalLineTemplateEntity> templates =
                 approvalLineTemplateCommandRepository.findByUserIdOrderBySeqDesc(userId);
 
-        BigDecimal prevSeq = null;
-        BigDecimal nextSeq = null;
+        // 변경될 템플릿은 리스트에서 제거
+        templates.removeIf(t -> Objects.equals(t.getId(), templateId));
 
-        if (seq - 1 >= 0) {
-            prevSeq = templates.get(seq - 1).getSeq();
-        }
-        if (seq < templates.size()) {
-            nextSeq = templates.get(seq).getSeq();
-        }
-
+        final BigDecimal STEP = new BigDecimal("1.0000");
         BigDecimal newSeq;
 
-        if (prevSeq == null && nextSeq == null) {
+        if (templates.isEmpty()) {
             // 아무 것도 없을 때
-            newSeq = new BigDecimal("1.0000");
-        } else if (prevSeq == null) {
-            // 맨 위로 넣기 (next만 존재)
-            newSeq = nextSeq.add(new BigDecimal("1.0000"));
-        } else if (nextSeq == null) {
-            // 맨 아래로 넣기 (prev만 존재)
-            newSeq = prevSeq.subtract(new BigDecimal("1.0000"));
+            newSeq = STEP;
+        } else if (targetIndex <= 0) {
+            // 처음 삽입
+            newSeq = templates.get(0).getSeq().add(STEP);
+        } else if (targetIndex >= templates.size()) {
+            // 마지막 삽입
+            newSeq = templates.get(templates.size() - 1).getSeq().subtract(STEP);
         } else {
             // 중간 삽입
-            newSeq = prevSeq.add(nextSeq)
-                    .divide(new BigDecimal("2.0000"), 4, RoundingMode.HALF_UP);
+            BigDecimal prevSeq = templates.get(targetIndex - 1).getSeq();
+            BigDecimal nextSeq = templates.get(targetIndex).getSeq();
+            newSeq = prevSeq.add(nextSeq).divide(new BigDecimal("2.0000"), 4, RoundingMode.HALF_UP);
         }
-
         template.setSeq(newSeq);
     }
 
