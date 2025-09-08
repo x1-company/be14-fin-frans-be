@@ -805,7 +805,7 @@ public class ApprovalCommandServiceImpl implements ApprovalCommandService {
         ApprovalLineTemplateEntity template = approvalLineTemplateCommandRepository.findById(templateId)
                 .orElseThrow(() -> new ApprovalLineTemplateNotFoundException("템플릿을 찾을 수 없습니다."));
 
-        // 👇 전체 템플릿 리스트 (내림차순 정렬: seq 큰 게 앞에)
+        // 전체 템플릿 리스트 (내림차순 정렬: seq 큰 게 앞에)
         List<ApprovalLineTemplateEntity> templates =
                 approvalLineTemplateCommandRepository.findByUserIdOrderBySeqDesc(userId);
 
