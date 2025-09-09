@@ -22,19 +22,28 @@
                o.id AS order_id
              , o.code AS order_code
              , CASE
-               WHEN COUNT(DISTINCT po.product_id) > 1
-               THEN CONCAT(MIN(p.name), ' 외 ', COUNT(DISTINCT po.product_id) - 1, '건')
-               ELSE MIN(p.name)
+                   WHEN prod.product_cnt > 1
+                        THEN CONCAT(prod.min_name, ' 외 ', prod.product_cnt - 1, '건')
+                   ELSE prod.min_name
                END AS product_summary
              , o.status
              , o.created_at
              , o.total_amount
              , f.name AS franchise_name
-          FROM orders o
-          JOIN franchise f ON o.franchise_id = f.id
-          LEFT JOIN hq_user_detail h ON f.department_id = h.department_id
-          JOIN product_order po ON o.id = po.order_id
-          JOIN product p ON po.product_id = p.id
+        FROM orders o
+        JOIN franchise f ON o.franchise_id = f.id
+        LEFT JOIN hq_user_detail h ON f.department_id = h.department_id
+
+        <!-- 주문별 상품 집계 전용 서브쿼리 -->
+        JOIN (
+            SELECT
+                   po.order_id                               AS order_id
+                 , COUNT(DISTINCT po.product_id)             AS product_cnt
+                 , MIN(p.name)                               AS min_name
+              FROM product_order po
+              JOIN product p ON p.id = po.product_id
+             GROUP BY po.order_id
+        ) prod ON prod.order_id = o.id
         <where>
             <!-- 접수 대기, 접수 취소 상태는 제외 -->
             o.status NOT IN ('WAITING_FOR_RECEIPT', 'RECEIPT_CANCELED')
@@ -58,22 +67,28 @@
                 AND o.code LIKE CONCAT('%', #{code}, '%')
             </if>
 
-            <!-- EXISTS 제거: 이미 JOIN된 product 테이블 조건 활용 -->
+            <!-- 상품명 검색: 존재 여부만 검사(집계 왜곡 방지) -->
             <if test="product != null and product != ''">
-                AND p.name LIKE CONCAT('%', #{product}, '%')
+                AND EXISTS (
+                    SELECT 1
+                      FROM product_order po2
+                      JOIN product p2 ON p2.id = po2.product_id
+                     WHERE po2.order_id = o.id
+                       AND p2.name LIKE CONCAT('%', #{product}, '%')
+                )
             </if>
 
             <!-- DATE(o.created_at) 제거 → 인덱스 활용 가능 -->
             <if test="startDate != null and endDate != null">
                 <![CDATA[
-                    AND o.created_at >= #{startDate}
-                    AND o.created_at < DATE_ADD(#{endDate}, INTERVAL 1 DAY)
-                ]]>
+                AND o.created_at >= #{startDate}
+                AND o.created_at < DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+            ]]>
             </if>
         </where>
-         GROUP BY o.id, o.code, o.status, o.created_at, o.total_amount, f.name
-         ORDER BY o.created_at DESC
-         LIMIT #{size} OFFSET #{offset}
+        GROUP BY o.id, o.code, o.status, o.created_at, o.total_amount, f.name
+        ORDER BY o.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 주문 개수 조회 (페이징 계산용) -->
