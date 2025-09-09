@@ -65,7 +65,10 @@
 
             <!-- DATE(o.created_at) 제거 → 인덱스 활용 가능 -->
             <if test="startDate != null and endDate != null">
-                AND o.created_at BETWEEN #{startDate} AND #{endDate}
+                <![CDATA[
+                    AND o.created_at >= #{startDate}
+                    AND o.created_at < DATE_ADD(#{endDate}, INTERVAL 1 DAY)
+                ]]>
             </if>
         </where>
          GROUP BY o.id, o.code, o.status, o.created_at, o.total_amount, f.name
